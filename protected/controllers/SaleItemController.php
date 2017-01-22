@@ -341,8 +341,8 @@ class SaleItemController extends Controller
             if (count($data['items']) == 0) {
                 $data['error_message'] = 'Sale Transaction Failed';
             }
-
-            $this->render('_receipt', $data);
+            $this->render('partial/_receipt', $data);
+            //$this->render('_receipt', $data);
             Yii::app()->shoppingCart->clearAll();
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');

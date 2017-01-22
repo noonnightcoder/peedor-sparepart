@@ -74,10 +74,11 @@ class Report extends CFormModel
 
         if ($this->search_id !== '') {
 
-            $sql = "SELECT sale_id,sale_time,client_name,employee_name,employee_id,client_id,quantity,sub_total,
-                      discount_amount,vat_amount,total,paid,balance,status,status_f
+            $sql = "SELECT sale_id,sale_time,client_name,employee_name,employee_id,client_id,sum(quantity) quantity,sum(sub_total*rate) sub_total,
+                      discount_amount,vat_amount,sum(total*rate) total,sum(paid*rate) paid,sum(balance*rate) balance,status,status_f
                     FROM v_sale_invoice
                     WHERE sale_id=:search_id OR (c_first_name like :first_name OR c_last_name like :last_name OR client_name like :full_name )
+                    group by sale_id,sale_time,client_name,employee_name,employee_id,client_id,quantity,discount_amount,vat_amount,status,status_f
                     ORDER By sale_time desc";
 
             $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':search_id' => $this->search_id, ':first_name' => '%' . $this->search_id . '%', ':last_name' => '%' . $this->search_id . '%', ':full_name' => '%' . $this->search_id . '%'));
@@ -85,8 +86,8 @@ class Report extends CFormModel
         } else {
 
             $sql= "SELECT sale_id,sale_time,client_name,employee_name,employee_id,client_id,
-                    sum(quantity) quantity,sum(sub_total) sub_total,
-                    sum(discount_amount) discount_amount,sum(vat_amount) vat_amount,sum(total) total,sum(paid) paid,sum(balance) balance,status,status_f
+                    sum(quantity) quantity,sum(sub_total*rate) sub_total,
+                    sum(discount_amount) discount_amount,sum(vat_amount) vat_amount,sum(total*rate) total,sum(paid*rate) paid,sum(balance*rate) balance,status,status_f
                    FROM v_sale_invoice
                    WHERE sale_time>=str_to_date(:from_date,'%d-%m-%Y')
                    AND sale_time<=date_add(str_to_date(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY)
@@ -111,9 +112,15 @@ class Report extends CFormModel
 
     public function saleInvoiceDetail()
     {
-        $sql= "SELECT sale_id,item_id,name,quantity,price,description,sub_total
-               FROM v_sale_item
-               WHERE sale_id=:sale_id";
+        $sql= "SELECT sale_id,sale_time,client_name,
+                CASE
+                    WHEN client_name IS NULL THEN 'RETAIL'
+                    ELSE 'WHOLESALE' 
+                END sale_type,employee_name,quantity,
+                CONCAT(currency_symbol,total) total,CONCAT('៛',total*rate) total_in_riel,paid,balance,status_f
+                FROM v_sale_invoice t1
+                INNER JOIN currency_type t2 ON t1.currency_code=t2.code
+                WHERE sale_id=:sale_id";
 
         $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':sale_id' => $this->sale_id));
 
@@ -238,6 +245,7 @@ class Report extends CFormModel
 
     public function saleHourly()
     {
+        //echo $this->to_date;
         $sql = "SELECT DATE_FORMAT(s.`sale_time`,'%H') hours,sum(quantity) qty,
                   sum(case 
                     when si.discount_type='%' then (quantity*price-(quantity*price*si.discount_amount)/100) 
@@ -530,7 +538,7 @@ class Report extends CFormModel
                $condition 
                ORDER BY name";
         
-        $sql ="SELECT id,name,quantity,cost_price,unit_price,reorder_level,GROUP_CONCAT(DISTINCT t2.company_name) supplier
+        /*$sql ="SELECT id,name,quantity,cost_price,unit_price,reorder_level,GROUP_CONCAT(DISTINCT t2.company_name) supplier
             FROM item t1 LEFT JOIN (
                     SELECT `supplier_id`,`item_id`,s.`company_name`,s.`first_name`,s.`last_name`
                     FROM (
@@ -540,7 +548,14 @@ class Report extends CFormModel
                     ) t2 ON t2.item_id=t1.id
             $condition  
             AND status=:status
-            GROUP BY id,NAME,quantity,cost_price,reorder_level";
+            GROUP BY id,NAME,quantity,cost_price,reorder_level";*/
+
+        $sql ="SELECT t1.id,t1.name,t3.name category_name,t1.quantity,t1.cost_price,t1.unit_price,t1.reorder_level,GROUP_CONCAT(DISTINCT t2.company_name) supplier
+                   FROM item t1 LEFT JOIN v_item_supplier t2
+                        ON t2.item_id=t1.id LEFT JOIN category t3 on t3.id = t1.category_id
+                   $condition
+                   AND t1.status=:status
+                   GROUP BY t1.id,t1.name,t1.quantity,t1.cost_price,t1.unit_price,t1.reorder_level,t3.name";
 
         $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(':status' => $this->item_active));
 

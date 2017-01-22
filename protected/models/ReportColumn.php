@@ -37,10 +37,10 @@ class ReportColumn extends CModel
                 'header'=>Yii::t('app','Sale Time'),
                 'value'=>'$data["sale_time"]',
             ),
-            array('name'=>'client_name',
+            /*array('name'=>'client_name',
                 'header'=>Yii::t('app','Sold To'),
                 'value'=>'$data["client_name"]',
-            ),
+            ),*/
             array('name'=>'employee_id',
                 'header'=>Yii::t('app','Sold By'),
                 'value'=>'$data["employee_name"]',
@@ -51,7 +51,7 @@ class ReportColumn extends CModel
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
             ),
-            array('name'=>'sub_total',
+            /*array('name'=>'sub_total',
                 'header'=>Yii::t('app','Sub Total'),
                 'value' =>'number_format($data["sub_total"],Common::getDecimalPlace(), ".", ",")',
                 'htmlOptions'=>array('style' => 'text-align: right;'),
@@ -62,7 +62,7 @@ class ReportColumn extends CModel
                 'value' =>'number_format($data["discount_amount"],Common::getDecimalPlace(), ".", ",")',
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
-            ),
+            ),*/
             array('name'=>'total',
                 'header'=>Yii::t('app','Total'),
                 'value' =>'number_format($data["total"],Common::getDecimalPlace(), ".", ",")',
@@ -87,9 +87,9 @@ class ReportColumn extends CModel
             ),
             array('class'=>'bootstrap.widgets.TbButtonColumn',
                 //'header'=>'Invoice Detail',
-                'template'=>'<div class="btn-group">{view}{print}{cancel}{edit}</div>',
+                'template'=>'<div class="btn-group">{print}{cancel}{edit}</div>',
                 'buttons' => array(
-                    'view' => array(
+                    /*'view' => array(
                         'click' => 'updateDialogOpen',
                         'label'=>'Detail',
                         'url'=>'Yii::app()->createUrl("report/SaleInvoiceItem", array("sale_id"=>$data["sale_id"],"employee_id"=>$data["employee_name"]))',
@@ -100,7 +100,7 @@ class ReportColumn extends CModel
                             'id'=>uniqid(),
                             'on'=>false,
                         ),
-                    ),
+                    ),*/
                     'print' => array(
                         'label'=>'print',
                         'icon'=>'glyphicon-print',
@@ -140,9 +140,27 @@ class ReportColumn extends CModel
     public static function getSaleInvoiceDetailColumns()
     {
         return array(
-            array('name'=>'name',
-                'header'=>Yii::t('app','Item Name'),
-                'value'=>'$data["name"]',
+            array('name'=>'sale_id',
+                'header'=>Yii::t('app','Invoice ID'),
+                'value'=>'$data["sale_id"]',
+                'class' => 'yiiwheels.widgets.grid.WhRelationalColumn',
+                'url' => Yii::app()->createUrl('Report/saleInvoiceDetail'),
+            ),
+            array('name'=>'employee_name',
+                'header'=>Yii::t('app','Employee Name'),
+                'value'=>'$data["employee_name"]',
+            ),
+            array('name'=>'sale_time',
+                'header'=>Yii::t('app','Sale Time'),
+                'value'=>'$data["sale_time"]',
+            ),
+            array('name'=>'client_name',
+                'header'=>Yii::t('app','Client Name'),
+                'value'=>'$data["client_name"]',
+            ),
+            array('name'=>'sale_type',
+                'header'=>Yii::t('app','Sale Type'),
+                'value'=>'$data["sale_type"]',
             ),
             array('name'=>'quantity',
                 'header'=>Yii::t('app','QTY'),
@@ -150,17 +168,23 @@ class ReportColumn extends CModel
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
             ),
-            array('name'=>'price',
-                'header'=>Yii::t('app','Price'),
-                'value' =>'number_format($data["price"],Common::getDecimalPlace(), ".", ",")',
+            array('name'=>'total',
+                'header'=>Yii::t('app','Total'),
+                'value'=>'$data["total"]',
+            ),
+            array('name'=>'total_in_riel',
+                'header'=>Yii::t('app','Total In Riel'),
+                'value'=>'$data["total_in_riel"]',
+            ),
+            array('name'=>'paid',
+                'header'=>Yii::t('app','Paid'),
+                'value' =>'number_format($data["paid"],Common::getDecimalPlace(), ".", ",")',
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
             ),
-            array('name'=>'sub_total',
-                'header'=>Yii::t('app','Sub Total'),
-                'value' =>'number_format($data["sub_total"],Common::getDecimalPlace(), ".", ",")',
-                'htmlOptions'=>array('style' => 'text-align: right;'),
-                'headerHtmlOptions'=>array('style' => 'text-align: right;'),
+            array('name'=>'status_f',
+                'header'=>Yii::t('app','Status'),
+                'value'=>'$data["status_f"]',
             ),
         );
     }
@@ -590,6 +614,15 @@ class ReportColumn extends CModel
             array('label' => Yii::t('app', 'Out of Stock'), 'url' => Yii::app()->urlManager->createUrl('report/Inventory', array('filter' => 'outstock'))),
             array('label' => Yii::t('app', 'On Stock'), 'url' => Yii::app()->urlManager->createUrl('report/Inventory', array('filter' => 'onstock'))),
             array('label' => Yii::t('app', 'Negative Stock'), 'url' => Yii::app()->urlManager->createUrl('report/Inventory', array('filter' => 'negative'))),
+        );
+    }
+
+    public static function getSaleReportTab($filter) {
+        return array(
+            array('label' => Yii::t('app', 'Hourly'), 'url' => Yii::app()->urlManager->createUrl('report/SaleHourly', array('filter' => 'all')), 'active' => true),
+            array('label' => Yii::t('app', 'Daily'), 'url' => Yii::app()->urlManager->createUrl('report/Inventory', array('filter' => 'low'))),
+            array('label' => Yii::t('app', 'Weekly'), 'url' => Yii::app()->urlManager->createUrl('report/Inventory', array('filter' => 'outstock'))),
+            array('label' => Yii::t('app', 'Summary'), 'url' => Yii::app()->urlManager->createUrl('report/Inventory', array('filter' => 'onstock'))),
         );
     }
 

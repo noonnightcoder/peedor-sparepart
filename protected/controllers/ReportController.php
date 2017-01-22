@@ -32,7 +32,9 @@ class ReportController extends Controller
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'ReportTab', 'SaleInvoiceItem', 'SaleInvoice', 'SaleInvoiceDetail',),
+                'actions' => array('create', 'update', 'ReportTab', 'SaleInvoiceItem',
+                                'SaleReportTab', 'SaleInvoice', 'SaleInvoiceDetail',
+                                'Inventory','SaleHourly',),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -74,6 +76,11 @@ class ReportController extends Controller
 
         $report = new Report;
 
+        $data['advance_search'] = '';
+        $data['header_tab'] = '';
+        $data['header_view']='_header';
+        $data['grid_view']='_grid';
+
         $data['report'] = $report;
         $data['sale_id'] = $id;
 
@@ -87,6 +94,37 @@ class ReportController extends Controller
 
         $this->renderView($data);
 
+    }
+
+    public function actionSaleReportTab($filter = 'all')
+    {
+        /*$grid_id = 'rpt-inventory-grid';
+        $title = 'Inventory';
+
+        $data = $this->commonData($grid_id,$title,'show','_header_3');
+        $data['filter'] = $filter;
+
+        $data['header_tab'] = ReportColumn::getSaleReportTab($filter);
+        $data['grid_columns'] = ReportColumn::getInventoryColumns();
+
+        $data['data_provider'] = $data['report']->Inventory($filter);*/
+
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+
+        $grid_id = 'rpt-inventory-grid';
+        $title = 'Inventory';
+
+        $data = $this->commonData($grid_id,$title,'show','_header_3');
+        $data['filter'] = $filter;
+
+        $data['header_tab'] = ReportColumn::getSaleReportTab($filter);
+        $data['grid_columns'] = ReportColumn::getInventoryColumns();
+
+        $data['data_provider'] = $data['report']->Inventory($filter);
+
+        $this->renderView($data);
     }
 
     public function actionSaleInvoiceItem($sale_id, $employee_id)
@@ -204,29 +242,19 @@ class ReportController extends Controller
 
     public function actionSaleHourly()
     {
-        $report = new Report;
-        $report->unsetAttributes();  // clear any default values
-
-        if (isset($_GET['Report'])) {
-            $report->attributes = $_GET['Report'];
-            //$from_date=$_GET['Report']['from_date'];
-            $to_date = $_GET['Report']['to_date'];
-        } else {
-            //$from_date=date('d-m-Y');
-            $to_date = date('d-m-Y');
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
         }
 
-        //$report->from_date=$from_date;
-        $report->to_date = $to_date;
+        $grid_id = 'rpt-sale-hourly-grid';
+        $title = 'Sale Hourly';
 
-        if (Yii::app()->request->isAjaxRequest) {
-            echo CJSON::encode(array(
-                'status' => 'success',
-                'div' => $this->renderPartial('sale_hourly_ajax', array('report' => $report, 'to_date' => $to_date), true, false),
-            ));
-        } else {
-            $this->render('sale_hourly', array('report' => $report, 'to_date' => $to_date));
-        }
+        $data = $this->commonData($grid_id,$title);
+
+        $data['grid_columns'] = ReportColumn::getSaleHourlyColumns();
+        $data['data_provider'] = $data['report']->saleHourly();
+
+        $this->renderView($data);
     }
 
     public function actionPayment()
@@ -350,6 +378,27 @@ class ReportController extends Controller
         } else {
             $this->render('sale_item_summary', array('report' => $report, 'from_date' => $from_date, 'to_date' => $to_date));
         }
+    }
+
+    public function actionInventory($filter = 'all')
+    {
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+
+        $grid_id = 'rpt-inventory-grid';
+        $title = 'Inventory';
+
+        $data = $this->commonData($grid_id,$title,'show','_header_3');
+        $data['filter'] = $filter;
+
+        $data['header_tab'] = ReportColumn::getInventoryHeaderTab($filter);
+        $data['grid_columns'] = ReportColumn::getInventoryColumns();
+
+        $data['data_provider'] = $data['report']->Inventory($filter);
+
+        $this->renderView($data);
+
     }
     
     public function actionUserLogSummary($period = 'today')
