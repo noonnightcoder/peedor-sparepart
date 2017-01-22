@@ -34,7 +34,7 @@ class ReportController extends Controller
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'ReportTab', 'SaleInvoiceItem',
                                 'SaleReportTab', 'SaleInvoice', 'SaleInvoiceDetail',
-                                'Inventory','SaleHourly',),
+                                'Inventory','SaleHourly','SaleItemSummary',),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -351,33 +351,21 @@ class ReportController extends Controller
         }
     }
 
-    public function actionSaleItemSummary($period = 'today')
+    public function actionSaleItemSummary()
     {
-        $report = new Report;
-        //$report->unsetAttributes();  // clear any default values
-
-        if (isset($_GET['Report'])) {
-            $report->attributes = $_GET['Report'];
-            $from_date = $_GET['Report']['from_date'];
-            $to_date = $_GET['Report']['to_date'];
-        } else {
-            $from_date = date('d-m-Y');
-            $to_date = date('d-m-Y');
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
         }
+        
+        $grid_id = 'rpt-sale-item-summary-grid';
+        $title = 'Sale Item Summary';
 
-        $report->from_date = $from_date;
-        $report->to_date = $to_date;
+        $data = $this->commonData($grid_id,$title);
 
-        if (Yii::app()->request->isAjaxRequest) {
-            Yii::app()->clientScript->scriptMap['*.js'] = false;
-            Yii::app()->clientScript->scriptMap['*.css'] = false;
-            echo CJSON::encode(array(
-                'status' => 'success',
-                'div' => $this->renderPartial('sale_item_summary_ajax', array('report' => $report, 'from_date' => $from_date, 'to_date' => $to_date), true, false),
-            ));
-        } else {
-            $this->render('sale_item_summary', array('report' => $report, 'from_date' => $from_date, 'to_date' => $to_date));
-        }
+        $data['grid_columns'] = ReportColumn::getSaleItemSummaryColumns();
+        $data['data_provider'] = $data['report']->saleItemSummary();
+
+        $this->renderView($data);
     }
 
     public function actionInventory($filter = 'all')

@@ -117,7 +117,7 @@ class Report extends CFormModel
                     WHEN client_name IS NULL THEN 'RETAIL'
                     ELSE 'WHOLESALE' 
                 END sale_type,employee_name,quantity,
-                CONCAT(currency_symbol,total) total,CONCAT('៛',total*rate) total_in_riel,paid,balance,status_f
+                CONCAT(currency_symbol,FORMAT(total,2)) total,CONCAT('៛',FORMAT(total*rate,2)) total_in_riel,paid,balance,status_f
                 FROM v_sale_invoice t1
                 INNER JOIN currency_type t2 ON t1.currency_code=t2.code
                 WHERE sale_id=:sale_id";
@@ -703,19 +703,25 @@ class Report extends CFormModel
 
     public function saleItemSummary()
     {
-        $sql="SELECT sm.item_id,MIN(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) from_date, MAX(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) to_date,
-		SUM(sm.quantity) quantity,SUM(sm.price*quantity) sub_total
+        /*$sql="SELECT sm.item_id,MIN(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) from_date, MAX(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) to_date,
+		SUM(sm.quantity) quantity,
+		case when sm.currency_code=1 then SUM(sm.price*quantity) else 0 end sub_total_dolar,
+		case when sm.currency_code=2 then SUM(sm.price*quantity) else 0 end sub_total_riel,
+		case when sm.currency_code=3 then SUM(sm.price*quantity) else 0 end sub_total_bath
               FROM v_sale s , sale_item sm
               WHERE s.id=sm.sale_id
               AND s.sale_time>=str_to_date(:from_date,'%d-%m-%Y')  
               AND s.sale_time<date_add(str_to_date(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY) 
               AND s.status=:status
-              GROUP BY sm.item_id";
+              GROUP BY sm.item_id";*/
         
-        $sql="SELECT i.name item_name,CONCAT_WS(' - ', from_date, to_date) date_report,sub_total,t1.quantity
+        $sql="SELECT i.name item_name,CONCAT_WS(' - ', from_date, to_date) date_report,sub_total_dolar,sub_total_riel,sub_total_bath,t1.quantity
             FROM (
             SELECT sm.item_id,MIN(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) from_date, MAX(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) to_date,
-                            SUM(sm.quantity) quantity,SUM(sm.price*quantity) sub_total
+            SUM(sm.quantity) quantity,
+            case when sm.currency_code=1 then SUM(sm.price*quantity) else 0 end sub_total_dolar,
+		    case when sm.currency_code=2 then SUM(sm.price*quantity) else 0 end sub_total_riel,
+		    case when sm.currency_code=3 then SUM(sm.price*quantity) else 0 end sub_total_bath
             FROM v_sale s , sale_item sm
             WHERE s.id=sm.sale_id
             AND s.sale_time>=str_to_date(:from_date,'%d-%m-%Y')  
