@@ -186,18 +186,21 @@ class Report extends CFormModel
 
     public function saleDaily()
     {
-        
-        $sql="SELECT DATE_FORMAT(s.sale_time,'%d-%m-%Y') date_report,SUM(s.sub_total) sub_total,
-               s.discount_amount,
-	       SUM(s.sub_total-s.discount_amount) total,SUM(sm.quantity) quantity
-            FROM v_sale s, v_sale_item_sum sm
-            WHERE s.id=sm.sale_id 
-            AND s.sale_time>=STR_TO_DATE(:from_date,'%d-%m-%Y') 
-            AND s.sale_time<=DATE_ADD(STR_TO_DATE(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY)
-            AND s.status=:status
-            GROUP BY date_format(s.sale_time,'%d-%m-%Y')";
+        $sql = "SELECT DATE_FORMAT(sale_time,'%d-%m-%Y') date_report,
+               SUM(sub_total) sub_total,
+               currency_id,
+               SUM(discount_amount) discount_amount,
+               SUM(vat_amount) vat_amount,
+	           SUM(total) total,
+	           SUM(quantity) quantity
+	           FROM v_sale_invoice t1
+	           left join currency_type t2 on t1.currency_code=code
+	           WHERE sale_time>=STR_TO_DATE(:from_date,'%d-%m-%Y')
+               AND sale_time<=DATE_ADD(STR_TO_DATE(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY)
+               AND t1.status=:status
+               GROUP BY date_format(sale_time,'%d-%m-%Y'),currency_id";
 
-        $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':from_date' => $this->from_date, ':to_date' => $this->to_date,':status'=>Yii::app()->params['_active_status']));
+        $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':from_date' => $this->from_date, ':to_date' => $this->to_date,':status'=> Yii::app()->params['active_status']));
 
         $dataProvider = new CArrayDataProvider($rawData, array(
             //'id'=>'saleinvoice',
@@ -306,14 +309,18 @@ class Report extends CFormModel
 
     public function saleSummary()
     {
-
-        $sql = "SELECT COUNT(id) no_of_invoice,SUM(sm.quantity) quantity,SUM(s.sub_total) sub_total,SUM(s.discount_amount) discount_amount,SUM(s.sub_total-s.discount_amount) total
-                FROM v_sale s , v_sale_item_sum sm
-                WHERE s.id=sm.sale_id 	
+        $sql = "SELECT COUNT(id) no_of_invoice,SUM(sm.quantity) quantity,
+                SUM(CASE WHEN sm.currency_code=1 THEN sm.quantity*price ELSE 0 END) sub_total_dolar, 
+                SUM(CASE WHEN sm.currency_code=2 THEN sm.quantity*price ELSE 0 END) sub_total_riel, 
+                SUM(CASE WHEN sm.currency_code=3 THEN sm.quantity*price ELSE 0 END) sub_total_bath, 
+                SUM(s.discount_amount) discount_amount, SUM(sm.quantity*price*rate) total_in_riel 
+                FROM v_sale s , v_sale_item_sum sm 
+                WHERE s.id=sm.sale_id 
                 AND s.sale_time>=STR_TO_DATE(:from_date,'%d-%m-%Y') 
                 AND s.sale_time<=DATE_ADD(STR_TO_DATE(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY)
                 AND s.status=:status";
-
+        //echo $sql;
+        //echo $this->from_date;
         $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':from_date' => $this->from_date, ':to_date' => $this->to_date,':status'=>Yii::app()->params['_active_status']));
 
         $dataProvider = new CArrayDataProvider($rawData, array(
@@ -719,9 +726,9 @@ class Report extends CFormModel
             FROM (
             SELECT sm.item_id,MIN(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) from_date, MAX(DATE_FORMAT(s.sale_time,'%d-%m-%Y')) to_date,
             SUM(sm.quantity) quantity,
-            case when sm.currency_code=1 then SUM(sm.price*quantity) else 0 end sub_total_dolar,
-		    case when sm.currency_code=2 then SUM(sm.price*quantity) else 0 end sub_total_riel,
-		    case when sm.currency_code=3 then SUM(sm.price*quantity) else 0 end sub_total_bath
+            sum(case when sm.currency_code=1 then sm.price*quantity else 0 end) sub_total_dolar,
+		    sum(case when sm.currency_code=2 then sm.price*quantity else 0 end) sub_total_riel,
+		    sum(case when sm.currency_code=3 then sm.price*quantity else 0 end) sub_total_bath
             FROM v_sale s , sale_item sm
             WHERE s.id=sm.sale_id
             AND s.sale_time>=str_to_date(:from_date,'%d-%m-%Y')  

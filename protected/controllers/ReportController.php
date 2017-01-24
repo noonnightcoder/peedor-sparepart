@@ -34,7 +34,8 @@ class ReportController extends Controller
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'ReportTab', 'SaleInvoiceItem',
                                 'SaleReportTab', 'SaleInvoice', 'SaleInvoiceDetail',
-                                'Inventory','SaleHourly','SaleItemSummary',),
+                                'Inventory','SaleHourly','SaleItemSummary',
+                                'SaleDaily','SaleSummary',),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -175,32 +176,19 @@ class ReportController extends Controller
      */
     public function actionSaleSummary()
     {
-
-        $report = new Report;
-        //$report->unsetAttributes();  // clear any default values
-
-        if (isset($_GET['Report'])) {
-            $report->attributes = $_GET['Report'];
-            $from_date = $_GET['Report']['from_date'];
-            $to_date = $_GET['Report']['to_date'];
-        } else {
-            $from_date = date('d-m-Y');
-            $to_date = date('d-m-Y');
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
         }
 
-        $report->from_date = $from_date;
-        $report->to_date = $to_date;
+        $grid_id = 'rpt-sale-summary-grid';
+        $title = 'Sale Summary';
 
-        if (Yii::app()->request->isAjaxRequest) {
-            Yii::app()->clientScript->scriptMap['*.js'] = false;
-            Yii::app()->clientScript->scriptMap['*.css'] = false;
-            echo CJSON::encode(array(
-                'status' => 'success',
-                'div' => $this->renderPartial('sale_summary_ajax', array('report' => $report, 'from_date' => $from_date, 'to_date' => $to_date), true, false),
-            ));
-        } else {
-            $this->render('sale_summary', array('report' => $report, 'from_date' => $from_date, 'to_date' => $to_date));
-        }
+        $data = $this->commonData($grid_id,$title);
+
+        $data['grid_columns'] = ReportColumn::getSaleSummaryColumns();
+        $data['data_provider'] = $data['report']->saleSummary();
+
+        $this->renderView($data);
     }
 
     /**
@@ -208,36 +196,19 @@ class ReportController extends Controller
      */
     public function actionSaleDaily()
     {
-        $report = new Report;
-        $report->unsetAttributes();  // clear any default values
-
-        if (isset($_GET['Report'])) {
-            $report->attributes = $_GET['Report'];
-            $from_date = $_GET['Report']['from_date'];
-            $to_date = $_GET['Report']['to_date'];
-        } else {
-            $from_date = date('d-m-Y');
-            $to_date = date('d-m-Y');
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
         }
 
-        $report->from_date = $from_date;
-        $report->to_date = $to_date;
+        $grid_id = 'rpt-sale-daily-grid';
+        $title = 'Sale Daily';
 
-        if (Yii::app()->request->isAjaxRequest) {
-            /*
-              Yii::app()->clientScript->scriptMap['*.js'] = false;
-              Yii::app()->clientScript->scriptMap['*.css'] = false;
-              $this->renderPartial('sale_daily', array('report' => $report,'from_date'=>$from_date,'to_date'=>$to_date),false,true);
-              Yii::app()->end();
-             * 
-             */
-            echo CJSON::encode(array(
-                'status' => 'success',
-                'div' => $this->renderPartial('sale_daily_ajax', array('report' => $report, 'from_date' => $from_date, 'to_date' => $to_date), true, false),
-            ));
-        } else {
-            $this->render('sale_daily', array('report' => $report, 'from_date' => $from_date, 'to_date' => $to_date));
-        }
+        $data = $this->commonData($grid_id,$title);
+
+        $data['grid_columns'] = ReportColumn::getSaleDailyColumns();
+        $data['data_provider'] = $data['report']->saleDaily();
+
+        $this->renderView($data);
     }
 
     public function actionSaleHourly()
