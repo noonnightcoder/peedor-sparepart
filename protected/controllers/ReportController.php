@@ -35,7 +35,8 @@ class ReportController extends Controller
                 'actions' => array('create', 'update', 'ReportTab', 'SaleInvoiceItem',
                                 'SaleReportTab', 'SaleInvoice', 'SaleInvoiceDetail',
                                 'Inventory','SaleHourly','SaleItemSummary',
-                                'SaleDaily','SaleSummary',),
+                                'SaleDaily','SaleSummary','itemExpiry',
+                                'TopItem','Transaction','SaleWeeklyByCustomer',),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -224,6 +225,100 @@ class ReportController extends Controller
 
         $data['grid_columns'] = ReportColumn::getSaleHourlyColumns();
         $data['data_provider'] = $data['report']->saleHourly();
+
+        $this->renderView($data);
+    }
+
+    public function actionItemExpiry($filter = '1')
+    {
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+
+        $grid_id = 'rpt-item-expiry-grid';
+        $title = 'Item Expiry';
+
+        $data = $this->commonData($grid_id,$title,null,'_header_3');
+        $data['filter'] = $filter;
+
+        $data['header_tab'] = ReportColumn::getItemExpiryHeaderTab($filter);
+        $data['grid_columns'] = ReportColumn::getItemExpiryColumns();
+
+        $data['data_provider'] = $data['report']->ItemExpiry($filter);
+
+        $this->renderView($data);
+    }
+
+    public function actionTopItem()
+    {
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+
+        $grid_id = 'rpt-top-item-grid';
+        $title = 'Top Item';
+
+        $data = $this->commonData($grid_id,$title);
+
+        $data['grid_columns'] = ReportColumn::getTopItemColumns();
+        $data['data_provider'] = $data['report']->topItem();
+
+        $this->renderView($data);
+    }
+
+    public function actionTransaction()
+    {
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+
+        $report = new Report;
+        $report->unsetAttributes();  // clear any default values
+        //$date_view = 0;
+
+        if (!empty($_GET['Report']['sale_id'])) {
+            $report->sale_id = $_GET['Report']['sale_id'];
+        }
+
+        if (isset($_GET['Report'])) {
+            $from_date = $_GET['Report']['from_date'];;
+            $to_date = $_GET['Report']['to_date'];;
+        } else {
+            $from_date = date('d-m-Y');
+            $to_date = date('d-m-Y');
+        }
+
+        $data['report'] = $report;
+        $data['from_date'] = $from_date;
+        $data['to_date'] = $to_date;
+        $data['grid_id'] = 'sale-summary-grid';
+        $data['title'] = 'Sale Summary' .' ' .  Yii::t('app','From') . ' ' . $from_date . '  ' . Yii::t('app','To') . ' ' . $to_date;
+
+        $data['grid_columns'] = ReportColumn::getTransactionColumns();
+
+        $report->from_date = $from_date;
+        $report->to_date = $to_date;
+        $data['data_provider'] = $report->saleSummary();
+
+        $this->renderView($data,'index_2');
+
+
+    }
+
+    public function actionSaleWeeklyByCustomer()
+    {
+        if (!Yii::app()->user->checkAccess('report.index')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+
+
+        $grid_id = 'rpt-sale-weekly-by-customer-grid';
+        $title = 'Sale Weekly By Customer';
+
+        $data = $this->commonData($grid_id,$title);
+
+        $data['grid_columns'] = ReportColumn::getSaleWeeklyByCusotmer();
+        $data['data_provider'] = $data['report']->saleWeeklyByCustomer();
 
         $this->renderView($data);
     }

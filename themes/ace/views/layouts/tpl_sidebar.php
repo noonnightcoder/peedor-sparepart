@@ -63,6 +63,12 @@ $this->widget('bootstrap.widgets.TbNav', array(
                     array('label'=> Yii::t('app','Item Expiry'), 'icon'=> 'menu-icon fa fa-caret-right', 'url'=>Yii::app()->urlManager->createUrl('report/itemExpiry'),'active'=>$this->id .'/'. $this->action->id =='report/itemExpiry',
                         'visible'=> Yii::app()->user->checkAccess('report.index')  || Yii::app()->settings->get('item', 'itemExpireDate')=='1' 
                         ),
+                    array('label'=> Yii::t('app','Best Selling Item'), 'icon'=> 'menu-icon fa fa-caret-right', 'url'=>Yii::app()->urlManager->createUrl('report/TopItem'),'active'=>$this->id .'/'. $this->action->id =='report/TopItem',
+                        'visible'=> Yii::app()->user->checkAccess('report.index')  || Yii::app()->settings->get('item', 'itemExpireDate')=='1'
+                    ),
+                    array('label'=> Yii::t('app','Sale Weekly By Customer'), 'icon'=> 'menu-icon fa fa-caret-right', 'url'=>Yii::app()->urlManager->createUrl('report/SaleWeeklyByCustomer'),'active'=>$this->id .'/'. $this->action->id =='report/SaleWeeklyByCustomer',
+                        'visible'=> Yii::app()->user->checkAccess('report.index')  || Yii::app()->settings->get('item', 'itemExpireDate')=='1'
+                    ),
                     array('label'=> Yii::t('app','Inventory'), 'icon'=> 'menu-icon fa fa-caret-right', 'url'=>Yii::app()->urlManager->createUrl('report/Inventory'),'active'=>$this->id .'/'. $this->action->id =='report/Inventory',
                         'visible'=> Yii::app()->user->checkAccess('report.index') 
                     ),

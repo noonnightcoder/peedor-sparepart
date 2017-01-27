@@ -586,6 +586,8 @@ class ReportColumn extends CModel
         );
     }
 
+
+
     public static function getItemExpiryHeaderTab($filter) {
         return array(
             array('label'=>'1' . Yii::t('app','Month'), 'url'=>Yii::app()->urlManager->createUrl('report/itemExpiry',array('filter'=>'1')), 'active'=>$filter=='1'?true:false),
@@ -669,9 +671,20 @@ class ReportColumn extends CModel
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
             ),
-            array('name'=>'sub_total',
-                'header'=>Yii::t('app','Sub Total'),
-                'value' =>'number_format($data["sub_total"],Common::getDecimalPlace(), ".", ",")',
+            array('name'=>'sub_total_dolar',
+                'header'=>Yii::t('app','Sub Total Dolar'),
+                'value' =>'number_format($data["sub_total_dolar"],Common::getDecimalPlace(), ".", ",")',
+                'htmlOptions'=>array('style' => 'text-align: right;'),
+                'headerHtmlOptions'=>array('style' => 'text-align: right;'),
+            ),
+            array('name'=>'sub_total_riel',
+                'header'=>Yii::t('app','Sub Total Riel'),
+                'value' =>'number_format($data["sub_total_riel"],Common::getDecimalPlace(), ".", ",")',
+                'htmlOptions'=>array('style' => 'text-align: right;'),
+                'headerHtmlOptions'=>array('style' => 'text-align: right;'),
+            ),array('name'=>'sub_total_bath',
+                'header'=>Yii::t('app','Sub Total Bath'),
+                'value' =>'number_format($data["sub_total_bath"],Common::getDecimalPlace(), ".", ",")',
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
             ),
@@ -681,9 +694,9 @@ class ReportColumn extends CModel
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
             ),
-            array('name'=>'total',
-                'header'=>Yii::t('app','Total'),
-                'value' =>'number_format($data["total"],Common::getDecimalPlace(), ".", ",")',
+            array('name'=>'total_in_riel',
+                'header'=>Yii::t('app','Total In Riel'),
+                'value' =>'number_format($data["total_in_riel"],Common::getDecimalPlace(), ".", ",")',
                 'htmlOptions'=>array('style' => 'text-align: right;'),
                 'headerHtmlOptions'=>array('style' => 'text-align: right;'),
             ),

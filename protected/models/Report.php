@@ -331,6 +331,142 @@ class Report extends CFormModel
         return $dataProvider; // Return as array object
     }
 
+    public function itemExpiry($filter)
+    {
+        $sql = "SELECT name,total_qty,quantity,expire_date,n_month_expire
+                FROM v_item_expire
+                WHERE n_month_expire <= :month_to_expire
+                ORDER BY n_month_expire";
+
+        $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':month_to_expire' => $filter));
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => 'name',
+            'sort' => array(
+                'attributes' => array(
+                    'name',
+                ),
+            ),
+            'pagination' => false,
+        ));
+
+        return $dataProvider; // Return as array object
+    }
+
+    public function topItem()
+    {
+
+        $sql = "SELECT  @ROW := @ROW + 1 AS rank,item_name,qty,amount
+                FROM (
+                SELECT (SELECT NAME FROM item i WHERE i.id=si.item_id) item_name,sum(si.quantity) qty,SUM(price*quantity) amount
+                FROM sale_item si INNER JOIN sale s ON s.id=si.sale_id 
+                     AND sale_time>=str_to_date(:from_date,'%d-%m-%Y') 
+                     AND sale_time<=date_add(str_to_date(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY)
+                     AND IFNULL(s.status,'1')='1'
+                GROUP BY item_name
+                ORDER BY qty DESC LIMIT 5
+                ) t1, (SELECT @ROW := 0) r";
+
+        $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':from_date' => $this->from_date, ':to_date' => $this->to_date));
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => 'rank',
+            'sort' => array(
+                'attributes' => array(
+                    'sale_time',
+                ),
+            ),
+            'pagination' => false,
+        ));
+
+        return $dataProvider; // Return as array object
+    }
+
+    public function saleWeeklyByCustomer() {
+        $sql="SELECT client_name,item_name,
+             SUM(CASE WHEN week_no=3 THEN amount END) '1',
+             SUM(CASE WHEN week_no=3 THEN amount END) '2',
+             SUM(CASE WHEN week_no=3 THEN amount END) '3',
+             SUM(CASE WHEN week_no=4 THEN amount END) '4',
+             SUM(CASE WHEN week_no=5 THEN amount END) '5',
+             SUM(CASE WHEN week_no=6 THEN amount END) '6',
+             SUM(CASE WHEN week_no=7 THEN amount END) '7',
+             SUM(CASE WHEN week_no=8 THEN amount END) '8',
+             SUM(CASE WHEN week_no=9 THEN amount END) '9',
+             SUM(CASE WHEN week_no=10 THEN amount END) '10',
+             SUM(CASE WHEN week_no=11 THEN amount END) '11',
+             SUM(CASE WHEN week_no=12 THEN amount END) '12',
+             SUM(CASE WHEN week_no=13 THEN amount END) '13',
+             SUM(CASE WHEN week_no=14 THEN amount END) '14',
+             SUM(CASE WHEN week_no=15 THEN amount END) '15',
+             SUM(CASE WHEN week_no=16 THEN amount END) '16',
+             SUM(CASE WHEN week_no=17 THEN amount END) '17',
+             SUM(CASE WHEN week_no=18 THEN amount END) '18',
+             SUM(CASE WHEN week_no=19 THEN amount END) '19',
+             SUM(CASE WHEN week_no=20 THEN amount END) '20',
+             SUM(CASE WHEN week_no=21 THEN amount END) '21',
+             SUM(CASE WHEN week_no=22 THEN amount END) '22',
+             SUM(CASE WHEN week_no=23 THEN amount END) '23',
+             SUM(CASE WHEN week_no=24 THEN amount END) '24',
+             SUM(CASE WHEN week_no=25 THEN amount END) '25',
+             SUM(CASE WHEN week_no=26 THEN amount END) '26',
+             SUM(CASE WHEN week_no=27 THEN amount END) '27',
+             SUM(CASE WHEN week_no=28 THEN amount END) '28',
+             SUM(CASE WHEN week_no=29 THEN amount END) '29',
+             SUM(CASE WHEN week_no=30 THEN amount END) '30',
+             SUM(CASE WHEN week_no=31 THEN amount END) '31',
+             SUM(CASE WHEN week_no=32 THEN amount END) '32',
+             SUM(CASE WHEN week_no=33 THEN amount END) '33',
+             SUM(CASE WHEN week_no=34 THEN amount END) '34',
+             SUM(CASE WHEN week_no=35 THEN amount END) '35',
+             SUM(CASE WHEN week_no=36 THEN amount END) '36',
+             SUM(CASE WHEN week_no=37 THEN amount END) '37',
+             SUM(CASE WHEN week_no=38 THEN amount END) '38',
+             SUM(CASE WHEN week_no=39 THEN amount END) '39',
+             SUM(CASE WHEN week_no=40 THEN amount END) '40',
+             SUM(CASE WHEN week_no=41 THEN amount END) '41',
+             SUM(CASE WHEN week_no=42 THEN amount END) '42',
+             SUM(CASE WHEN week_no=43 THEN amount END) '43',
+             SUM(CASE WHEN week_no=44 THEN amount END) '44',
+             SUM(CASE WHEN week_no=45 THEN amount END) '45',
+             SUM(CASE WHEN week_no=46 THEN amount END) '46',
+             SUM(CASE WHEN week_no=47 THEN amount END) '47',
+             SUM(CASE WHEN week_no=48 THEN amount END) '48',
+             SUM(CASE WHEN week_no=49 THEN amount END) '49',
+             SUM(CASE WHEN week_no=50 THEN amount END) '50',
+             SUM(CASE WHEN week_no=51 THEN amount END) '51',
+             SUM(CASE WHEN week_no=52 THEN amount END) '52'
+        FROM
+        (
+        SELECT
+            CONCAT( c.`first_name`,' ', last_name) client_name,i.`name` item_name,
+            WEEK(DATE(s.sale_time)) week_no,
+            SUM(si.`quantity`) quantity, TRUNCATE(SUM(si.`quantity`*si.`price`*si.`rate`),2) amount
+        FROM v_sale s JOIN sale_item si ON si.`sale_id` = s.id
+         JOIN `client` c ON c.`id` = s.`client_id`
+           JOIN item i ON i.id = si.`item_id`
+        WHERE  s.sale_time>=STR_TO_DATE(:from_date,'%d-%m-%Y')
+        AND s.sale_time<=DATE_ADD(STR_TO_DATE(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY)
+        AND s.status=:status
+        GROUP BY WEEK(DATE(s.sale_time)),i.`name`,CONCAT( c.`first_name`,' ', last_name)
+        ) AS t1
+        GROUP BY client_name,item_name WITH ROLLUP";
+
+        $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(':from_date' => $this->from_date, ':to_date' => $this->to_date,':status'=>Yii::app()->params['sale_complete_status']));
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => 'item_name',
+            /*'sort' => array(
+                'attributes' => array(
+                    'item_name',
+                ),
+            ),*/
+            'pagination' => false,
+        ));
+
+        return $dataProvider;
+    }
+
     public function saleDailyProfit()
     {
         
