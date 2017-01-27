@@ -29,17 +29,19 @@ class RbacUser extends CActiveRecord
         public $Password;
         public $ResetPassword;
         
-        public $customers;
-        public $items;
-        public $sales;
-        public $employees;
+        public $client;
+        public $item;
+        public $sale;
+        public $employee;
         public $store;
-        public $suppliers;
-        public $receivings;
-        public $reports;
-        public $invoices;
-        public $payments;
-    
+        public $supplier;
+        public $receiving;
+        public $report;
+        public $invoice;
+        public $payment;
+        public $transaction;
+        public $setting;
+
         /**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.

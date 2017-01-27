@@ -65,70 +65,49 @@ class EmployeeController extends Controller
      */
     public function actionCreate()
     {
+        Common::checkPermission('employee.create');
+
         $model = new Employee;
         $user = new RbacUser;
         $disabled = ""; 
-     
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
 
-        if (Yii::app()->user->checkAccess('employee.create')) {
+        if (isset($_POST['Employee'])) {
+            $model->attributes = $_POST['Employee'];
+            $user->attributes = $_POST['RbacUser'];
+            $location_id = $_POST['Employee']['location_id'];
 
-            if (isset($_POST['Employee'])) {
-                $model->attributes = $_POST['Employee'];
-                $user->attributes = $_POST['RbacUser'];
-                //$location_id = $_POST['Employee']['location'];
+            $this->setDOB($model);
 
-                if ( $_POST['Employee']['year'] !== "" || $_POST['Employee']['month'] !== "" || $_POST['Employee']['day'] !== "" ) {
-                    $dob = $_POST['Employee']['year'] . '-' . $_POST['Employee']['month'] . '-' . $_POST['Employee']['day'];
-                    $model->dob = $dob;
-                }
-          
-                // validate BOTH $a and $b
-                $valid = $model->validate();
-                $valid = $user->validate() && $valid;
+            // validate BOTH $a and $b
+            $valid = $model->validate();
+            $valid = $user->validate() && $valid;
 
-                if ($valid) {
-                    $transaction = $model->dbConnection->beginTransaction();
-                    try {
-                        if ($model->save()) {
-                            $user->employee_id = $model->id;
-                            
-                            if ($user->save()) {
-                                $assignitems = array('items', 'sales', 'employees', 'customers', 'suppliers', 'store', 'receivings', 'reports', 'invoices', 'payments');
+            if ($valid) {
+                $transaction = $model->dbConnection->beginTransaction();
+                try {
+                    if ($model->save()) {
 
-                                foreach ($assignitems as $assignitem) {
-                                    if (!empty($_POST['RbacUser'][$assignitem])) {
-                                        foreach ($_POST['RbacUser'][$assignitem] as $itemId) {
-                                            $authassigment = new Authassignment;
-                                            $authassigment->userid = $user->id;
-                                            $authassigment->itemname = $itemId;
+                        $user->employee_id = $model->id;
+                        EmployeeLocation::model()->saveEmployeeLocation($model,$location_id);
 
-                                            if (!$authassigment->save()) {
-                                                $transaction->rollback();
-                                                print_r($authassigment->errors);
-                                            }
-                                        }
-                                    }
-                                }
+                        if ($user->save()) {
 
-                                $transaction->commit();
-                                Yii::app()->user->setFlash('success', '<strong>Well done!</strong> successfully saved.');
-                                //$this->redirect(array('view', 'id' => $model->id));
-                                $this->redirect(array('admin'));
-                            } else {
-                                Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.');
-                            }
+                            $this->saveAuthAssignment($user, $transaction);
+
+                            $transaction->commit();
+                            Yii::app()->user->setFlash('success', '<strong>Well done!</strong> successfully saved.');
+                            $this->redirect(array('admin'));
+                        } else {
+                            Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.');
                         }
-                    } catch (Exception $e) {
-                        $transaction->rollback();
-                        Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.' . $e);
                     }
+                } catch (Exception $e) {
+                    $transaction->rollback();
+                    Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.' . $e);
                 }
             }
-        } else {
-            throw new CHttpException(403, 'You are not authorized to perform this action');
         }
+
 
         $this->render('create', array('model' => $model, 'user' => $user, 'disabled' => $disabled ));
     }
@@ -140,89 +119,60 @@ class EmployeeController extends Controller
      */
     public function actionUpdate($id)
     {
+        Common::checkPermission('employee.update');
+
         $disabled = "";
-        if (Yii::app()->user->checkAccess('employee.update')) {
 
-            $model = $this->loadModel($id);
-            $user = RbacUser::model()->find('employee_id=:employeeID', array(':employeeID' => (int) $id));
-        
-            $criteria = new CDbCriteria;
-            $criteria->condition = 'userid=:userId';
-            $criteria->select = 'itemname';
-            $criteria->params = array(':userId' => $user->id);
-            $authassigment = Authassignment::model()->findAll($criteria);
+        $model = $this->loadModel($id);
+        $user = RbacUser::model()->find('employee_id=:employeeID', array(':employeeID' => (int) $id));
 
-            $auth_items = array();
-            foreach ($authassigment as $auth_item) {
-                $auth_items[] = $auth_item->itemname;
-            }
+        $auth_assignment = Authassignment::getAuthAssignmentByUserId($user);
 
-            $user->items = $auth_items;
-            $user->sales = $auth_items;
-            $user->employees = $auth_items;
-            $user->customers = $auth_items;
-            $user->store = $auth_items;
-            $user->suppliers = $auth_items;
-            $user->receivings = $auth_items;
-            $user->reports = $auth_items;
-            $user->invoices = $auth_items;
-            $user->payments = $auth_items;
+        $auth_items = array();
 
-            // Uncomment the following line if AJAX validation is needed
-            // $this->performAjaxValidation($model);
-
-            if (isset($_POST['Employee'])) {
-                $model->attributes = $_POST['Employee'];
-                $user->attributes=$_POST['RbacUser'];
-
-                if ( $_POST['Employee']['year'] !== "" || $_POST['Employee']['month'] !== "" || $_POST['Employee']['day'] !== "" ) {
-                    $dob = $_POST['Employee']['year'] . '-' . $_POST['Employee']['month'] . '-' . $_POST['Employee']['day'];
-                    $model->dob = $dob;
-                }
-                
-                // validate BOTH $a and $b
-                $valid = $model->validate();
-                $valid=$user->validate() && $valid;
-
-                if ($valid) {
-                    $transaction = $model->dbConnection->beginTransaction();
-                    try {
-                        if ($model->save()) {
-                            
-                            if ($user->save()) {
-                                // Delete all existing granted module 
-                                Authassignment::model()->deleteAuthassignment($user->id);
-
-                                $assignitems = array('items', 'sales', 'employees', 'customers', 'suppliers', 'store', 'receivings', 'reports', 'invoices', 'payments');
-
-                                foreach ($assignitems as $assignitem) {
-                                    if (!empty($_POST['RbacUser'][$assignitem])) {
-                                        foreach ($_POST['RbacUser'][$assignitem] as $itemId) {
-                                            $authassigment = new Authassignment;
-                                            $authassigment->userid = $user->id;
-                                            $authassigment->itemname = $itemId;
-                                            $authassigment->save();
-                                        }
-                                    }
-                                }
-                          
-                                $transaction->commit();
-                                Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS,'Employee : <strong>' . ucwords($model->last_name . ' ' .$model->first_name) . '</strong> have been saved successfully!' );
-                                $this->redirect(array('admin'));
-                            } else {
-                               Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.');
-                            }
-                        }
-                    } catch (Exception $e) {
-                        $transaction->rollback();
-                        Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.' . $e);
-                    }
-                }
-            }
-        } else {
-            throw new CHttpException(403, 'You are not authorized to perform this action');
+        foreach ($auth_assignment as $auth_item) {
+            $auth_items[] = $auth_item->itemname;
         }
-        
+
+        foreach (Common::arrayFactory('auth_item') as $key=>$auth_item) {
+            $user->$key = $auth_items;
+        }
+
+        if (isset($_POST['Employee'])) {
+            $model->attributes = $_POST['Employee'];
+            $user->attributes=$_POST['RbacUser'];
+
+            $this->setDOB($model);
+
+            // validate BOTH $a and $b
+            $valid = $model->validate();
+            $valid=$user->validate() && $valid;
+
+            if ($valid) {
+                $transaction = $model->dbConnection->beginTransaction();
+                try {
+                    if ($model->save()) {
+
+                        if ($user->save()) {
+                            // Delete all existing granted module
+                            Authassignment::model()->deleteAuthassignment($user->id);
+
+                            $this->saveAuthAssignment($user, $transaction);
+
+                            $transaction->commit();
+                            Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS,'Employee : <strong>' . ucwords($model->last_name . ' ' .$model->first_name) . '</strong> have been saved successfully!' );
+                            $this->redirect(array('admin'));
+                        } else {
+                           Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.');
+                        }
+                    }
+                } catch (Exception $e) {
+                    $transaction->rollback();
+                    Yii::app()->user->setFlash('error', '<strong>Oh snap!</strong> Change a few things up and try submitting again.' . $e);
+                }
+            }
+        }
+
         if (strtolower($user->user_name) == strtolower('admin') || strtolower($user->user_name) == strtolower('super')) {
              $disabled = "true";
         }
@@ -367,6 +317,41 @@ class EmployeeController extends Controller
         if ($model === null)
             throw new CHttpException(404, 'The requested page does not exist.');
         return $model;
+    }
+
+    /**
+     * @param $user
+     * @param $transaction
+     */
+    public function saveAuthAssignment($user, $transaction)
+    {
+        $auth_items = Common::arrayFactory('auth_item');
+
+        foreach ($auth_items as $key => $auth_item) {
+            if (!empty($_POST['RbacUser'][$key])) {
+                foreach ($_POST['RbacUser'][$key] as $itemId) {
+                    $auth_assignment = new Authassignment();
+                    $auth_assignment->userid = $user->id;
+                    $auth_assignment->itemname = $itemId;
+
+                    if (!$auth_assignment->save()) {
+                        $transaction->rollback();
+                        print_r($auth_assignment->errors);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $model
+     */
+    public function setDOB($model)
+    {
+        if ($_POST['Employee']['year'] !== "" || $_POST['Employee']['month'] !== "" || $_POST['Employee']['day'] !== "") {
+            $dob = $_POST['Employee']['year'] . '-' . $_POST['Employee']['month'] . '-' . $_POST['Employee']['day'];
+            $model->dob = $dob;
+        }
     }
 
     /**
