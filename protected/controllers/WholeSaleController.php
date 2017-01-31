@@ -96,7 +96,6 @@ class WholeSaleController extends Controller
         }
 
         if (Yii::app()->wshoppingCart->outofStock($item_id)) {
-            //$data['warning'] = 'Warning, Desired Quantity is Insufficient. You can still process the sale, but check your inventory!';
             Yii::app()->user->setFlash('warning', "Desired Quantity is Insufficient. You can still process the sale, but check your inventory!");
         }
 

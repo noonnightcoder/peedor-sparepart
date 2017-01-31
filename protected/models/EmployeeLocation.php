@@ -117,9 +117,13 @@ class EmployeeLocation extends CActiveRecord
 		return parent::model($className);
 	}
 
-	public static function saveEmployeeLocation($model,$location_id)
+	public static function saveEmployeeLocation($model,$location_id,$employee_id)
     {
-        $emp_location = new EmployeeLocation();
+        $emp_location = EmployeeLocation::model()->find('employee_id=:employeeID', array(':employeeID' => (int) $employee_id));
+
+        if (!$emp_location) {
+            $emp_location = New EmployeeLocation;
+        }
 
         $emp_location->employee_id = $model->id;
         $emp_location->location_id = $location_id;
@@ -127,4 +131,40 @@ class EmployeeLocation extends CActiveRecord
         $emp_location->created_by = 2;
         $emp_location->save();
     }
+
+    public static function setEmployeeLocation($employee_id)
+    {
+
+        $emp_location = EmployeeLocation::model()->find('employee_id=:employeeID', array(':employeeID' => (int) $employee_id));
+
+        if ($emp_location) {
+
+            Yii::app()->session['location_id'] = $emp_location->location_id;
+
+            //Yii::app()->getsetSession->setLocationId($emp_location->location_id);
+
+            $location = Location::model()->findByPk($emp_location->location_id);
+
+            Yii::app()->session['location_name'] = $location->name;
+            Yii::app()->session['location_name_kh'] = $location->name_kh;
+            Yii::app()->session['location_code'] = $location->loc_code;
+
+            /*
+            Yii::app()->getsetSession->setLocationCode($location->loc_code);
+            Yii::app()->getsetSession->setLocationName($location->name);
+            Yii::app()->getsetSession->setLocationNameKH($location->name_kh);
+            Yii::app()->getsetSession->setLocationPhone($location->phone);
+            Yii::app()->getsetSession->setLocationPhone1($location->phone1);
+            Yii::app()->getsetSession->setLocationAddress($location->address);
+            Yii::app()->getsetSession->setLocationAddress1($location->address1);
+            Yii::app()->getsetSession->setLocationAddress2($location->address2);
+            Yii::app()->getsetSession->setLocationWifi($location->wifi_password);
+            Yii::app()->getsetSession->setLocationEmail($location->email);
+            Yii::app()->getsetSession->setLocationPrinterFood($location->printer_food);
+            Yii::app()->getsetSession->setLocationPrinterBeverage($location->printer_beverage);
+            Yii::app()->getsetSession->setLocationPrinterReceipt($location->printer_receipt);
+            Yii::app()->getsetSession->setLocationVat($location->vat);
+            */
+        }
+}
 }

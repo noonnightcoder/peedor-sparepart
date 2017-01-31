@@ -88,7 +88,7 @@ class EmployeeController extends Controller
                     if ($model->save()) {
 
                         $user->employee_id = $model->id;
-                        EmployeeLocation::model()->saveEmployeeLocation($model,$location_id);
+                        EmployeeLocation::model()->saveEmployeeLocation($model,$location_id,$model->id);
 
                         if ($user->save()) {
 
@@ -141,6 +141,7 @@ class EmployeeController extends Controller
         if (isset($_POST['Employee'])) {
             $model->attributes = $_POST['Employee'];
             $user->attributes=$_POST['RbacUser'];
+            $location_id = $_POST['Employee']['location_id'];
 
             $this->setDOB($model);
 
@@ -152,6 +153,7 @@ class EmployeeController extends Controller
                 $transaction = $model->dbConnection->beginTransaction();
                 try {
                     if ($model->save()) {
+                        EmployeeLocation::model()->saveEmployeeLocation($model,$location_id,$model->id);
 
                         if ($user->save()) {
                             // Delete all existing granted module
