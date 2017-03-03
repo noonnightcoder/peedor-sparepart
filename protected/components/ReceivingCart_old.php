@@ -320,7 +320,7 @@ class ReceivingCart extends CApplicationComponent
           {
           $total+=$tax;
           }
-         * 
+         *
          */
 
         //return number_format((float)$total,2);

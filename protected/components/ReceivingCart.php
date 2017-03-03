@@ -314,10 +314,42 @@ class ReceivingCart extends CApplicationComponent
           {
           $total+=$tax;
           }
-         * 
+         *
          */
 
         return round($total, $this->getDecimalPlace());
+    }
+
+    public function getTotalMC()
+    {
+        $currency_type = CurrencyType::model()->getActiveCurrency();
+        $total_data = array();
+        $total_mc = array();
+
+        foreach ($currency_type as $i=>$currency) {
+            $total_=0;
+            foreach ($this->getCart() as $item) {
+                if ( $item['currency_id'] == $currency->currency_id ) {
+                    //$total_ . $currency->currency_id+= Common::calDiscount($item['discount'],$item['price'],$item['quantity']);
+                    $total_ += Common::calDiscount($item['discount'],$item['cost_price'],$item['quantity']);
+                }
+            }
+
+            $total_ = $total_ - $total_*$this->getTotalDiscount()/100;
+            $total_data= array((int)$currency->code=>
+                array(
+                    'currency_code' => $currency->code,
+                    'currency_id' => $currency->currency_id,
+                    'currency_symbol' => $currency->currency_symbol,
+                    'total' => $total_ //. $currency->currency_id,
+                )
+            );
+
+            $total_mc += $total_data;
+
+        }
+
+        return $total_mc;
     }
 
     //Alain Multiple Payments

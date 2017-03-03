@@ -114,14 +114,23 @@ class AccountSupplier extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+
+	public function createAccount($supplier_id,$supplier_name)
+	{
+		$currency_type = CurrencyType::model()->getActiveCurrency();
+		foreach ($currency_type as $currency) {
+			$this->saveAccount($supplier_id,$supplier_name, $currency->code);
+		}
+	}
         
-         public function saveAccount($supplier_id,$supplier_name)
-        {
-            $account_supplier=new AccountSupplier;
-            $account_supplier->supplier_id=$supplier_id; 
-            $account_supplier->name=$supplier_name;
-            $account_supplier->status=Yii::app()->params['_active_status'];
-            $account_supplier->date_created=date('Y-m-d H:i:s');
-            $account_supplier->save();
-        }
+	 public function saveAccount($supplier_id,$supplier_name,$currency_code)
+	{
+		$account_supplier=new AccountSupplier;
+		$account_supplier->supplier_id=$supplier_id;
+		$account_supplier->name=$supplier_name;
+		$account_supplier->status=Yii::app()->params['_active_status'];
+		$account_supplier->date_created=date('Y-m-d H:i:s');
+		$account_supplier->currency_code=$currency_code;
+		$account_supplier->save();
+	}
 }

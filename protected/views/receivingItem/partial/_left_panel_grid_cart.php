@@ -1,13 +1,14 @@
 <div class="grid-view" id="grid_cart">
 
     <?php $this->renderPartial('//layouts/alert/_flash'); ?>
-
+    <?php //print_r(Yii::app()->receivingCart->getCart()); ?>
     <table class="table table-hover table-condensed">
         <thead>
         <tr>
             <th><?php echo Yii::t('app', 'Item Name'); ?></th>
             <th><?php echo Yii::t('app', 'Quantity'); ?></th>
-            <th class='<?php echo $hide_editcost; ?>'><?php echo Yii::t('app', 'Buy Price'); ?></th>
+            <!--<th class='<?php //echo $hide_editcost; ?>'><?php //echo Yii::t('app', 'Buy Price'); ?></th>-->
+            <th><?php echo Yii::t('app', 'Buy Price'); ?></th>
             <th class='<?php echo $hide_editprice; ?>'><?php echo Yii::t('app', 'Sell Price'); ?></th>
             <th class="<?php echo Yii::app()->settings->get('sale', 'discount'); ?>"><?php echo Yii::t('app',
                     'Discount'); ?></th>
@@ -44,7 +45,6 @@
                     ); ?>
                     <?php $this->endWidget(); ?>
                 </td>
-
                 <td>
                     <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                             'method' => 'post',
@@ -66,7 +66,7 @@
                     <?php $this->endWidget(); ?>
                 </td>
 
-                <td>
+                <td class='<?php echo $hide_editprice; ?>'>
                     <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
                         'method'=>'post',
                         'action' => Yii::app()->createUrl('receivingItem/editItem/',array('item_id'=>$item['item_id'])),

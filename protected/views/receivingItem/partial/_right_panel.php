@@ -105,12 +105,16 @@
                                         Commmon::getDecimalPlace(), '.', ','); ?></span></td>
                     </tr>
                 <?php } ?>
-                <tr>
-                    <td><?php echo Yii::t('app', 'Total'); ?> :</td>
-                    <td><span class="badge badge-info bigger-120"><?php echo Yii::app()->settings->get('site',
-                                    'currencySymbol') . number_format($total,
-                                    Common::getDecimalPlace(), '.', ','); ?></span></td>
-                </tr>
+                <?php foreach ($total_mc as $id => $totalmc): ?>
+                    <tr>
+                        <td><?php echo Yii::t('app', 'Total in ') . $totalmc["currency_id"]  ; ?> :</td>
+                        <td>
+                                            <span class="badge badge-primary bigger-120">
+                                                <?php echo $totalmc['currency_symbol']. $totalmc["total"]; ?>
+                                            </span>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
                 </tbody>
             </table>
 

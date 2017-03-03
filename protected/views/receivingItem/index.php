@@ -1,6 +1,5 @@
 <!-- PAGE CONTENT ENDS -->
 <div id="register_container">
-
     <!--left.panel-->
     <?php $this->renderPartial('partial/_left_panel',
         array(
@@ -23,6 +22,7 @@
             'trans_mode' => $trans_mode,
             'discount_amount' => $discount_amount,
             'total' => $total,
+            'total_mc' => $total_mc,
         )); ?>
     <!--/right.panel-->
 

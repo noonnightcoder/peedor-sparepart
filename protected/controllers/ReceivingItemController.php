@@ -22,7 +22,13 @@ class ReceivingItemController extends Controller
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('RemoveSupplier','SetComment', 'DeleteItem', 'Add', 'EditItem', 'EditItemPrice', 'Index', 'IndexPara', 'AddPayment', 'CancelRecv', 'CompleteRecv', 'Complete', 'SuspendSale', 'DeletePayment', 'SelectSupplier', 'AddSupplier', 'Receipt', 'SetRecvMode', 'EditReceiving','SetTotalDiscount'),
+                'actions' => array('RemoveSupplier','SetComment', 'DeleteItem',
+                                    'Add', 'EditItem', 'EditItemPrice', 'Index',
+                                    'IndexPara', 'AddPayment', 'CancelRecv',
+                                    'CompleteRecv', 'Complete', 'SuspendSale',
+                                    'DeletePayment', 'SelectSupplier', 'AddSupplier',
+                                    'Receipt', 'SetRecvMode', 'EditReceiving',
+                                    'SetTotalDiscount','Return'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -76,6 +82,27 @@ class ReceivingItemController extends Controller
         Yii::app()->user->setFlash('warning', $data['warning']);
 
         $this->reload($data);
+    }
+
+    public function actionReturn()
+    {
+        if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
+            $data = array();
+            $data['first_load'] = 'N';
+            $this->sreload($data);
+        } else {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+    }
+
+    protected function custAccountInfo($customer_id)
+    {
+        $model = null;
+        if ($customer_id != null) {
+            $model = Account::model()->getAccountInfo($customer_id);
+        }
+
+        return $model;
     }
     
     protected function addItemtoCart($item_id)
@@ -252,24 +279,28 @@ class ReceivingItemController extends Controller
     public function actionCompleteRecv()
     {
         $data = $this->sessionInfo();
-
-        if (empty($data['items'])) {
-            $this->redirect(array('receivingItem/index'));
-        } else {
-            //Save transaction to db
-            $data['receiving_id'] = Receiving::model()->saveRevc($data['items'], $data['payments'],
-                $data['supplier_id'], $data['employee_id'], $data['sub_total'], $data['total'], $data['comment'], $data['trans_mode'],
-                $data['discount_amt'],$data['discount_symbol']
-            );
-
-            if (substr($data['receiving_id'], 0, 2) == '-1') {
-                $data['warning'] = $data['receiving_id'];
+        if (!isset($data['supplier_id'])) {
+            Yii::app()->user->setFlash('error','Please select supplier...!');
+            $this->redirect(array('receivingItem/index', 'trans_mode' => $data['trans_mode']));
+        }else{
+            if (empty($data['items'])) {
+                $this->redirect(array('receivingItem/index'));
             } else {
-                $trans_mode = Yii::app()->receivingCart->getMode();
-                Yii::app()->receivingCart->clearAll();
-                $this->redirect(array('receivingItem/index', 'trans_mode' => $data['trans_mode']));
+                //Save transaction to db
+                $data['receiving_id'] = Receiving::model()->saveRevc($data['items'], $data['payments'],
+                    $data['supplier_id'], $data['employee_id'], $data['trans_mode']
+                );
+
+                if (substr($data['receiving_id'], 0, 2) == '-1') {
+                    $data['warning'] = $data['receiving_id'];
+                } else {
+                    $trans_mode = Yii::app()->receivingCart->getMode();
+                    Yii::app()->receivingCart->clearAll();
+                    $this->redirect(array('receivingItem/index', 'trans_mode' => $data['trans_mode']));
+                }
             }
         }
+        //$this->reload();
     }
 
     public function actionSuspendRecv()
@@ -387,6 +418,8 @@ class ReceivingItemController extends Controller
         $data['employee_id'] = Yii::app()->session['employeeid'];
         $data['total_discount'] = Yii::app()->receivingCart->getTotalDiscount();
         $data['discount_amount'] = Common::calDiscountAmount($data['total_discount'], $data['sub_total']);
+        $data['total_mc'] = Yii::app()->receivingCart->getTotalMC(); //get total by currency
+
 
         $discount_arr = Common::Discount($data['total_discount']);
         $data['discount_amt'] = $discount_arr[0];

@@ -123,66 +123,65 @@ class SupplierController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-                if (Yii::app()->user->checkAccess('supplier.create'))
-                {    
-                    if(isset($_POST['Supplier']))
+        if (!Yii::app()->user->checkAccess('supplier.create')) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+
+        if(isset($_POST['Supplier']))
+        {
+            $model->attributes=$_POST['Supplier'];
+            if($model->validate())
+            {
+                $transaction=Yii::app()->db->beginTransaction();
+                try
+                {
+                    if($model->save())
                     {
-                            $model->attributes=$_POST['Supplier'];
-                            if($model->validate())
-                            {
-                                $transaction=Yii::app()->db->beginTransaction();
-                                try 
-                                {
-                                    if($model->save())
-                                    { 
-                                        AccountSupplier::model()->saveAccount($model->id,$model->company_name); 
-                                        $transaction->commit();
+                        AccountSupplier::model()->createAccount($model->id,$model->company_name);
+                        $transaction->commit();
 
-                                        if ($recv_mode == 'N') {
-                                            Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS,'Supplier : <strong>' . $model->company_name . '</strong> have been saved successfully!' );
-                                            $this->redirect(array('create'));
-                                        } else {
-                                            Yii::app()->receivingCart->setSupplier($model->id);
-                                            $this->redirect(array('receivingItem/index','trans_mode'=>$trans_mode));
-                                        }
+                        if ($recv_mode == 'N') {
+                            Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS,'Supplier : <strong>' . $model->company_name . '</strong> have been saved successfully!' );
+                            $this->redirect(array('create'));
+                        } else {
+                            Yii::app()->receivingCart->setSupplier($model->id);
+                            $this->redirect(array('receivingItem/index','trans_mode'=>$trans_mode));
+                        }
 
-                                        /*
-                                        Yii::app()->clientScript->scriptMap['jquery.js'] = false;
-                                        echo CJSON::encode(array(
-                                           'status'=>'success',
-                                           'div'=>"<div class=alert alert-info fade in>Successfully added ! </div>",
-                                           ));
-                                        Yii::app()->end();
-                                         * 
-                                        */    
-                                    }
-                                } catch (CDbException $e) {
-                                   $transaction->rollback();
-                                   Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_WARNING,'Oop something wrong : <strong>' . $e->getMessage());
-                                }     
-
-                            }
+                        /*
+                        Yii::app()->clientScript->scriptMap['jquery.js'] = false;
+                        echo CJSON::encode(array(
+                           'status'=>'success',
+                           'div'=>"<div class=alert alert-info fade in>Successfully added ! </div>",
+                           ));
+                        Yii::app()->end();
+                         *
+                        */
                     }
-                } else {
-                    throw new CHttpException(403, 'You are not authorized to perform this action');
-                }    
-
-
-                if(Yii::app()->request->isAjaxRequest)
-                {
-                    Yii::app()->clientScript->scriptMap['*.js'] = false;
-
-                    echo CJSON::encode( array(
-                        'status' => 'render',
-                        'div' => $this->renderPartial( '_form', array('model' => $model),true,false),
-                    ));
-
-                    Yii::app()->end();
+                } catch (CDbException $e) {
+                   $transaction->rollback();
+                   Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_WARNING,'Oop something wrong : <strong>' . $e->getMessage());
                 }
-                else
-                {
-                    $this->render('create',array('model' => $model)); 
-                }
+
+            }
+        }
+
+
+        if(Yii::app()->request->isAjaxRequest)
+        {
+            Yii::app()->clientScript->scriptMap['*.js'] = false;
+
+            echo CJSON::encode( array(
+                'status' => 'render',
+                'div' => $this->renderPartial( '_form', array('model' => $model),true,false),
+            ));
+
+            Yii::app()->end();
+        }
+        else
+        {
+            $this->render('create',array('model' => $model));
+        }
 	}
 
 	/**
