@@ -84,17 +84,6 @@ class ReceivingItemController extends Controller
         $this->reload($data);
     }
 
-    public function actionReturn()
-    {
-        if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
-            $data = array();
-            $data['first_load'] = 'N';
-            $this->sreload($data);
-        } else {
-            throw new CHttpException(403, 'You are not authorized to perform this action');
-        }
-    }
-
     protected function custAccountInfo($customer_id)
     {
         $model = null;

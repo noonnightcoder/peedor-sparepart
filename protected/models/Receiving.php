@@ -139,6 +139,8 @@ class Receiving extends CActiveRecord
         $transaction=$model->dbConnection->beginTransaction();
         try
         {
+            //print_r($items);
+            //die();
             $model->status=$this->transactionHeader();
             foreach ($items as $item) {
 
@@ -147,9 +149,9 @@ class Receiving extends CActiveRecord
                 {
                     $receiving_id=$recv_id;
                     $trans_date=date('Y-m-d H:i:s');
-
+                    $sub_total=$item['cost_price']*$item['quantity'];
                     // Saving & Updating Account and Account Receivable either transaction 'receive' or 'return'
-                    $this->saveAccountAR($employee_id, $receiving_id, $supplier_id,$item['cost_price'], $trans_date, $trans_mode,$item['currency_code']);
+                    $this->saveAccountAR($employee_id, $receiving_id, $supplier_id,$sub_total, $trans_date, $trans_mode,$item['currency_code']);
 
                     // Saving receiving item to receiving_item table
                     $this->saveReceiveItem($items, $receiving_id, $employee_id,$trans_date);
