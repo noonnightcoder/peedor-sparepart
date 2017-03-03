@@ -104,11 +104,22 @@ class Authassignment extends CActiveRecord
 		return parent::model($className);
 	}
         
-        public static function deleteAuthassignment($user_id)
-        {
-            $sql="DELETE FROM AuthAssignment WHERE userid=:user_id";
-            $command= Yii::app()->db->createCommand($sql);
-            $command->bindParam(":user_id", $user_id, PDO::PARAM_INT);
-            $command->execute(); 
-        }
+    public static function deleteAuthassignment($user_id)
+    {
+        $sql="DELETE FROM AuthAssignment WHERE userid=:user_id";
+        $command= Yii::app()->db->createCommand($sql);
+        $command->bindParam(":user_id", $user_id, PDO::PARAM_INT);
+        $command->execute();
+    }
+
+    public static function getAuthAssignmentByUserId($user)
+    {
+        $criteria = new CDbCriteria;
+        $criteria->condition = 'userid=:userId';
+        $criteria->select = 'itemname';
+        $criteria->params = array(':userId' => $user->id);
+
+        return Authassignment::model()->findAll($criteria);
+
+    }
 }

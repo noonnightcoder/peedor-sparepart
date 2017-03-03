@@ -223,7 +223,6 @@ class WShoppingCart extends CApplicationComponent
         unset($this->session['ws_totaldiscount']);
     }
 
-
     public function addItem($item_id, $quantity = 1, $discount = '0', $price = null, $description = null, $expire_date = null)
     {
         $this->setSession(Yii::app()->session);

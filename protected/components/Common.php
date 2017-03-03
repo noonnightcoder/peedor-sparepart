@@ -105,6 +105,18 @@ Class Common
                 200 => 200,
                 500 => 500,
                 1000 => 1000,
+            ),
+            'auth_item' => array(
+                'item' => Yii::t('app', 'Item'),
+                'sale' => Yii::t('app', 'Sale'),
+                'invoice' => Yii::t('app', 'Invoice'),
+                'employee' => Yii::t('app', 'Employee'),
+                'client' => Yii::t('app', 'Client'),
+                'supplier' => Yii::t('app', 'Supplier'),
+                'transaction' => Yii::t('app', 'Transaction'),
+                'payment' => Yii::t('app', 'Payment'),
+                'report' => Yii::t('app', 'Report'),
+                'setting' => Yii::t('app', 'Setting')
             )
         );
 
@@ -133,6 +145,13 @@ Class Common
     public static function rielRoundUp($amount)
     {
         return  ceil($amount/100-0.1)*100;
+    }
+
+    public static function checkPermission($access_name)
+    {
+        if (!Yii::app()->user->checkAccess($access_name)) {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
     }
 
 }

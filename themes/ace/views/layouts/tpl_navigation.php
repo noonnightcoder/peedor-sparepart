@@ -37,86 +37,21 @@
             <!-- #section:basics/navbar.dropdown -->
             <div class="navbar-buttons navbar-header pull-right" role="navigation">
                     <ul class="nav ace-nav">       
-                        
-                        <!--
-                        <li class="purple">
-                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                        <i class="ace-icon fa fa-bell icon-animated-bell"></i>
-                                        <span class="badge badge-important"><?php //echo number_format($qty[4],0); ?></span>
-                                </a>
-                            
-                                <ul class="dropdown-menu-right dropdown-navbar navbar-pink dropdown-menu dropdown-caret dropdown-close">
-                                        <li class="dropdown-header">
-                                                <i class="ace-icon fa fa-exclamation-triangle"></i>
-                                                8 Items to Count
-                                        </li>
 
-                                        <li class="dropdown-content">
-                                                <ul class="dropdown-menu dropdown-navbar navbar-pink">
-                                                        <li>
-                                                            <a href="<?php //echo Yii::app()->urlManager->createUrl('report/StockCount') ?>">
-                                                                <div class="clearfix">
-                                                                    <span class="pull-left">
-                                                                        <i class="btn btn-xs no-hover btn-pink fa fa-calendar"></i>
-                                                                        Daily
-                                                                    </span>
-                                                                    <span class="pull-right badge badge-pink"><?php //echo number_format($qty[0],0); ?></span>
-                                                                </div>
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="<?php //echo Yii::app()->urlManager->createUrl('report/StockCount') ?>">
-                                                                <div class="clearfix">
-                                                                    <span class="pull-left">
-                                                                            <i class="btn btn-xs no-hover btn-warning fa fa-calendar"></i>
-                                                                            Weekly
-                                                                    </span>
-                                                                    <span class="pull-right badge badge-warning"><?php //echo number_format($qty[1],0); ?></span>
-                                                                </div>
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="<?php //echo Yii::app()->urlManager->createUrl('report/StockCount') ?>">
-                                                                <div class="clearfix">
-                                                                    <span class="pull-left">
-                                                                            <i class="btn btn-xs no-hover btn-info fa fa-calendar"></i>
-                                                                            Bi-Weekly
-                                                                    </span>
-                                                                    <span class="pull-right badge badge-info"><?php //echo number_format($qty[2],0); ?></span>
-                                                                </div>
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="<?php //echo Yii::app()->urlManager->createUrl('report/StockCount') ?>">
-                                                                <div class="clearfix">
-                                                                    <span class="pull-left">
-                                                                            <i class="btn btn-xs no-hover btn-primary fa fa-calendar"></i>
-                                                                            Monthly
-                                                                    </span>
-                                                                    <span class="pull-right badge badge-primary"><?php //echo number_format($qty[3],0); ?></span>
-                                                                </div>
-                                                            </a>
-                                                        </li>
-                                                </ul>
-                                        </li>
-
-                                        <li class="dropdown-footer">
-                                                <a href="#">
-                                                        See Detail
-                                                        <i class="ace-icon fa fa-arrow-right"></i>
-                                                </a>
-                                        </li>
-                                </ul>
-                        </li>
-                        -->
-                        
                         <li class="white logout" id="logout_link">
                             <a href="<?php echo Yii::app()->createUrl('site/logout'); ?>" >
                                 <i class="ace-icon fa fa-power-off"></i>
                                 <?= Yii::t('app','Logout'); ?>
                             </a>
                         </li>
-                        
+
+
+                        <li class="green">
+                            <a href="#"><?php echo Yii::app()->settings->get('site', 'companyName'); ?>
+                                <i class="ace-icon fa fa-bell"></i>
+                                <span class="label label-xlg label-important"><?= Yii::app()->session['location_name']; ?></span>
+                            </a>
+                        </li>
                         <li class="light-blue">
                             <a>
                                 <i class="glyphicon glyphicon-time"></i>
@@ -135,31 +70,12 @@
                                 </a>
 
                                 <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
-                                    <!--
-                                    <li>
-                                        <a href="<?php //echo Yii::app()->urlManager->createUrl('Employee/View', array('id' => Yii::app()->session['employeeid'])); ?>">
-                                                <i class="ace-icon fa fa-user"></i>
-                                                Profile
-                                        </a>
-                                    </li>
-                                    -->
                                     <li>
                                         <a href="<?php echo Yii::app()->urlManager->createUrl('RbacUser/Update', array('id' => Yii::app()->user->id)); ?>">
                                                 <i class="ace-icon fa fa-key"></i>
                                                 <?= Yii::t('app','Change Password'); ?>
                                         </a>
                                     </li>
-
-                                    <!--    
-                                    <li class="divider"></li>
-                                        
-                                    <li>
-                                        <a href="<?php //echo Yii::app()->createUrl('site/logout'); ?>">
-                                            <i class="ace-icon fa fa-power-off"></i>
-                                            Logout
-                                        </a>
-                                    </li>
-                                    -->
                                 </ul>
                         </li>
 

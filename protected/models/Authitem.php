@@ -107,6 +107,24 @@ class Authitem extends CActiveRecord
         {
             return '<span class="lbl">'. Yii::t('app',$this->description) . '</span>'; //Adding this to support ACE style need to revamp if YiiStrap Checbox support attribure class
         }
+
+        /*
+         * Using only a function to perform find and fetch all AuthItem
+         */
+        public function getAuthItem($match='item')
+        {
+            $match = addcslashes($match, '%_'); // escape LIKE's special characters
+
+            $q = new CDbCriteria( array(
+                'condition' => "name LIKE :match",         // no quotes around :match
+                'params'    => array(':match' => "$match%"),  // Aha! Wildcards go here
+                'order'    => "sort_order",
+            ) );
+
+            $model = Authitem::model()->findAll($q);
+            $list    = CHtml::listData($model , 'name','AuthItemName');
+            return $list;
+        }
         
         public function getAuthItemClient($match='client')
         {
