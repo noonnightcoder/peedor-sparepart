@@ -128,6 +128,10 @@ class Receiving extends CActiveRecord
             return '-1';
         }
 
+        if($trans_mode=='physical_count'){
+            $supplier_id=0;
+        }
+
         $model=new Receiving;
         $payment_types='';
 
@@ -139,12 +143,9 @@ class Receiving extends CActiveRecord
         $transaction=$model->dbConnection->beginTransaction();
         try
         {
-            //print_r($items);
-            //die();
             $model->status=$this->transactionHeader();
-            foreach ($items as $item) {
-
-                $recv_id=$this->SavercTemp($item,$supplier_id,$employee_id,$payment_types);
+            foreach ($items as $line=>$item) {
+                $recv_id=$this->SavercTemp($item,$supplier_id,$employee_id,$payment_types,$model->status);
                 if (isset($recv_id))
                 {
                     $receiving_id=$recv_id;
@@ -154,7 +155,7 @@ class Receiving extends CActiveRecord
                     $this->saveAccountAR($employee_id, $receiving_id, $supplier_id,$sub_total, $trans_date, $trans_mode,$item['currency_code']);
 
                     // Saving receiving item to receiving_item table
-                    $this->saveReceiveItem($items, $receiving_id, $employee_id,$trans_date);
+                    $this->saveReceiveItem($item, $receiving_id, $employee_id,$trans_date,$line);
 
                     $message=$receiving_id;
                 }
@@ -170,14 +171,15 @@ class Receiving extends CActiveRecord
 
     }
 
-    public function SavercTemp($item,$supplier_id,$employee_id,$payment_types)
+    public function SavercTemp($item,$supplier_id,$employee_id,$payment_types,$status)
     {
         $model = new Receiving;
         $model->receive_time = date('Y-m-d H:i:s');
         $model->supplier_id = $supplier_id;
         $model->employee_id = $employee_id;
-        $model->sub_total = $item['cost_price'];
+        $model->sub_total = $item['cost_price']*$item['quantity'];
         $model->payment_type = $payment_types;
+        $model->status=$status;
         //$model->remark = '';
         $model->currency_id = $item['currency_code'];
         $model->save();
@@ -227,52 +229,49 @@ class Receiving extends CActiveRecord
 
     }
 
-    protected function saveReceiveItem($items,$receiving_id,$employee_id,$trans_date)
+    protected function saveReceiveItem($item,$receiving_id,$employee_id,$trans_date,$line)
     {
-        foreach($items as $line=>$item)
-        {
-            $item_id=$item['item_id'];
-            $cost_price=$item['cost_price'];
-            $unit_price=$item['unit_price'];
-            $quantity=$item['quantity'];
-            $remarks=$this->transactionHeader(). ' ' . $receiving_id;
+        $item_id=$item['item_id'];
+        $cost_price=$item['cost_price'];
+        $unit_price=$item['unit_price'];
+        $quantity=$item['quantity'];
+        $remarks=$this->transactionHeader(). ' ' . $receiving_id;
 
-            $cur_item_info= Item::model()->findbyPk($item_id);
-            $qty_in_stock=$cur_item_info->quantity;
-            $cur_unit_price=$cur_item_info->unit_price;
+        $cur_item_info= Item::model()->findbyPk($item_id);
+        $qty_in_stock=$cur_item_info->quantity;
+        $cur_unit_price=$cur_item_info->unit_price;
 
-            $stock_quantity=$this->stockQuantiy($qty_in_stock,$quantity);
-            $discount_arr=Common::Discount($item['discount']);
-            $discount_amount=$discount_arr[0];
-            $discount_type=$discount_arr[1];
+        $stock_quantity=$this->stockQuantiy($qty_in_stock,$quantity);
+        $discount_arr=Common::Discount($item['discount']);
+        $discount_amount=$discount_arr[0];
+        $discount_type=$discount_arr[1];
 
-            $receiving_item=new ReceivingItem;
+        $receiving_item=new ReceivingItem;
 
-            $receiving_item->receive_id=$receiving_id;
-            $receiving_item->item_id=$item_id;
-            $receiving_item->line=$line;
-            $receiving_item->quantity=$quantity;
-            $receiving_item->cost_price=$cost_price;
-            $receiving_item->unit_price=$cur_item_info->unit_price;
-            $receiving_item->price=$unit_price; // Not used for Receiving Module
-            $receiving_item->discount_amount=$discount_amount==null ? 0 : $discount_amount;
-            $receiving_item->discount_type=$discount_type;
+        $receiving_item->receive_id=$receiving_id;
+        $receiving_item->item_id=$item_id;
+        $receiving_item->line=$line;
+        $receiving_item->quantity=$quantity;
+        $receiving_item->cost_price=$cost_price;
+        $receiving_item->unit_price=$cur_item_info->unit_price;
+        $receiving_item->price=$unit_price; // Not used for Receiving Module
+        $receiving_item->discount_amount=$discount_amount==null ? 0 : $discount_amount;
+        $receiving_item->discount_type=$discount_type;
 
-            $receiving_item->save();
+        $receiving_item->save();
 
-            // Updating Price (Cost & Resell) to item table requested by owner
-            $this->updateItem($cur_item_info, $cost_price, $unit_price , $stock_quantity[0]);
+        // Updating Price (Cost & Resell) to item table requested by owner
+        $this->updateItem($cur_item_info, $cost_price, $unit_price , $stock_quantity[0]);
 
-            // Product Price (retail price) history
-            $this->updateItemPrice($item_id,$cur_unit_price,$unit_price,$employee_id,$trans_date);
+        // Product Price (retail price) history
+        $this->updateItemPrice($item_id,$cur_unit_price,$unit_price,$employee_id,$trans_date);
 
-            //Ramel Inventory Tracking
-            $this->saveInventory($item_id,$employee_id,$stock_quantity[1],$trans_date,$remarks,$quantity,$qty_in_stock,$stock_quantity[0]);
+        //Ramel Inventory Tracking
+        $this->saveInventory($item_id,$employee_id,$stock_quantity[1],$trans_date,$remarks,$quantity,$qty_in_stock,$stock_quantity[0]);
 
-            // Save Item Expire for tracking
-            if (!empty($item['expire_date'])) {
-                $this->saveItemExpire($item['expire_date'],$receiving_id,$item_id,$employee_id,$quantity,$trans_date,$remarks);
-            }
+        // Save Item Expire for tracking
+        if (!empty($item['expire_date'])) {
+            $this->saveItemExpire($item['expire_date'],$receiving_id,$item_id,$employee_id,$quantity,$trans_date,$remarks);
         }
     }
 

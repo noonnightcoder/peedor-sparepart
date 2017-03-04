@@ -268,7 +268,7 @@ class ReceivingItemController extends Controller
     public function actionCompleteRecv()
     {
         $data = $this->sessionInfo();
-        if (!isset($data['supplier_id'])) {
+        if (!isset($data['supplier_id']) && $data['trans_mode']!='physical_count') {
             Yii::app()->user->setFlash('error','Please select supplier...!');
             $this->redirect(array('receivingItem/index', 'trans_mode' => $data['trans_mode']));
         }else{
