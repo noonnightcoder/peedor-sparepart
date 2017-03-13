@@ -40,14 +40,8 @@ class ShoppingCart extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         $this->session['cart'] = $cart_data;
-        //$session=Yii::app()->session;
-        //$session['cart']=$cart_data;
     }
 
-    /*
-     * To get payment session
-     * $return $session['payment']
-     */
     public function getPayments()
     {
         $this->setSession(Yii::app()->session);
@@ -224,59 +218,11 @@ class ShoppingCart extends CApplicationComponent
         $this->setSession(Yii::app()->session);
         unset($this->session['totaldiscount']);
     }
-    
 
-    public function addItem($item_id, $quantity = 1, $discount = '0', $price = null, $description = null, $expire_date = null)
+
+    public function addItem($item_id, $quantity = 1, $price=NULL, $discount_amount='0')
     {
-        $this->setSession(Yii::app()->session);
-        //Get all items in the cart so far...
-        $items = $this->getCart();
-
-        $models = Item::model()->getItemPriceTierRS($item_id, $this->getPriceTier());
-           
-        //try to get item id given an item_number
-        if (empty($models)) {
-            $models = Item::model()->getItemPriceTierItemNumRS($item_id, $this->getPriceTier());
-            foreach ($models as $model) {
-                $item_id=$model["id"];
-            }
-        }
-        
-        if (!$models) {
-            return false;
-        }
-
-        //unset($items[$item_id]);
-
-        foreach ($models as $model) {
-            $item_data = array((int)$item_id =>
-                array(
-                    'item_id' => $model["id"],
-                    'currency_code' => $model["currency_code"],
-                    'currency_id' => $model["currency_id"],
-                    'currency_symbol' => $model["currency_symbol"],
-                    'name' => $model["name"],
-                    'item_number' => $model["item_number"],
-                    'quantity' => $quantity,
-                    'price' => $price!= null ? round($price, Common::getDecimalPlace()) : round($model["unit_price"], Common::getDecimalPlace()),
-                    'price_kh' => $price!= null ? $price * $model["to_val"] : round($model["price_kh"], Common::getDecimalPlace()),
-                    'price_verify' => $price!= null ? $price * $model['to_val'] : $model["price_verify"],
-                    'to_val' => $model["to_val"],
-                    'discount' => $discount,
-                    'expire_date' => $expire_date,
-                    'description' => $description!= null ? $description : $model["description"],
-                )
-            );
-        }
-
-        if (isset($items[$item_id])) {
-            $items[$item_id]['quantity']+=$quantity;
-        } else {
-            $items += $item_data;
-        }
-
-        $this->setCart($items);
-        return true;
+        return SaleOrder::model()->orderAdd($item_id,$quantity, $price, $discount_amount);
     }
     
     public function f5ItemPriceTier()

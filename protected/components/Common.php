@@ -154,4 +154,40 @@ Class Common
         }
     }
 
+    public static function accessValidation() {
+        if (!Yii::app()->request->isPostRequest && !Yii::app()->request->isAjaxRequest ) {
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        }
+    }
+
+    public static function getCurLocationID()
+    {
+        return Yii::app()->getsetSession->getLocationId();
+    }
+
+    public static function getEmployeeID()
+    {
+        return Yii::app()->session['employee_id'];
+    }
+
+    public static function getUserID()
+    {
+        return Yii::app()->session['user_id'];
+    }
+
+    public static function getSaleType()
+    {
+        return 'W';
+    }
+
+    public static function getCustomerID()
+    {
+        Yii::app()->getsetSession->getCustomer();
+    }
+
+    public static function getPriceTierID()
+    {
+        return Yii::app()->getsetSession->getPriceTierId();
+    }
+
 }

@@ -77,14 +77,18 @@ class SaleItemController extends Controller
 
     public function actionAdd()
     {
+        Common::checkPermission('sale_edit');
+
+        Common::accessValidation();
 
         $data = array();
         $item_id = $_POST['SaleItem']['item_id'];
 
-        if (!Yii::app()->shoppingCart->addItem($item_id)) {
-            Yii::app()->user->setFlash('warning', "Product was not found in the system");
+        $result_id = Yii::app()->orderingCart->addItem($item_id);
+        if ($result_id == 0 )  {
+            Yii::app()->user->setFlash('warning', Yii::t('app','Product was not found in the system'));
         }
-
+        
         $this->reload($data);
 
     }
