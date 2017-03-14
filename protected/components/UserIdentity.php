@@ -51,8 +51,8 @@ class UserIdentity extends CUserIdentity
             $employeeId = $user->employee_id;
 
             // Store employee ID in a session:
-            Yii::app()->session['employeeid'] = $employeeId;
-            Yii::app()->session['userid'] = $user->id;
+            Yii::app()->session['employee_id'] = $employeeId;
+            Yii::app()->session['user_id'] = $user->id;
 
             $employee = Employee::model()->findByPk($employeeId);
             Yii::app()->session['emp_fullname'] = $employee->first_name . ' ' . $employee->last_name;

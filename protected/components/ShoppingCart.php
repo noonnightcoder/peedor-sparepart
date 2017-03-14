@@ -29,11 +29,9 @@ class ShoppingCart extends CApplicationComponent
 
     public function getCart()
     {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['cart'])) {
-            $this->setCart(array());
-        }
-        return $this->session['cart'];
+        $cart = SaleOrder::model()->getOrderCart();
+
+        return $cart;
     }
 
     public function setCart($cart_data)
@@ -234,8 +232,6 @@ class ShoppingCart extends CApplicationComponent
     {
         SaleOrder::model()->orderDel($this->getSaleId(),$item_id);
     }
-
-
 
     public function f5ItemPriceTier()
     {

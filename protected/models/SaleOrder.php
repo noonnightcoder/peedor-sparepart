@@ -106,26 +106,19 @@ class SaleOrder extends CActiveRecord
         return parent::model($className);
     }
 
-    //public function getOrderCart($desk_id, $group_id, $location_id)
-    //public function getOrderCart($sale_id, $location_id)
-    public function getOrderCart($desk_id,$group_id,$location_id)
+    public function getOrderCart()
     {
 
-        $sql = "SELECT item_number,item_id,`name`,quantity,price,discount_amount discount,
-                total,client_id,desk_id,zone_id,employee_id,qty_in_stock,topping,item_parent_id,category_id
+        $sql = "SELECT item_id,currency_code,currency_symbol,`name`,item_number,quantity,
+                 price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,(price_kh*quantity)-IFNULL(discount_amount,0) total,
+                 NULL description,sale_type
                 FROM v_order_cart
-                WHERE desk_id=:desk_id
-                AND group_id=:group_id
-                AND location_id=:location_id
-                AND status=:status
-                AND deleted_at is null
-                ORDER BY path,modified_date desc";
+                WHERE user_id=:user_id
+                AND location_id=:location_id";
 
         return Yii::app()->db->createCommand($sql)->queryAll(true, array(
-                ':desk_id' => $desk_id,
-                ':group_id' => $group_id,
-                ':location_id' => $location_id,
-                ':status' => Yii::app()->params['num_one']
+                ':user_id' => Common::getUserID(),
+                ':location_id' => Common::getCurLocationID()
             )
         );
     }

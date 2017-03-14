@@ -18,7 +18,7 @@
         <tbody id="cart_contents">
         <?php foreach (array_reverse($items, true) as $id => $item): ?>
             <?php
-            $total_item = Common::calTotalAfterDiscount($item['discount'],$item['price_kh'],$item['quantity']);
+            //$$total_item = Common::calTotalAfterDiscount($item['discount'],$item['price_kh'],$item['quantity']);
             $item_id = $item['item_id'];
             $cur_item_info = Item::model()->findbyPk($item_id);
             $qty_in_stock = $cur_item_info->quantity;
@@ -87,7 +87,7 @@
                     ?>
                     <?php $this->endWidget(); ?>
                 </td>
-                <td><?php echo $total_item; ?>
+                <td><?= $item['total'] ?>
                 <td><?php
                     echo TbHtml::linkButton('', array(
                         'color' => TbHtml::BUTTON_COLOR_DANGER,

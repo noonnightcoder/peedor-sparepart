@@ -1,5 +1,7 @@
 <div id="register_container">
-    
+
+    <?= $user_id; ?>
+
     <?php $this->renderPartial('partial/_left_panel',
         array(
             'model' => $model,

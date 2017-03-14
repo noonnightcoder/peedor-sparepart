@@ -412,7 +412,20 @@ class SaleItemController extends Controller
 
     protected function sessionInfo($data = array())
     {
-        //$data=array();
+        /* Define Default Variables Value */
+        $data['sale_id'] = null;
+        $data['time_go'] = '';
+        $data['count_item'] = 0;
+        $data['sub_total'] = 0;
+        $data['amount_due'] = 0;
+        $data['items'] = array();
+
+        $data['location_id'] = Common::getCurLocationID();
+        $data['employee_id'] = Common::getEmployeeID();
+        $data['user_id'] = Common::getUserID();
+
+
+
         $data['items'] = Yii::app()->shoppingCart->getCart();
         $data['count_item'] = Yii::app()->shoppingCart->getQuantityTotal();
         $data['payments'] = Yii::app()->shoppingCart->getPayments();
