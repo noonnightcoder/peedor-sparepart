@@ -160,6 +160,9 @@ Class Common
         }
     }
 
+    /**
+     * Added on : 13-Mar-2017 13:50
+     */
     public static function getCurLocationID()
     {
         return Yii::app()->getsetSession->getLocationId();

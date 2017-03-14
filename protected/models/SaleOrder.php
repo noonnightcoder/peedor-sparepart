@@ -250,10 +250,9 @@ class SaleOrder extends CActiveRecord
         return $id;
     }
 
-    public function orderEdit($sale_id, $item_id, $quantity, $price, $discount, $item_parent_id)
+    public function orderEdit($sale_id, $item_id, $quantity, $price, $discount, $discount_type)
     {
-        //$sql = "CALL proc_edit_menu_order(:desk_id,:group_id,:item_id,:quantity,:price,:discount,:item_parent_id,:location_id)";
-        $sql = "SELECT func_order_edit(:sale_id,:item_id,:quantity,:price,:discount,:item_parent_id,:location_id,:employee_id) result_id";
+        $sql = "SELECT func_order_edit(:sale_id,:location_id,:item_id,:quantity,:price,:discount,:discount_type,:employee_id,:user_id) result_id";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true,
             array(
@@ -262,9 +261,10 @@ class SaleOrder extends CActiveRecord
                 ':quantity' => $quantity,
                 ':price' => $price,
                 ':discount' => $discount,
-                ':item_parent_id' => $item_parent_id,
+                ':discount_type' => $discount_type,
                 ':location_id' => Common::getCurLocationID(),
-                ':employee_id' => Common::getEmployeeID()
+                ':employee_id' => Common::getEmployeeID(),
+                ':user_id' => Common::getUserID()
             )
         );
 
@@ -275,19 +275,17 @@ class SaleOrder extends CActiveRecord
         return $result_id;
     }
 
-    public function orderDel($item_id, $item_parent_id, $table_id, $group_id)
+    public function orderDel($sale_id,$item_id)
     {
-        //$sql = "CALL proc_del_item_cart(:item_id,:item_parent_id,:desk_id,:group_id,:location_id)";
-        $sql = "SELECT func_order_del(:item_id,:item_parent_id,:desk_id,:group_id, :location_id, :employee_id) result_id";
+        $sql = "SELECT func_order_del(:sale_id,:location_id,:item_id,:employee_id,:user_id) result_id";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true,
             array(
-                ':item_id' => $item_id,
-                ':item_parent_id' => $item_parent_id,
-                ':desk_id' => $table_id,
-                ':group_id' => $group_id,
+                ':sale_id' => $sale_id,
                 ':location_id' => Common::getCurLocationID(),
-                ':employee_id' => Common::getEmployeeID()
+                ':item_id' => $item_id,
+                ':employee_id' => Common::getEmployeeID(),
+                ':user_id' => Common::getUserID()
             )
         );
 
@@ -298,15 +296,15 @@ class SaleOrder extends CActiveRecord
         return $result_id;
     }
 
-    public function orderSave($desk_id,$group_id,$payment_total)
+    public function orderSave($sale_id)
     {
-        $sql="SELECT func_order_save(:desk_id,:group_id,:location_id,:payment_total,:employee_id) sale_id";
+        $sql="SELECT func_order_save(:sale_id,:location_id,:employee_id,:user_id) sale_id";
+
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
-                ':desk_id' => $desk_id,
-                ':group_id' => $group_id,
+                ':sale_id' => $sale_id,
                 ':location_id' => Common::getCurLocationID(),
-                ':payment_total' => $payment_total,
-                ':employee_id' => Common::getEmployeeID()
+                ':employee_id' => Common::getEmployeeID(),
+                ':user_id' => Common::getUserID()
             )
         );
 
@@ -316,197 +314,6 @@ class SaleOrder extends CActiveRecord
 
         return $sale_id;
 
-    }
-
-    public function cancelOrderMenu($desk_id, $group_id, $location_id)
-    {
-        $sql = "delete from sale_order where desk_id=:desk_id and group_id=:group_id and location_id=:location_id ";
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(":desk_id", $desk_id, PDO::PARAM_INT);
-        $command->bindParam(":group_id", $group_id, PDO::PARAM_INT);
-        $command->bindParam(":location_id", $location_id, PDO::PARAM_INT);
-        $command->execute();
-    }
-
-    public function changeTable($desk_id, $new_desk_id, $group_id, $location_id, $price_tier_id, $employee_id)
-    {
-        $sql = "SELECT func_change_table(:desk_id,:new_desk_id,:group_id,:location_id,:price_tier_id,:employee_id) group_id";
-        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
-                ':desk_id' => $desk_id,
-                ':new_desk_id' => $new_desk_id,
-                ':group_id' => $group_id,
-                ':location_id' => $location_id,
-                ':price_tier_id' => $price_tier_id,
-                ':employee_id' => $employee_id
-            )
-        );
-
-        foreach ($result as $record) {
-            $group_id = $record['group_id'];
-        }
-
-        return $group_id;
-    }
-
-    public function savePrintedToKitchen($sale_id, $location_id, $category_id,$employee_id)
-    {
-        $sql = "select func_save_pkitchen(:sale_id,:location_id,:category_id,:employee_id) result_id";
-        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
-            array(
-                ':sale_id' => $sale_id,
-                ':location_id' => $location_id,
-                ':category_id' => $category_id,
-                ':employee_id' => $employee_id
-            )
-        );
-
-        foreach ($result as $record) {
-            $id = $record['result_id'];
-        }
-
-        return $id;
-    }
-
-    /*
-    public function delOrder($desk_id, $group_id, $location_id)
-    {
-        $sql = "CALL proc_del_sale_order(:desk_id,:group_id,:location_id)";
-        Yii::app()->db->createCommand($sql)->queryAll(true,
-            array(
-                ':desk_id' => $desk_id,
-                ':group_id' => $group_id,
-                ':location_id' => $location_id
-            )
-        );
-    }
-    */
-
-    public function setDisGiftcard($giftcard_id)
-    {
-
-        /*
-        $model = Giftcard::model()->findByPk($giftcard_id);
-
-        if (!$model) {
-            $model = Giftcard::model()->find('giftcard_number=:giftcard_number',
-                array(':giftcard_number' => $giftcard_id));
-        }
-
-        if (!$model) {
-            return false;
-        }
-
-        $discount_amount = $model->discount_amount;
-        $giftcard_id = $model->id;
-
-        $sql = "update sale_order
-                set giftcard_id=:giftcard_id,discount_amount=:discount_amount
-                where desk_id=:desk_id and group_id=:group_id and location_id=:location_id
-                and status=:status";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(":desk_id", $desk_id, PDO::PARAM_INT);
-        $command->bindParam(":group_id", $group_id, PDO::PARAM_INT);
-        $command->bindParam(":location_id", $location_id, PDO::PARAM_INT);
-        $command->bindParam(":giftcard_id", $giftcard_id, PDO::PARAM_INT);
-        $command->bindParam(":discount_amount", $discount_amount);
-        $command->bindParam(":status", Yii::app()->params['num_one']);
-        $command->execute();
-
-        return true;
-        */
-
-        $sql = "SELECT func_giftcard_set(:desk_id,:group_id,:location_id,:giftcard_id,:employee_id) result_id";
-        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
-            array(
-                ':desk_id' => Common::getTableID(),
-                ':group_id' => Common::getGroupID(),
-                ':location_id' => Common::getCurLocationID(),
-                ':giftcard_id' => $giftcard_id,
-                ':employee_id' => Common::getEmployeeID(),
-            )
-        );
-
-        foreach ($result as $record) {
-            $result_id = $record['result_id'];
-        }
-
-        return $result_id;
-
-    }
-
-    public function clearDisGiftcard()
-    {
-
-        $sql = "SELECT func_giftcard_clear(:desk_id,:group_id,:location_id,:employee_id) result_id";
-        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
-            array(
-                ':desk_id' => Common::getTableID(),
-                ':group_id' => Common::getGroupID(),
-                ':location_id' => Common::getCurLocationID(),
-                ':employee_id' => Common::getEmployeeID(),
-            )
-        );
-
-        foreach ($result as $record) {
-            $result_id = $record['result_id'];
-        }
-
-        return $result_id;
-    }
-
-    public function getDisGiftcard($desk_id, $group_id, $location_id)
-    {
-        $sql = "SELECT giftcard_id
-                FROM sale_order
-                WHERE desk_id=:desk_id AND group_id=:group_id
-                AND location_id=:location_id
-                and status=:status";
-
-        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
-            ':desk_id' => $desk_id,
-            ':group_id' => $group_id,
-            ':location_id' => $location_id,
-            ':status' => Yii::app()->params['num_one']
-        ));
-
-        if ($result) {
-            foreach ($result as $record) {
-                $giftcard_id = $record['giftcard_id'];
-            }
-        } else {
-            $giftcard_id = 0;
-        }
-
-        return $giftcard_id;
-    }
-
-    public function countNewOrder()
-    {
-        $sql = "SELECT COUNT(*) count_order
-                FROM sale_order
-                WHERE location_id = :location_id
-                and sale_time >= CURDATE()
-                AND `status`=:status
-                AND temp_status <> :str_zero
-                AND employee_id <> :employee_id";
-
-        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
-            ':location_id' => Yii::app()->getsetSession->getLocationId(),
-            ':status' => Yii::app()->params['num_one'],
-            ':str_zero' => Yii::app()->params['str_zero'],
-            ':employee_id' => Yii::app()->session['employeeid']
-        ));
-
-        if ($result) {
-            foreach ($result as $record) {
-                $count_order = $record['count_order'];
-            }
-        } else {
-            $count_order = 0;
-        }
-
-        return $count_order;
     }
 
     public function newOrdering()

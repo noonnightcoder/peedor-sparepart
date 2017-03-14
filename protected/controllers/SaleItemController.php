@@ -93,29 +93,6 @@ class SaleItemController extends Controller
 
     }
 
-    public function actionIndexPara($item_id)
-    {
-        if (Yii::app()->user->checkAccess('sale.edit')) {
-
-            Yii::app()->shoppingCart->addItem($item_id);
-
-            $this->reload($item_id);
-        } else {
-            throw new CHttpException(403, 'You are not authorized to perform this action');
-        }
-    }
-
-    public function actionDeleteItem($item_id)
-    {
-        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            Yii::app()->shoppingCart->deleteItem($item_id);
-            $this->reload();
-        } else {
-            Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
-            //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-        }
-    }
-
     public function actionEditItem($item_id)
     {
 
@@ -132,8 +109,7 @@ class SaleItemController extends Controller
             $model->discount = $discount;
 
             if ($model->validate()) {
-                Yii::app()->shoppingCart->editItem($item_id, $quantity, $discount, $price, $description);
-                //Yii::app()->shoppingCart->addItem($item_id, $quantity, $discount, $price, $description);
+                Yii::app()->shoppingCart->editItem($item_id, $quantity,$price,$discount);
             } else {
                 $error = CActiveForm::validate($model);
                 $errors = explode(":", $error);
@@ -146,6 +122,16 @@ class SaleItemController extends Controller
             Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
         }
 
+    }
+
+    public function actionDeleteItem($item_id)
+    {
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            Yii::app()->shoppingCart->deleteItem($item_id);
+            $this->reload();
+        } else {
+            Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
+        }
     }
 
     public function actionAddPayment()
@@ -354,9 +340,6 @@ class SaleItemController extends Controller
 
     }
 
-    /* 
-     * List all of Suspended Sale (Query from [Sale] model where status='2')
-     */
     public function actionListSuspendedSale()
     {
         $model = new Sale;

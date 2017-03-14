@@ -224,7 +224,19 @@ class ShoppingCart extends CApplicationComponent
     {
         return SaleOrder::model()->orderAdd($item_id,$quantity, $price, $discount_amount);
     }
-    
+
+    public function editItem($item_id, $quantity, $price, $discount, $discount_type='%')
+    {
+        SaleOrder::model()->orderEdit($this->getSaleId(),$item_id, $quantity, $price, $discount, $discount_type);
+    }
+
+    public function deleteItem($item_id)
+    {
+        SaleOrder::model()->orderDel($this->getSaleId(),$item_id);
+    }
+
+
+
     public function f5ItemPriceTier()
     {
         $this->setSession(Yii::app()->session);
@@ -243,30 +255,6 @@ class ShoppingCart extends CApplicationComponent
         
         $this->setCart($items);
         return true;
-    }
-
-    public function editItem($item_id, $quantity, $discount, $price, $description, $expire_date=null)
-    {
-        $items = $this->getCart();
-        if (isset($items[$item_id])) {
-            $items[$item_id]['quantity'] = $quantity !=null ? $quantity : $items[$item_id]['quantity'];
-            $items[$item_id]['discount'] = $discount !=null ? $discount : $items[$item_id]['discount'];
-            $items[$item_id]['price'] = $price !=null ? round($price, Common::getDecimalPlace()) : $items[$item_id]['price'];
-            $items[$item_id]['price_kh'] = $price !=null ?  $price * $items[$item_id]['to_val']   : $items[$item_id]['price_kh'];
-            $items[$item_id]['price_verify'] = $price !=null ? $items[$item_id]['currency_symbol'] . $price . ' * ' . number_format($items[$item_id]['to_val'],0) : $items[$item_id]['price_verify'];
-            $items[$item_id]['expire_date'] = $expire_date;
-            $items[$item_id]['description'] = $description;
-            $this->setCart($items);
-        }
-
-        return false;
-    }
-
-    public function deleteItem($item_id)
-    {
-        $items = $this->getCart();
-        unset($items[$item_id]);
-        $this->setCart($items);
     }
 
     public function outofStock($item_id)
@@ -307,11 +295,6 @@ class ShoppingCart extends CApplicationComponent
         $this->setSession(Yii::app()->session);
         unset($this->session['cart']);
     }
-
-    /*
-     * To add payment to payment session $_SESSION['payment']
-     * @param string $payment_id as payment type, float $payment_amount amount of payment 
-     */
 
     public function addPayment($payment_id, $payment_amount)
     {
@@ -385,9 +368,6 @@ class ShoppingCart extends CApplicationComponent
         return round($subtotal, Common::getDecimalPlace());
     }
 
-    /**
-     * @return float
-     */
     public function getTotal()
     {
         $total = 0;
