@@ -23,6 +23,7 @@
             'discount_amount' => $discount_amount,
             'total' => $total,
             'total_mc' => $total_mc,
+            'items' => $items,
         )); ?>
     <!--/right.panel-->
 

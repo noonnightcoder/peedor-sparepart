@@ -1,12 +1,14 @@
 <div class="col-xs-12 col-sm-4 widget-container-col">
     <!-- #section:canel-cart.layout -->
+    <?php foreach ($items as $item) $receive_id=$item['receive_id']; ?>
     <div class="row">
         <div id="cancel_cart">
             <?php if ($count_item <> 0) { ?>
                 <?php
                 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                     'id' => 'cancel_recv_form',
-                    'action' => Yii::app()->createUrl('receivingItem/cancelRecv/'),
+                    //'action' => Yii::app()->createUrl('receivingItem/cancelRecv/'),
+                    'action' => array('cancelRecv', 'receive_id'=>$receive_id),
                     'layout' => TbHtml::FORM_LAYOUT_INLINE,
                 ));
                 ?>
@@ -29,7 +31,7 @@
                         'color' => TbHtml::BUTTON_COLOR_DANGER,
                         'size' => TbHtml::BUTTON_SIZE_SMALL,
                         'icon' => '	glyphicon-remove white',
-                        'url' => Yii::app()->createUrl('receivingItem/cancelRecv/'),
+                        'url' => array('cancelRecv', 'receive_id'=>$receive_id),
                         'class' => 'cancel-receiving',
                         'id' => 'cancel_receiving_button',
                         //'title' => Yii::t('app', 'Cancel Receiving'),

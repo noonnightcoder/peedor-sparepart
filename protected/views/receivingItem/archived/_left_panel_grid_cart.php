@@ -32,7 +32,7 @@
                 <td>
                     <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
                         'method'=>'post',
-                        'action' => Yii::app()->createUrl('receivingItem/editItem/',array('receive_id'=>$item['receive_id'],'item_id'=>$item['item_id'])),
+                        'action' => Yii::app()->createUrl('receivingItem/editItem/',array('item_id'=>$item['item_id'])),
                         'htmlOptions'=>array('class'=>'line_item_form'),
                     ));
                     ?>
@@ -47,7 +47,7 @@
                 <td>
                     <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                             'method' => 'post',
-                            'action' => Yii::app()->createUrl('receivingItem/editItem/', array('receive_id'=>$item['receive_id'],'item_id' => $item['item_id'])),
+                            'action' => Yii::app()->createUrl('receivingItem/editItem/', array('item_id' => $item['item_id'])),
                             'htmlOptions' => array('class' => 'line_item_form'),
                         ));
                         ?>
@@ -68,7 +68,7 @@
                 <td class='<?php echo $hide_editprice; ?>'>
                     <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
                         'method'=>'post',
-                        'action' => Yii::app()->createUrl('receivingItem/editItem/',array('receive_id'=>$item['receive_id'],'item_id'=>$item['item_id'])),
+                        'action' => Yii::app()->createUrl('receivingItem/editItem/',array('item_id'=>$item['item_id'])),
                         'htmlOptions'=>array('class'=>'line_item_form'),
                         //'layout'=>TbHtml::FORM_LAYOUT_INLINE,
                     ));
@@ -90,7 +90,7 @@
                 <td class="<?php echo Yii::app()->settings->get('sale', 'discount'); ?>">
                     <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
                         'method'=>'post',
-                        'action' => Yii::app()->createUrl('receivingItem/editItem/',array('receive_id'=>$item['receive_id'],'item_id'=>$item['item_id'])),
+                        'action' => Yii::app()->createUrl('receivingItem/editItem/',array('item_id'=>$item['item_id'])),
                         'htmlOptions'=>array('class'=>'line_item_form'),
                     ));
                     ?>
@@ -113,7 +113,7 @@
                         'color'=>TbHtml::BUTTON_COLOR_DANGER,
                         'size' => TbHtml::BUTTON_SIZE_MINI,
                         'icon' => 'glyphicon glyphicon-trash ',
-                        'url' => array('DeleteItem', 'receive_id'=>$item['receive_id'],'item_id' => $item_id),
+                        'url' => array('DeleteItem', 'item_id' => $item_id),
                         'class' => 'delete-item',
                         'title' => Yii::t('app', 'Remove'),
                     ));

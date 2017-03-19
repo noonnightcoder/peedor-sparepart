@@ -419,4 +419,133 @@ class Receiving extends CActiveRecord
         return array($quantity, $inv_quantity);
     }
 
+    //this function may be duplicate with Lux
+    public function addItem($item_id,$quantity=1,$price_tier_id = null,$employee_id = null,$user_id = null,$discount_amount=0,$discount_type = null)
+    {
+        //this is should remove and replace it into the function
+        $models = Item::model()->getItemPriceTierWS($item_id, null);
+
+        if (empty($models)) {
+            $models = Item::model()->getItemPriceTierItemNumWS($item_id, null);
+
+            foreach ($models as $model) {
+                $item_id=$model["id"];
+                $item_number=$models['item_number'];
+                $cost_price=$models['cost_price'];
+                $supplier_id = $models['supplier_id'];
+            }
+        }
+
+        $cmd = Yii::app()->db->createCommand("select func_recv_order_add(:item_id,:item_number,:quantity,:price_tier_id,:cost_price,:supplier_id,:employee_id,:user_id,:discount_amount,:discount_type) from dual");
+
+        $cmd->bindParam(':item_id' , $item_id);
+        $cmd->bindParam(':item_number' ,$item_number);
+        $cmd->bindParam(':quantity',$quantity);
+        $cmd->bindParam(':price_tier_id',$price_tier_id);
+        $cmd->bindParam(':cost_price',$cost_price);
+        $cmd->bindParam(':supplier_id',$supplier_id);
+        $cmd->bindParam(':employee_id',$employee_id);
+        $cmd->bindParam(':user_id',$user_id);
+        $cmd->bindParam(':discount_amount',$discount_amount);
+        $cmd->bindParam(':discount_type',$discount_type);
+        $results=$cmd->queryAll();
+
+        foreach($results as $result)
+            foreach ($result as $k=>$value)
+
+        return $value;
+    }
+
+    public function getItem($user_id = null)
+    {
+        $sql="SELECT receive_id,item_id,t2.code,t2.currency_id,t2.currency_symbol,t3.name,t3.item_number,t3.supplier_id,
+                round(t1.quantity) quantity,round(t1.cost_price,2) cost_price,t1.unit_price,t1.discount_amount discount,NULL expire_date,t3.description,t3.is_expire
+                FROM receiving_item t1
+                INNER JOIN receiving t4 ON t1.receive_id=t4.id
+                LEFT JOIN currency_type t2 ON t1.currency_code=t2.code
+                LEFT JOIN item t3 ON t1.item_id=t3.id
+                WHERE t4.status='1'
+                AND t4.user_id=:user_id
+                and t1.deleted_at is null";
+
+        $cmd = Yii::app()->db->createCommand($sql);
+        $cmd->bindParam(':user_id' , $user_id);
+        return $cmd->queryAll();
+    }
+
+    public function editItem($receive_id,$item_id, $quantity = null, $discount = null, $cost_price = null, $unit_price, $description = null, $expire_date = null)
+    {
+        $user_id=Common::getUserID();
+        $employee_id=Common::getEmployeeID();
+        $discount_type='';
+
+        $sql="select func_recv_edit(:receive_id,:item_id,:quantity,:cost_price,:discount_amount,:discount_type,:employee_id,:user_id) from dual";
+        $cmd = Yii::app()->db->createCommand($sql);
+
+        $cmd->bindParam(':receive_id' , $receive_id);
+        $cmd->bindParam(':item_id' , $item_id);
+        $cmd->bindParam(':quantity',$quantity);
+        $cmd->bindParam(':cost_price',$cost_price);
+        $cmd->bindParam(':employee_id',$employee_id);
+        $cmd->bindParam(':user_id',$user_id);
+        $cmd->bindParam(':discount_amount',$discount);
+        $cmd->bindParam(':discount_type',$discount_type);
+        $results=$cmd->queryAll();
+
+        foreach($results as $result)
+            foreach ($result as $k=>$value)
+
+                return $value;
+    }
+
+    public function deleteItem($receive_id,$item_id)
+    {
+        $user_id=Common::getUserID();
+        $employee_id=Common::getEmployeeID();
+
+        $sql="select func_recv_del(:receive_id,:item_id,:employee_id,:user_id) from dual";
+        $cmd = Yii::app()->db->createCommand($sql);
+
+        $cmd->bindParam(':receive_id' , $receive_id);
+        $cmd->bindParam(':item_id' , $item_id);
+        $cmd->bindParam(':employee_id',$employee_id);
+        $cmd->bindParam(':user_id',$user_id);
+
+        $results=$cmd->queryAll();
+
+        foreach($results as $result)
+            foreach ($result as $k=>$value)
+
+                return $value;
+    }
+
+    public function cancelItem($receive_id)
+    {
+        $receive_status=1;
+        $receive_status_ch=2;
+        $receive_cart_status='';
+        $user_id=Common::getUserID();
+        $employee_id=Common::getEmployeeID();
+        $cur_timestamp=date('Y-m-d H:i:s');
+        $sql="SELECT sfunc_recv_status_ch(:receive_id,:receive_status,:receive_status_ch,:receive_cart_status,:employee_id,:user_id,:cur_timestamp,:cur_timestamp) from dual";
+
+        $cmd = Yii::app()->db->createCommand($sql);
+
+        $cmd->bindParam(':receive_id' , $receive_id);
+        $cmd->bindParam(':receive_status' , $receive_status);
+        $cmd->bindParam(':receive_status_ch' , $receive_status_ch);
+        $cmd->bindParam(':receive_cart_status' , $receive_cart_status);
+        $cmd->bindParam(':employee_id',$employee_id);
+        $cmd->bindParam(':user_id',$user_id);
+        $cmd->bindParam(':cur_timestamp',$cur_timestamp);
+        $cmd->bindParam(':cur_timestamp',$cur_timestamp);
+
+        $results=$cmd->queryAll();
+        //print_r($results);
+
+        foreach($results as $result)
+            foreach ($result as $k=>$value)
+
+                return $value;
+    }
 }

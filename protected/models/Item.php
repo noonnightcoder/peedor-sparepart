@@ -458,10 +458,10 @@ class Item extends CActiveRecord
                     CASE WHEN ipt.price IS NOT NULL THEN ipt.price
                         ELSE i.unit_price
                     END unit_price,
-                    i.description,i.currency_code,i.currency_id,i.currency_symbol,i.is_expire
+                    i.description,i.currency_code,i.currency_id,i.currency_symbol,i.is_expire,i.supplier_id
                 FROM (
                 SELECT i.id,i.name,i.item_number,i.cost_price,i.unit_price,i.description,
-                  i.currency_code,c.currency_id,c.currency_symbol,i.is_expire
+                  i.currency_code,c.currency_id,c.currency_symbol,i.is_expire,i.supplier_id
                 FROM item i, currency_type c 
                 WHERE c.code = i.currency_code
                 AND i.status=:status ) i LEFT JOIN item_price_tier ipt ON ipt.item_id=i.id
@@ -489,10 +489,10 @@ class Item extends CActiveRecord
                     CASE WHEN ipt.price IS NOT NULL THEN ipt.price
                         ELSE i.unit_price
                     END unit_price,
-                    i.description,i.currency_code,i.currency_id,i.currency_symbol,i.is_expire
+                    i.description,i.currency_code,i.currency_id,i.currency_symbol,i.is_expire,i.supplier_id
                 FROM (
                 SELECT i.id,i.name,i.item_number,i.cost_price,i.unit_price,i.description,
-                  i.currency_code,c.currency_id,c.currency_symbol,i.is_expire
+                  i.currency_code,c.currency_id,c.currency_symbol,i.is_expire,i.supplier_id
                 FROM item i, currency_type c 
                 WHERE c.code = i.currency_code
                 AND i.status=:status ) i LEFT JOIN item_price_tier ipt ON ipt.item_id=i.id

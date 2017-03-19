@@ -27,14 +27,14 @@ class ReceivingCart extends CApplicationComponent
         $this->session = $value;
     }
 
-    /*public function getCart()
+    public function getCart()
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['cartRecv'])) {
             $this->setCart(array());
         }
         return $this->session['cartRecv'];
-    }*/
+    }
 
     public function setCart($cart_data)
     {
@@ -124,7 +124,7 @@ class ReceivingCart extends CApplicationComponent
         $this->session['recv_mode'] = $mode;
     }
 
-    /*public function addItem($item_id, $quantity = 1, $discount = '0', $cost_price = null, $unit_price = null, $description = null, $expire_date = null)
+    public function addItem($item_id, $quantity = 1, $discount = '0', $cost_price = null, $unit_price = null, $description = null, $expire_date = null)
     {
         $this->setSession(Yii::app()->session);
         $item_number = $item_id;
@@ -172,23 +172,9 @@ class ReceivingCart extends CApplicationComponent
 
         $this->setCart($items);
         return true;
-    }*/
-
-    public function addItem($item_id)
-    {
-        $userid=Common::getUserID();
-        $employeeid=Common::getEmployeeID();
-        Receiving::model()->addItem($item_id,1,null,$employeeid,$userid);
-        return true;
     }
 
-    public function getCart()
-    {
-        $userid=Common::getUserID();
-        return Receiving::model()->getItem($userid);
-    }
-
-    /*public function editItem($item_id, $quantity, $discount, $cost_price, $unit_price, $description, $expire_date)
+    public function editItem($item_id, $quantity, $discount, $cost_price, $unit_price, $description, $expire_date)
     {
         $items = $this->getCart();
         if (isset($items[$item_id])) {
@@ -202,30 +188,13 @@ class ReceivingCart extends CApplicationComponent
         }
 
         return false;
-    }*/
-
-    public function editItem($receive_id,$item_id, $quantity, $discount, $cost_price, $unit_price, $description = null, $expire_date = null)
-    {
-        Receiving::model()->editItem($receive_id,$item_id, $quantity, $discount, $cost_price, $unit_price);
-        return false;
     }
     
-    /*public function deleteItem($item_id)
+    public function deleteItem($item_id)
     {
         $items = $this->getCart();
         unset($items[$item_id]);
         $this->setCart($items);
-    }*/
-
-    public function deleteItem($receive_id,$item_id)
-    {
-        Receiving::model()->deleteItem($receive_id,$item_id);
-        return false;
-    }
-
-    public function cancelItem($receive_id)
-    {
-        Receiving::model()->cancelItem($receive_id);
     }
 
     public function outofStock($item_id)

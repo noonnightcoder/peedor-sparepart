@@ -80,7 +80,7 @@ class ReceivingItemController extends Controller
         }
 
         Yii::app()->user->setFlash('warning', $data['warning']);
-
+        //print_r(Yii::app()->receivingCart->getItem());
         $this->reload($data);
     }
 
@@ -127,17 +127,17 @@ class ReceivingItemController extends Controller
         }    
     }
 
-    public function actionDeleteItem($item_id)
+    public function actionDeleteItem($receive_id,$item_id)
     {
         if ( Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest ) {
-            Yii::app()->receivingCart->deleteItem($item_id);
+            Yii::app()->receivingCart->deleteItem($receive_id,$item_id);
             $this->reload();
         } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
         } 
     }
 
-    public function actionEditItem($item_id)
+    public function actionEditItem($receive_id,$item_id)
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -158,7 +158,7 @@ class ReceivingItemController extends Controller
             $model->expire_date = $expire_date;
 
             if ($model->validate()) {
-                Yii::app()->receivingCart->editItem($item_id, $quantity, $discount, $cost_price, $unit_price,
+                Yii::app()->receivingCart->editItem($receive_id,$item_id, $quantity, $discount, $cost_price, $unit_price,
                     $description, $expire_date);
             } else {
                 $error = CActiveForm::validate($model);
@@ -255,10 +255,10 @@ class ReceivingItemController extends Controller
         ));
     }
 
-    public function actionCancelRecv()
+    public function actionCancelRecv($receive_id)
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            Yii::app()->receivingCart->clearAll();
+            Yii::app()->receivingCart->cancelItem($receive_id);
             $this->reload();
         } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -409,7 +409,6 @@ class ReceivingItemController extends Controller
         $data['discount_amount'] = Common::calDiscountAmount($data['total_discount'], $data['sub_total']);
         $data['total_mc'] = Yii::app()->receivingCart->getTotalMC(); //get total by currency
 
-
         $discount_arr = Common::Discount($data['total_discount']);
         $data['discount_amt'] = $discount_arr[0];
         $data['discount_symbol'] = $discount_arr[1];
@@ -427,5 +426,4 @@ class ReceivingItemController extends Controller
 
         return $data;
     }
-
 }
