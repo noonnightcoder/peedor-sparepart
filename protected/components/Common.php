@@ -178,14 +178,23 @@ Class Common
         return Yii::app()->session['user_id'];
     }
 
+    /**
+     * Sale Common Session Variable in Use
+     */
     public static function getSaleType()
     {
-        return 'W';
+        return  Yii::app()->shoppingCart->getSaleType();
+    }
+
+    public static function getSaleID()
+    {
+        return  Yii::app()->shoppingCart->getSaleId();
     }
 
     public static function getCustomerID()
     {
-        Yii::app()->getsetSession->getCustomer();
+        // To change @ GetsetSession.php
+        return 1; //Yii::app()->getsetSession->getCustomerId();
     }
 
     public static function getPriceTierID()

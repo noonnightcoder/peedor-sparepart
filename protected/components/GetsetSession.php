@@ -156,8 +156,7 @@ class GetsetSession extends CApplicationComponent
         $this->setSession(Yii::app()->session);
         $this->session['location_address2'] = $location_data;
     }
-   
-    
+
     public function setLocationWifi($location_data)
     {
         $this->setSession(Yii::app()->session);
@@ -248,12 +247,11 @@ class GetsetSession extends CApplicationComponent
         $this->session['location_vat'] = $data;
     }
 
-
     public function getPriceTierId()
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['price_tier_id'])) {
-            $this->setPriceTier(4);
+            $this->setPriceTierId(4);
         }
         return $this->session['price_tier_id'];
     }
@@ -262,6 +260,27 @@ class GetsetSession extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         $this->session['price_tier_id'] = $price_tier_id;
+    }
+
+    public function getCustomerId()
+    {
+        $this->setSession(Yii::app()->session);
+        if (!isset($this->session['customer_id'])) {
+            $this->setCustomer(null);
+        }
+        return $this->session['customer_id'];
+    }
+
+    public function setCustomer($customer_id)
+    {
+        $this->setSession(Yii::app()->session);
+        $this->session['customer_id'] = $customer_id;
+    }
+
+    public function removeCustomer()
+    {
+        $this->setSession(Yii::app()->session);
+        unset($this->session['customer_id']);
     }
 
 

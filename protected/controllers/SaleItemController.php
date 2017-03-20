@@ -69,6 +69,8 @@ class SaleItemController extends Controller
     public function actionIndex()
     {
         if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
+            $sale_type = $_GET['sale_type'];
+            $this->setSaleType($sale_type);
             $this->reload();
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');
@@ -77,16 +79,18 @@ class SaleItemController extends Controller
 
     public function actionAdd()
     {
-        Common::checkPermission('sale_edit');
+        Common::checkPermission('sale.edit');
 
         Common::accessValidation();
 
         $data = array();
         $item_id = $_POST['SaleItem']['item_id'];
 
-        $result_id = Yii::app()->orderingCart->addItem($item_id);
-        if ($result_id == 0 )  {
+        $result_id = Yii::app()->shoppingCart->addItem($item_id);
+        if ($result_id == -1 )  {
             Yii::app()->user->setFlash('warning', Yii::t('app','Product was not found in the system'));
+        } elseif ($result_id == -3 )  {
+            Yii::app()->user->setFlash('warning', Yii::t('app','Product was not found, price tier not configure properly'));
         }
         
         $this->reload($data);
@@ -102,7 +106,7 @@ class SaleItemController extends Controller
             $quantity = isset($_POST['SaleItem']['quantity']) ? $_POST['SaleItem']['quantity'] : null;
             $price = isset($_POST['SaleItem']['price']) ? $_POST['SaleItem']['price'] : null;
             $discount = isset($_POST['SaleItem']['discount']) ? $_POST['SaleItem']['discount'] : null;
-            $description = 'test';
+            //$description = 'test';
 
             $model->quantity = $quantity;
             $model->price = $price;
@@ -417,34 +421,51 @@ class SaleItemController extends Controller
         $data['time_go'] = '';
         $data['count_item'] = 0;
         $data['sub_total'] = 0;
+        $data['sub_total_kh'] = 0;
+        $data['total_kh'] = 0;
         $data['amount_due'] = 0;
+        $data['amount_change'] = 0;
+        $data['count_payment'] = 0;
+        $data['payments'] = 0;
         $data['items'] = array();
+        $data['comment'] = 'Default Comment';
+        $data['customer_id'] = NULL;
+        $data['acc_balance'] = 0.00;
+        $data['cust_fullname'] = 'General Customer';
+        $data['sale_type'] = '';
 
         $data['location_id'] = Common::getCurLocationID();
         $data['employee_id'] = Common::getEmployeeID();
         $data['user_id'] = Common::getUserID();
+        $data['customer_id'] = Common::getCustomerID();
+        $data['sale_type'] = Common::getSaleType();
 
+        $data['count_item'] = SaleOrder::model()->getAllTotal(0);
+        $data['total_discount']=0;
 
-
+        // Retrieving actual data from backend
         $data['items'] = Yii::app()->shoppingCart->getCart();
+        $data['sale_id'] = Common::getSaleID();
+
+
+        /*
         $data['count_item'] = Yii::app()->shoppingCart->getQuantityTotal();
         $data['payments'] = Yii::app()->shoppingCart->getPayments();
         $data['count_payment'] = count(Yii::app()->shoppingCart->getPayments());
         $data['payment_received'] = Yii::app()->shoppingCart->getPaymentsTotal();
-        $data['sub_total'] = Yii::app()->shoppingCart->getSubTotal();
-        $data['sub_total_kh'] = Yii::app()->shoppingCart->getSubTotalKH();
+        //$data['sub_total'] = Yii::app()->shoppingCart->getSubTotal();
+        //$data['sub_total_kh'] = Yii::app()->shoppingCart->getSubTotalKH();
         $data['total'] = Yii::app()->shoppingCart->getTotal();
         $data['total_kh'] = Yii::app()->shoppingCart->getTotalKH();
         $data['qtytotal'] = Yii::app()->shoppingCart->getQuantityTotal();
         $data['amount_change'] = Yii::app()->shoppingCart->getAmountDue();
-        $data['customer_id'] = Yii::app()->shoppingCart->getCustomer();
         $data['comment'] = Yii::app()->shoppingCart->getComment();
-        $data['employee_id'] = Yii::app()->session['employeeid'];
+
         $data['transaction_date'] = date('d/m/Y');
         $data['transaction_time'] = date('h:i:s');
-        $data['session_sale_id'] = Yii::app()->shoppingCart->getSaleId();
+        //$data['session_sale_id'] = Yii::app()->shoppingCart->getSaleId();
         $data['employee'] = ucwords(Yii::app()->session['emp_fullname']);
-        $data['total_discount'] = Yii::app()->shoppingCart->getTotalDiscount();
+        //$data['total_discount'] = Yii::app()->shoppingCart->getTotalDiscount();
 
         $data['disable_editprice'] = Yii::app()->user->checkAccess('sale.editprice') ? false : true;
         $data['disable_discount'] = Yii::app()->user->checkAccess('sale.discount') ? false : true;
@@ -452,11 +473,11 @@ class SaleItemController extends Controller
 
         $data['discount_amount'] = $data['sub_total'] * $data['total_discount'] / 100;
 
-
         // Customer Account Info
         $account = $this->custAccountInfo($data['customer_id']);
         $data['cust_fullname'] = $account !== null ? $account->name : '';
         $data['acc_balance'] = $account !== null ? $account->current_balance : '';
+        */
 
         return $data;
     }
@@ -481,5 +502,9 @@ class SaleItemController extends Controller
         return $model;
     }
 
+    protected function setSaleType($sale_type) {
+        Yii::app()->shoppingCart->setSaleType($sale_type);
+    }
+    
 
 }

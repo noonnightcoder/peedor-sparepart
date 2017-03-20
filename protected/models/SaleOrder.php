@@ -60,9 +60,6 @@ class SaleOrder extends CActiveRecord
         );
     }
 
-    /**
-     * @return array relational rules.
-     */
     public function relations()
     {
         // NOTE: you may need to adjust the relation name and the related
@@ -70,9 +67,6 @@ class SaleOrder extends CActiveRecord
         return array();
     }
 
-    /**
-     * @return array customized attribute labels (name=>label)
-     */
     public function attributeLabels()
     {
         return array(
@@ -95,15 +89,27 @@ class SaleOrder extends CActiveRecord
         );
     }
 
-    /**
-     * Returns the static model of the specified AR class.
-     * Please note that you should have this exact method in all your CActiveRecord descendants!
-     * @param string $className active record class name.
-     * @return SaleOrder the static model class
-     */
     public static function model($className = __CLASS__)
     {
         return parent::model($className);
+    }
+
+    public function getOrderId()
+    {
+        $sql = "SELECT sfunc_order_find_id(NULL,:user_id,:location_id) sale_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+            array(
+                ':user_id' => Common::getUserID(),
+                ':location_id' => Common::getCurLocationID(),
+            )
+        );
+
+        foreach ($result as $record) {
+            $id = $record['sale_id'];
+        }
+
+        return $id;
     }
 
     public function getOrderCart()
@@ -114,64 +120,21 @@ class SaleOrder extends CActiveRecord
                  NULL description,sale_type
                 FROM v_order_cart
                 WHERE user_id=:user_id
-                AND location_id=:location_id";
+                AND location_id=:location_id
+                and `status`=:status
+                AND ISNULL(deleted_at)
+                AND sale_type=:sale_type";
 
         return Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':user_id' => Common::getUserID(),
-                ':location_id' => Common::getCurLocationID()
+                ':location_id' => Common::getCurLocationID(),
+                ':status' => '1', // To change to variable
+                ':sale_type' => Common::getSaleType()
             )
         );
     }
 
-    public function getOrderToKitchen($sale_id, $location_id, $category_id)
-    {
-        $sql = "SELECT t1.item_number,t1.item_id,t1.`name`,(t1.quantity-IFNULL(t2.`quantity`,0)) quantity,
-                t1.price,t1.discount_amount discount,t1.total,t1.client_id,t1.desk_id,t1.zone_id,t1.employee_id,t1.qty_in_stock,t1.topping,t1.item_parent_id
-                FROM v_order_cart t1 LEFT JOIN
-                        (SELECT t2.sale_id,t2.item_id,t2.item_parent_id ,t2.quantity
-                         FROM sale_order_item_print t2 , item t3
-                         WHERE t3.id=t2.item_id
-                         AND t3.category_id=:category_id
-                        ) t2
-                    ON t2.sale_id=t1.`sale_id`
-                    AND t2.item_id=t1.item_id
-                    AND t2.item_parent_id=t1.item_parent_id
-                WHERE t1.sale_id=:sale_id and t1.location_id=:location_id
-                AND t1.status=:status
-                AND (t1.quantity-IFNULL(t2.quantity,0)) > 0
-                AND t1.category_id=:category_id
-                ORDER BY t1.path,t1.modified_date";
-
-            return Yii::app()->db->createCommand($sql)->queryAll(true, array(
-                ':sale_id' => $sale_id,
-                ':location_id' => $location_id,
-                ':category_id' => $category_id,
-                ':status' => Yii::app()->params['num_one']
-            )
-        );
-    }
-
-    public function getOrderCartTopping($desk_id, $group_id, $location_id)
-    {
-        $sql = "SELECT item_id,`name`,quantity,price,discount_amount discount,total,
-                client_id,desk_id,zone_id,employee_id,qty_in_stock
-                FROM v_order_cart
-                WHERE desk_id=:desk_id AND group_id=:group_id and location=:location_id
-                AND status=:status
-                AND topping=1
-                ORDER BY modified_date desc";
-
-
-        return Yii::app()->db->createCommand($sql)->queryAll(true, array(
-            ':desk_id' => (int)$desk_id,
-            ':group_id' => $group_id,
-            ':location_id' => $location_id,
-            ':status' => Yii::app()->params['num_one']
-        ));
-    }
-
-    //public function getAllTotal($desk_id, $group_id, $location_id)
-    public function getAllTotal($desk_id,$group_id, $location_id)
+    public function getAllTotal()
     {
         $quantity = 0;
         $sub_total = 0;
@@ -182,24 +145,24 @@ class SaleOrder extends CActiveRecord
                     SUM(price*quantity) sub_total,
                     SUM(price*quantity) - (SUM(price*quantity)*IFNULL(so.discount_amount,0)/100) total,
                     SUM(price*quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
-                FROM v_order_cart oc JOIN sale_order so
+              FROM v_order_cart oc JOIN sale_order so
                             ON so.id=oc.sale_id 
                             and so.desk_id=oc.desk_id
                             and so.group_id=oc.group_id
                             and so.location_id=oc.location_id
-                WHERE oc.desk_id=:desk_id 
-                AND oc.group_id=:group_id
-                AND oc.location_id=:location_id
-                AND oc.status=:status
-                AND ISNULL(oc.deleted_at)
-                GROUP BY sale_id";
+              WHERE so.user_id=:user_id
+              AND so.location_id=:location_id
+              and so.`status`=:status
+              AND ISNULL(oc.deleted_at)
+              AND so.sale_type=:sale_type            
+              GROUP BY sale_id";
 
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
-            ':desk_id' => $desk_id,
-            ':group_id' => $group_id,
-            ':location_id' => $location_id,
-            ':status' => Yii::app()->params['num_one']
+            ':user_id' => Common::getUserID(),
+            ':location_id' => Common::getCurLocationID(),
+            ':status' => '1', // To change to variable
+            ':sale_type' => Common::getSaleType()
         ));
 
         if ($result) {
@@ -224,13 +187,13 @@ class SaleOrder extends CActiveRecord
                 ':item_id' => $item_id,
                 ':item_number' => $item_id,
                 ':quantity' => $quantity,
-                ':price' => $price,
                 ':price_tier_id' => Common::getPriceTierID(),
+                ':price' => $price,
                 ':location_id' => Common::getCurLocationID(),
                 ':client_id' => Common::getCustomerID(),
                 ':employee_id' => Common::getEmployeeID(),
-                ':employee_id' => Common::getUserID(),
-                ':discount' => $discount_amount,
+                ':user_id' => Common::getUserID(),
+                ':discount_amount' => $discount_amount,
                 ':discount_type' => '%',
                 ':sale_type' =>  Common::getSaleType()
             )
@@ -250,12 +213,12 @@ class SaleOrder extends CActiveRecord
         $result = Yii::app()->db->createCommand($sql)->queryAll(true,
             array(
                 ':sale_id' => $sale_id,
+                ':location_id' => Common::getCurLocationID(),
                 ':item_id' => $item_id,
                 ':quantity' => $quantity,
                 ':price' => $price,
                 ':discount' => $discount,
                 ':discount_type' => $discount_type,
-                ':location_id' => Common::getCurLocationID(),
                 ':employee_id' => Common::getEmployeeID(),
                 ':user_id' => Common::getUserID()
             )

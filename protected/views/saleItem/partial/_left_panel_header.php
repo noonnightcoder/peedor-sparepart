@@ -1,5 +1,5 @@
 <?php $box = $this->beginWidget('yiiwheels.widgets.box.WhBox',array(
-    'title'         =>  Yii::t('app','Retail Register'),
+    'title'         =>  Common::getSaleType()=='W' ? Yii::t('app','Whole Sale Register') : Yii::t('app','Retail Register'),
     'headerIcon'    => 'menu-icon fa fa-shopping-cart',
     'headerButtons' => array(
         TbHtml::buttonGroup(

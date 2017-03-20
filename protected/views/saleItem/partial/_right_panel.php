@@ -11,6 +11,7 @@
     <?php $this->renderPartial('partial/_right_panel_client', array(
         'model' => $model,
         'cust_fullname' => $cust_fullname,
+        'acc_balance' => $acc_balance,
     )); ?>
     <!-- #/section:right.panel.client -->
 

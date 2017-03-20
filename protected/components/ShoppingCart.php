@@ -5,12 +5,7 @@ if (!defined('YII_PATH'))
 
 class ShoppingCart extends CApplicationComponent
 {
-
-    //private $quantity;
-
     private $session;
-
-    //private $decimal_place;
 
     public function getSession()
     {
@@ -20,11 +15,6 @@ class ShoppingCart extends CApplicationComponent
     public function setSession($value)
     {
         $this->session = $value;
-    }
-
-    public function getSaleCookie()
-    {
-        return Yii::app()->settings->get('system', 'saleCookie') == '' ? "0" : Yii::app()->settings->get('system', 'saleCookie');
     }
 
     public function getCart()
@@ -55,95 +45,32 @@ class ShoppingCart extends CApplicationComponent
         $this->session['payments'] = $payments_data;
     }
 
-    public function getCustomer()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['customer'])) {
-            $this->setCustomer(null);
-        }
-        return $this->session['customer'];
-    }
-
-    public function setCustomer($customer_data)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['customer'] = $customer_data;
-    }
-
-    public function removeCustomer()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['customer']);
-    }
-
-    public function getEmployee()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['employee'])) {
-            $this->setEmployee(null);
-        }
-        return $this->session['employee'];
-    }
-
-    public function setEmployee($employee_data)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['employee'] = $employee_data;
-    }
-
-    public function removeEmployee()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['employee']);
-    }
-    
-    public function getSaleTime()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['saletime'])) {
-            $this->setEmployee(date('d/m/Y h:i:s a'));
-        }
-        return $this->session['saletime'];
-    }
-
-    public function setSaleTime($saletime_data)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['saletime'] = $saletime_data;
-    }
-
-    public function clearSaleTime()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['saletime']);
-    }
-
     public function getSaleId()
     {
         $this->setSession(Yii::app()->session);
-        if (!isset($this->session['saleid'])) {
+        if (!isset($this->session['sale_id'])) {
             $this->setSaleId(null);
         }
-        return $this->session['saleid'];
+        return $this->session['sale_id'];
     }
 
-    public function setSaleId($saleid_data)
+    public function setSaleId()
     {
         $this->setSession(Yii::app()->session);
-        $this->session['saleid'] = $saleid_data;
+        $this->session['sale_id'] = SaleOrder::model()->getOrderId();
     }
 
     public function clearSaleId()
     {
         $this->setSession(Yii::app()->session);
-        unset($this->session['saleid']);
+        unset($this->session['sale_id']);
     }
     
     public function getPriceTier()
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['pricetier'])) {
-            $this->setPriceTier(4);
+            $this->setPriceTier(4); // set default price book as default "General Price"
         }
         return $this->session['pricetier'];
     }
@@ -195,28 +122,6 @@ class ShoppingCart extends CApplicationComponent
         $this->setSession(Yii::app()->session);
         unset($this->session['paymentnote']);
     }
-    
-    public function getTotalDiscount()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['totaldiscount'])) {
-            $this->setTotalDiscount(null);
-        }
-        return $this->session['totaldiscount'];
-    }
-
-    public function setTotalDiscount($totaldiscount)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['totaldiscount'] = $totaldiscount;
-    }
-
-    public function clearTotalDiscount()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['totaldiscount']);
-    }
-
 
     public function addItem($item_id, $quantity = 1, $price=NULL, $discount_amount='0')
     {
@@ -251,39 +156,6 @@ class ShoppingCart extends CApplicationComponent
         
         $this->setCart($items);
         return true;
-    }
-
-    public function outofStock($item_id)
-    {
-        if ( ! is_numeric($item_id)) {
-            $item_id = 'NULL';
-        }
-        
-        $item = Item::model()->findbyPk($item_id);
-
-        if (!$item)
-            return false;
-
-        $quanity_added = $this->getQuantityAdded($item_id);
-
-        if ($item->quantity - $quanity_added < 0) {
-            return true;
-        }
-
-        return false;
-    }
-
-    protected function getQuantityAdded($item_id)
-    {
-        $items = $this->getCart();
-        $quanity_already_added = 0;
-        foreach ($items as $item) {
-            if ($item['item_id'] == $item_id) {
-                $quanity_already_added+=$item['quantity'];
-            }
-        }
-
-        return $quanity_already_added;
     }
 
     protected function emptyCart()
@@ -395,7 +267,7 @@ class ShoppingCart extends CApplicationComponent
         return $amount_due;
     }
 
-    //get Total Quatity
+    //get Total Quantity
     public function getQuantityTotal()
     {
         $qtytotal = 0;
@@ -424,12 +296,12 @@ class ShoppingCart extends CApplicationComponent
             $this->addPayment($row->payment_type, $row->payment_amount);
         }
 
-        $this->setCustomer($sale->client_id);
+        //$this->setCustomer($sale->client_id);
         $this->setComment($sale->remark);
         $this->setSaleId($sale_id);
-        $this->setEmployee($sale->employee_id);
+        //$this->setEmployee($sale->employee_id);
         $this->setSaleTime($sale->sale_time);
-        $this->setTotalDiscount($sale->discount_amount);
+        //$this->setTotalDiscount($sale->discount_amount);
     }
 
     public function copyEntireSuspendSale($sale_id)
@@ -452,24 +324,12 @@ class ShoppingCart extends CApplicationComponent
             $this->addPayment($row->payment_type, $row->payment_amount);
         }
 
-        $this->setCustomer($sale->client_id);
+        //$this->setCustomer($sale->client_id);
         $this->setComment($sale->remark);
-        $this->setTotalDiscount($sale->discount_amount);
+        //$this->setTotalDiscount($sale->discount_amount);
         $this->setSaleId($sale_id);
     }
 
-    public function saleClientCookie($client_id)
-    {
-        //$this->clearAll();
-        $sale_item = SaleClientCookie::model()->findAll('client_id=:client_id', array(':client_id' => $client_id));
-
-        if (isset($sale_item)) {
-            foreach ($sale_item as $row) {
-                $this->addItem($row->item_id, $row->quantity, $row->discount_amount, $row->price, $row->description);
-            }
-        }
-    }
-    
     public function setDayInterval($data)
     {
         $this->setSession(Yii::app()->session);
@@ -490,19 +350,44 @@ class ShoppingCart extends CApplicationComponent
         $this->setSession(Yii::app()->session);
         unset($this->session['dayinterval']);
     }
-    
+
+    public function getSaleType()
+    {
+        $this->setSession(Yii::app()->session);
+        return $this->session['sale_type'];
+    }
+
+    public function setSaleType($sale_type)
+    {
+        $this->setSession(Yii::app()->session);
+        $this->session['sale_type'] = $sale_type;
+    }
+
+    public function settingSaleSum()
+    {
+        $all_total = SaleOrder::model()->getAllTotal($this->getTableId(),$this->getGroupId(),Common::getCurLocationID());
+
+        $this->setSaleQty($all_total[0]);
+        $this->setSaleSubTotal($all_total[1]);
+        $this->setSaleTotal($all_total[2]);
+        $this->setSaleDiscount($all_total[3]);
+    }
+
+
+    /*
     public function clearAll()
     {
         $this->emptyCart();
         $this->emptyPayment();
-        $this->removeCustomer();
+       // $this->removeCustomer();
         $this->clearComment();
         $this->clearSaleId();
         $this->clearSaleTime();
-        $this->removeEmployee();
+        //$this->removeEmployee();
         $this->clearPriceTier();
-        $this->clearTotalDiscount();
+        //$this->clearTotalDiscount();
         $this->clearPaymentNote();
     }
+    */
 
 }

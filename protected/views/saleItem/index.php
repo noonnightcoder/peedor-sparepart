@@ -1,6 +1,6 @@
 <div id="register_container">
 
-    <?= $user_id; ?>
+    <?= $sale_type; ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(
@@ -12,6 +12,7 @@
         'model' => $model,
         'count_item' => $count_item,
         'cust_fullname' => $cust_fullname,
+        'acc_balance' => $acc_balance,
         'total_discount' => $total_discount,
         'total_kh' => $total_kh,
         'count_payment' => $count_payment,
