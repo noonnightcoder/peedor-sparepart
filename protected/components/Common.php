@@ -202,4 +202,9 @@ Class Common
         return Yii::app()->getsetSession->getPriceTierId();
     }
 
+    public static function priceTierDisable()
+    {
+        return Common::getSaleType()=='R'?true:false;
+    }
+
 }

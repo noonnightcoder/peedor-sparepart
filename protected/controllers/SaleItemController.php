@@ -71,6 +71,8 @@ class SaleItemController extends Controller
         if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
             $sale_type = $_GET['sale_type'];
             $this->setSaleType($sale_type);
+            $price_tier_id=$sale_type=='R'?4:1;
+            Yii::app()->getsetSession->setPriceTierId($price_tier_id);
             $this->reload();
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');
@@ -248,9 +250,11 @@ class SaleItemController extends Controller
         }
 
         //Save transaction to db
+        /*
         $data['sale_id'] = Sale::model()->saveSale($data['session_sale_id'], $data['items'], $data['payments'],
             $data['payment_received'], $data['customer_id'], $data['employee_id'], $data['sub_total'], $data['comment'],
             Yii::app()->params['sale_complete_status'], $data['total_discount'],'R');
+        */
 
 
         $customer = $this->customerInfo($data['customer_id']);
@@ -440,7 +444,7 @@ class SaleItemController extends Controller
         $data['customer_id'] = Common::getCustomerID();
         $data['sale_type'] = Common::getSaleType();
 
-        $data['count_item'] = 4; //SaleOrder::model()->getAllTotal(0);
+        $data['count_item'] = SaleOrder::model()->getQtyTotal();
         //$data['all_total'] = SaleOrder::model()->getAllTotal();
         $data['total_discount']=0;
 

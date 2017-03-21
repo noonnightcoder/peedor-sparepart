@@ -1,6 +1,6 @@
 <div id="register_container">
 
-    <?= $sale_type; ?>
+    <?= Common::getPriceTierID() . ' Sale Type : ' . Common::getSaleType() . ' Price Tier HTML Value ' . Common::priceTierDisable() ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(

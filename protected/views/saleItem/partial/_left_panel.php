@@ -7,7 +7,16 @@
     <!-- /section:left.panel.header-->
 
     <!-- #section:left.panel.grid.cart-->
-    <?php $this->renderPartial('partial/_left_panel_grid_cart', array('model' => $model, 'items' => $items)); ?>
+    <?php if (Common::getSaleType()=='R') { ?>
+
+        <?php $this->renderPartial('partial/_left_panel_cart_retail', array('model' => $model, 'items' => $items)); ?>
+
+    <?php } else { ?>
+
+        <?php $this->renderPartial('partial/_left_panel_cart_wsale', array('model' => $model, 'items' => $items)); ?>
+
+    <?php } ?>
+
     <!-- /section:left.panel.grid.cart -->
 
     <?php $this->renderPartial('//layouts/alert/_keyboard_help') ?>

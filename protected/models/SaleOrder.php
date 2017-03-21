@@ -116,7 +116,9 @@ class SaleOrder extends CActiveRecord
     {
 
         $sql = "SELECT item_id,currency_code,currency_symbol,`name`,item_number,quantity,
-                 price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,(price_kh*quantity)-IFNULL(discount_amount,0) total,
+                 price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,
+                 (price*quantity) total,
+                 (price_kh*quantity)-IFNULL(discount_amount,0) total_kh,
                  NULL description,sale_type
                 FROM v_order_cart
                 WHERE user_id=:user_id
@@ -194,6 +196,35 @@ class SaleOrder extends CActiveRecord
 
         return array($quantity, $sub_total, $total, $discount_amount);
         */
+    }
+
+    public function getAllTotalKH()
+    {
+
+        $sql = "SELECT sale_id,
+                 SUM(oc.price_kh*oc.quantity) sub_total,
+                 SUM(oc.price_kh*oc.quantity) - (SUM(oc.price_kh*oc.quantity)*IFNULL(so.discount_amount,0)/100) total,
+                 SUM(oc.prprice_khice*oc.quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
+                FROM v_order_cart oc JOIN sale_order so
+                   ON so.id = oc.sale_id 
+                    AND so.user_id = oc.user_id
+                    AND so.location_id = oc.location_id
+                WHERE so.user_id = :user_id
+                AND so.location_id = :location_id
+                AND so.`status`= :status
+                AND ISNULL(oc.deleted_at)
+                AND so.sale_type = :sale_type          
+                GROUP BY sale_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+            ':user_id' => Common::getUserID(),
+            ':location_id' => Common::getCurLocationID(),
+            ':status' => '1', // To change to variable
+            ':sale_type' => Common::getSaleType()
+        ));
+
+        return $result;
+
     }
 
     public function orderAdd($item_id,$quantity,$price, $discount_amount)
@@ -344,6 +375,35 @@ class SaleOrder extends CActiveRecord
             $model->temp_status = $status;
             $model->save();
         }
+    }
+
+    public function getQtyTotal() {
+
+        $sql = "SELECT SUM(oc.quantity) quantity
+                FROM v_order_cart oc
+                WHERE oc.user_id = :user_id
+                AND oc.location_id = :location_id
+                AND oc.`status`= :status
+                AND ISNULL(oc.deleted_at)
+                AND oc.sale_type = :sale_type";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+            ':user_id' => Common::getUserID(),
+            ':location_id' => Common::getCurLocationID(),
+            ':status' => '1', // To change to variable
+            ':sale_type' => Common::getSaleType()
+        ));
+
+        $quantity=0;
+
+        if ($result) {
+            foreach ($result as $record) {
+                $quantity = $record['quantity'];
+            }
+        }
+
+        return $quantity;
+
     }
 
 }

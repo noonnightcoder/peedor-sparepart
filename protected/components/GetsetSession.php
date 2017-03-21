@@ -284,5 +284,6 @@ class GetsetSession extends CApplicationComponent
     }
 
 
+
 }
 
