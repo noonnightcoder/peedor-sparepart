@@ -136,12 +136,12 @@ class SaleOrder extends CActiveRecord
 
     public function getAllTotal()
     {
-        $quantity = 0;
+        /*$quantity = 0;
         $sub_total = 0;
         $total = 0;
-        $discount_amount = 0;
+        $discount_amount = 0;*/
 
-        $sql="SELECT sale_id,sum(quantity) quantity,
+        /*$sql="SELECT sale_id,sum(quantity) quantity,
                     SUM(price*quantity) sub_total,
                     SUM(price*quantity) - (SUM(price*quantity)*IFNULL(so.discount_amount,0)/100) total,
                     SUM(price*quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
@@ -155,8 +155,23 @@ class SaleOrder extends CActiveRecord
               and so.`status`=:status
               AND ISNULL(oc.deleted_at)
               AND so.sale_type=:sale_type            
-              GROUP BY sale_id";
+              GROUP BY sale_id";*/
 
+        $sql = "SELECT sale_id,currency_code,currency_symbol,
+                 SUM(oc.quantity) quantity,
+                 SUM(oc.price*oc.quantity) sub_total,
+                 SUM(oc.price*oc.quantity) - (SUM(oc.price*oc.quantity)*IFNULL(so.discount_amount,0)/100) total,
+                 SUM(oc.price*oc.quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
+                FROM v_order_cart oc JOIN sale_order so
+                   ON so.id = oc.sale_id 
+                    AND so.user_id = oc.user_id
+                    AND so.location_id = oc.location_id
+                WHERE so.user_id = :user_id
+                AND so.location_id = :location_id
+                AND so.`status`= :status
+                AND ISNULL(oc.deleted_at)
+                AND so.sale_type = :sale_type          
+                GROUP BY sale_id,currency_code,currency_symbol";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
             ':user_id' => Common::getUserID(),
@@ -165,6 +180,9 @@ class SaleOrder extends CActiveRecord
             ':sale_type' => Common::getSaleType()
         ));
 
+        return $result;
+
+        /*
         if ($result) {
             foreach ($result as $record) {
                 $quantity = $record['quantity'];
@@ -175,6 +193,7 @@ class SaleOrder extends CActiveRecord
         }
 
         return array($quantity, $sub_total, $total, $discount_amount);
+        */
     }
 
     public function orderAdd($item_id,$quantity,$price, $discount_amount)

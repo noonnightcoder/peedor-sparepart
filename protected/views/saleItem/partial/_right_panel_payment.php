@@ -41,6 +41,13 @@
                     </td>
                 </tr>
 
+                <?php foreach (SaleOrder::model()->getAllTotal() as $record): ?>
+                    <tr>
+                        <td><?= Yii::t('app','Total') . ' ' .  $record['currency_symbol'] ?> </td>
+                        <td><?= $record['currency_symbol'] . ' ' . number_format($record['total'],0,'.',',') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+
                 <?php if ($count_payment > 0) { ?>
                     <?php foreach ($payments as $id => $payment): ?>
                         <tr>

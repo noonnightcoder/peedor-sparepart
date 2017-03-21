@@ -440,7 +440,8 @@ class SaleItemController extends Controller
         $data['customer_id'] = Common::getCustomerID();
         $data['sale_type'] = Common::getSaleType();
 
-        $data['count_item'] = SaleOrder::model()->getAllTotal(0);
+        $data['count_item'] = 4; //SaleOrder::model()->getAllTotal(0);
+        //$data['all_total'] = SaleOrder::model()->getAllTotal();
         $data['total_discount']=0;
 
         // Retrieving actual data from backend
