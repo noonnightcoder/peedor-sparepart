@@ -127,7 +127,7 @@
                         'color' => TbHtml::BUTTON_COLOR_SUCCESS,
                         'size' => TbHtml::BUTTON_SIZE_SMALL,
                         'icon' => 'glyphicon-off white',
-                        'url' => Yii::app()->createUrl('ReceivingItem/CompleteRecv/'),
+                        'url' => array('CompleteRecv', 'receive_id'=>$receive_id,'trans_mode'=>Yii::app()->receivingCart->getMode()),
                         'class' => 'complete-recv',
                         'title' => Yii::t('app', 'Complete'),
                     )); ?>

@@ -424,7 +424,8 @@ class Receiving extends CActiveRecord
     {
         //this is should remove and replace it into the function
         $models = Item::model()->getItemPriceTierWS($item_id, null);
-
+        $trans_mode=Yii::app()->receivingCart->getMode();
+        $supplier_id=Yii::app()->receivingCart->getSupplier();
         if (empty($models)) {
             $models = Item::model()->getItemPriceTierItemNumWS($item_id, null);
 
@@ -432,11 +433,11 @@ class Receiving extends CActiveRecord
                 $item_id=$model["id"];
                 $item_number=$models['item_number'];
                 $cost_price=$models['cost_price'];
-                $supplier_id = $models['supplier_id'];
+                //$supplier_id = $models['supplier_id'];
             }
         }
 
-        $cmd = Yii::app()->db->createCommand("select func_recv_order_add(:item_id,:item_number,:quantity,:price_tier_id,:cost_price,:supplier_id,:employee_id,:user_id,:discount_amount,:discount_type) from dual");
+        $cmd = Yii::app()->db->createCommand("select func_recv_order_add(:item_id,:item_number,:quantity,:price_tier_id,:cost_price,:supplier_id,:employee_id,:user_id,:discount_amount,:discount_type,:trans_mode) from dual");
 
         $cmd->bindParam(':item_id' , $item_id);
         $cmd->bindParam(':item_number' ,$item_number);
@@ -448,6 +449,7 @@ class Receiving extends CActiveRecord
         $cmd->bindParam(':user_id',$user_id);
         $cmd->bindParam(':discount_amount',$discount_amount);
         $cmd->bindParam(':discount_type',$discount_type);
+        $cmd->bindParam(':trans_mode',$trans_mode);
         $results=$cmd->queryAll();
 
         foreach($results as $result)
@@ -458,18 +460,22 @@ class Receiving extends CActiveRecord
 
     public function getItem($user_id = null)
     {
+        $trans_mode=Yii::app()->receivingCart->getMode();
+
         $sql="SELECT receive_id,item_id,t2.code,t2.currency_id,t2.currency_symbol,t3.name,t3.item_number,t3.supplier_id,
                 round(t1.quantity) quantity,round(t1.cost_price,2) cost_price,t1.unit_price,t1.discount_amount discount,NULL expire_date,t3.description,t3.is_expire
                 FROM receiving_item t1
                 INNER JOIN receiving t4 ON t1.receive_id=t4.id
                 LEFT JOIN currency_type t2 ON t1.currency_code=t2.code
-                LEFT JOIN item t3 ON t1.item_id=t3.id
+                INNER JOIN item t3 ON t1.item_id=t3.id
                 WHERE t4.status='1'
                 AND t4.user_id=:user_id
+                and t4.trans_mode=:trans_mode
                 and t1.deleted_at is null";
 
         $cmd = Yii::app()->db->createCommand($sql);
         $cmd->bindParam(':user_id' , $user_id);
+        $cmd->bindParam(':trans_mode' , $trans_mode);
         return $cmd->queryAll();
     }
 
@@ -542,6 +548,32 @@ class Receiving extends CActiveRecord
 
         $results=$cmd->queryAll();
         //print_r($results);
+
+        foreach($results as $result)
+            foreach ($result as $k=>$value)
+
+                return $value;
+    }
+
+    public function completedSave($receive_id,$trans_mode)
+    {
+        $supplier_id=Yii::app()->receivingCart->getSupplier();
+        $user_id=Common::getUserID();
+        $employee_id=Common::getEmployeeID();
+        $save_status =0;
+
+        $sql="SELECT func_recv_save(:receive_id,:trans_mode,:employee_id,:user_id,:save_status,:supplier_id) from dual";
+
+        $cmd = Yii::app()->db->createCommand($sql);
+
+        $cmd->bindParam(':receive_id' , $receive_id);
+        $cmd->bindParam(':trans_mode' , $trans_mode);
+        $cmd->bindParam(':employee_id',$employee_id);
+        $cmd->bindParam(':user_id',$user_id);
+        $cmd->bindParam(':save_status',$save_status);
+        $cmd->bindParam(':supplier_id',$supplier_id);
+
+        $results=$cmd->queryAll();
 
         foreach($results as $result)
             foreach ($result as $k=>$value)

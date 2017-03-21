@@ -265,7 +265,7 @@ class ReceivingItemController extends Controller
         }
     }
 
-    public function actionCompleteRecv()
+    public function actionCompleteRecv($receive_id,$trans_mode)
     {
         $data = $this->sessionInfo();
         if (!isset($data['supplier_id']) && $data['trans_mode']!='physical_count') {
@@ -276,9 +276,7 @@ class ReceivingItemController extends Controller
                 $this->redirect(array('receivingItem/index'));
             } else {
                 //Save transaction to db
-                $data['receiving_id'] = Receiving::model()->saveRevc($data['items'], $data['payments'],
-                    $data['supplier_id'], $data['employee_id'], $data['trans_mode']
-                );
+                $data['receiving_id'] = Receiving::model()->completedSave($receive_id,$trans_mode);
 
                 if (substr($data['receiving_id'], 0, 2) == '-1') {
                     $data['warning'] = $data['receiving_id'];
