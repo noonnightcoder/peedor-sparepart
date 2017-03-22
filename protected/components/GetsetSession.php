@@ -266,23 +266,43 @@ class GetsetSession extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['customer_id'])) {
-            $this->setCustomer(null);
+            $this->setCustomerId(NULL);
         }
         return $this->session['customer_id'];
     }
 
-    public function setCustomer($customer_id)
+    public function setCustomerId($customer_id)
     {
         $this->setSession(Yii::app()->session);
         $this->session['customer_id'] = $customer_id;
     }
 
-    public function removeCustomer()
+    public function clearCustomerId()
     {
         $this->setSession(Yii::app()->session);
         unset($this->session['customer_id']);
     }
 
+    public function setDayInterval($data)
+    {
+        $this->setSession(Yii::app()->session);
+        $this->session['dayinterval'] = $data;
+    }
+
+    public function getDayInterval()
+    {
+        $this->setSession(Yii::app()->session);
+        if (!isset($this->session['dayinterval'])) {
+            $this->setTotalDiscount(1);
+        }
+        return $this->session['dayinterval'];
+    }
+
+    public function clearDayInterval()
+    {
+        $this->setSession(Yii::app()->session);
+        unset($this->session['dayinterval']);
+    }
 
 
 }

@@ -17,7 +17,7 @@
                     'icon' => 'ace-icon fa fa-save white',
                     'url' => Yii::app()->createUrl('SaleItem/SuspendSale/'),
                     'class' => 'suspend-sale',
-                    //'title' => Yii::t('app', 'Suspend Sale'),
+                    'title' => Yii::t('app', 'Suspend Sale'),
                 ));
                 ?>
 
@@ -29,7 +29,7 @@
                     'url' => Yii::app()->createUrl('SaleItem/CancelSale/'),
                     'class' => 'cancel-sale',
                     'id' => 'cancel_sale_button',
-                    //'title' => Yii::t('app', 'Cancel Sale'),
+                    'title' => Yii::t('app', 'Cancel Sale'),
                 ));
                 ?>
             </div>

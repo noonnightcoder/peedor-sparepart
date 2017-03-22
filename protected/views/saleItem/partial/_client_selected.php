@@ -7,15 +7,25 @@
  
         <div class="clear">
             <ul class="list-unstyled">
-                <li>
+               <!-- <li>
                     <strong>
-                        <?php echo TbHtml::link(ucwords($cust_fullname),$this->createUrl('Client/View/',array('id'=>$customer_id)), array(
+                        <?php /*echo TbHtml::link(ucwords($cust_fullname),$this->createUrl('Client/View/',array('id'=>$customer_id)), array(
                             'class'=>'update-dialog-open-link',
                             'data-update-dialog-title' => Yii::t('app','Customer Information'),
-                        )); ?>
+                        )); */?>
                     </strong>
-                    <?php echo TbHtml::encode(' ( Balance ' . number_format($acc_balance,Common::getDecimalPlace()) . ' )'); ?>
-                </li>
+                    <?php /*echo TbHtml::encode(' ( Balance ' . number_format($acc_balance,Common::getDecimalPlace()) . ' )'); */?>
+                </li>-->
+                Balance :
+                <?php foreach ($account as $acc) { ?>
+                    <?php echo $acc["currency_symbol"]  . number_format($acc["current_balance"],Common::getDecimalPlace()) . ' - '; ?>
+                    <?php $account_name = $acc["name"]; ?>
+                <?php } ?>
+
+                <?php echo TbHtml::link(ucwords($account_name),$this->createUrl('Client/View/',array('id'=>$customer_id)), array(
+                    'class'=>'update-dialog-open-link',
+                    'data-update-dialog-title' => Yii::t('app','Customer Information'),
+                )); ?>
             </ul>
         </div>
 
@@ -24,7 +34,7 @@
             'size'=>TbHtml::BUTTON_SIZE_MINI,
             'icon'=>'glyphicon-edit white',
             'class'=>'btn btn-sm edit-customer',
-            'url'=>Yii::app()->createUrl("client/Update/",array("id"=>$customer_id,'sale_mode'=>'Y')),
+            'url'=>Yii::app()->createUrl("client/Update/",array("id"=> $customer_id,'sale_mode'=>'Y')),
         )); ?>
 
         <?php echo TbHtml::linkButton(Yii::t( 'app', 'Remove' ),array(

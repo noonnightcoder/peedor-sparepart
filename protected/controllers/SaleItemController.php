@@ -71,8 +71,11 @@ class SaleItemController extends Controller
         if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
             $sale_type = $_GET['sale_type'];
             $this->setSaleType($sale_type);
-            $price_tier_id=$sale_type=='R'?4:1;
+            // Looking to change this to set in Shop / System Setting hard code for now
+            $price_tier_id = $sale_type=='R'?4:1;
+            $customer_id = $sale_type=='R'?1:NULL;
             Yii::app()->getsetSession->setPriceTierId($price_tier_id);
+            Yii::app()->getsetSession->setCustomerId($customer_id);
             $this->reload();
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');
@@ -171,18 +174,19 @@ class SaleItemController extends Controller
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $client_id = $_POST['SaleItem']['client_id'];
-            Yii::app()->shoppingCart->setCustomer($client_id);
+            $client = Client::model()->findByPk($client_id);
+            Yii::app()->getsetSession->setCustomerId($client_id);
+            Yii::app()->getsetSession->setPriceTierId($client->price_tier_id);
             $this->reload();
         } else {
-            //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-            Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
         }
     }
 
     public function actionRemoveCustomer()
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            Yii::app()->shoppingCart->removeCustomer();
+            Yii::app()->getsetSession->clearCustomerId();
             $this->reload();
         } else {
             //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -256,6 +260,7 @@ class SaleItemController extends Controller
             Yii::app()->params['sale_complete_status'], $data['total_discount'],'R');
         */
 
+        $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id']);
 
         $customer = $this->customerInfo($data['customer_id']);
         $data['cust_fullname'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
@@ -432,16 +437,16 @@ class SaleItemController extends Controller
         $data['count_payment'] = 0;
         $data['payments'] = 0;
         $data['items'] = array();
+        $data['account'] = array();
         $data['comment'] = 'Default Comment';
         $data['customer_id'] = NULL;
-        $data['acc_balance'] = 0.00;
-        $data['cust_fullname'] = 'General Customer';
+        $data['customer_name'] = '';
         $data['sale_type'] = '';
 
         $data['location_id'] = Common::getCurLocationID();
         $data['employee_id'] = Common::getEmployeeID();
         $data['user_id'] = Common::getUserID();
-        $data['customer_id'] = Common::getCustomerID();
+        // $data['customer_id'] = Common::getCustomerID(); // !isset(customer_id) then NULL
         $data['sale_type'] = Common::getSaleType();
 
         $data['count_item'] = SaleOrder::model()->getQtyTotal();
@@ -451,7 +456,9 @@ class SaleItemController extends Controller
         // Retrieving actual data from backend
         $data['items'] = Yii::app()->shoppingCart->getCart();
         $data['sale_id'] = Common::getSaleID();
-
+        $data['employee'] = ucwords(Yii::app()->session['emp_fullname']);
+        $account = $this->custAccountInfo($data['customer_id']);
+        $data['account'] = isset($account)?$account:$data['account'];
 
         /*
         $data['count_item'] = Yii::app()->shoppingCart->getQuantityTotal();
@@ -469,7 +476,6 @@ class SaleItemController extends Controller
         $data['transaction_date'] = date('d/m/Y');
         $data['transaction_time'] = date('h:i:s');
         //$data['session_sale_id'] = Yii::app()->shoppingCart->getSaleId();
-        $data['employee'] = ucwords(Yii::app()->session['emp_fullname']);
         //$data['total_discount'] = Yii::app()->shoppingCart->getTotalDiscount();
 
         $data['disable_editprice'] = Yii::app()->user->checkAccess('sale.editprice') ? false : true;

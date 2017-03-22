@@ -330,27 +330,6 @@ class ShoppingCart extends CApplicationComponent
         $this->setSaleId($sale_id);
     }
 
-    public function setDayInterval($data)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['dayinterval'] = $data;
-    }
-    
-    public function getDayInterval()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['dayinterval'])) {
-            $this->setTotalDiscount(1);
-        }
-        return $this->session['dayinterval'];
-    }
-    
-    public function clearDayInterval()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['dayinterval']);
-    }
-
     public function getSaleType()
     {
         $this->setSession(Yii::app()->session);

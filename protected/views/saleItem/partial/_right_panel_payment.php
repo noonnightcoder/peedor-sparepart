@@ -13,7 +13,7 @@
                 <tbody>
                 <tr>
                     <td><?php echo Yii::t('app', 'Item in Cart'); ?> :</td>
-                    <td><?php echo $count_item; ?></td>
+                    <td><?= $count_item; ?></td>
                 </tr>
 
                 <?php if (Common::getSaleType()=='W') {
