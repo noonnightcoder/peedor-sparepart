@@ -1,8 +1,6 @@
 <div id="register_container">
-
-    <?= ' Sale Type : ' . Common::getSaleType() ?> <br>
-    <?= 'Customer ID : ' . $customer_id  ?> <br>
-    <?= ' Price Tier HTML Value : ' . Common::priceTierDisable() ?> <br>
+    <?php echo 'Customer ID : ' . Common::getCustomerID() .  "<br>" ?>
+    <?php echo' Price Tier HTML Value : ' . Common::priceTierDisable() . "<br>" ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(

@@ -40,7 +40,7 @@
                 'select'=>'js:function(event, ui) {
                     event.preventDefault();
                     $("#SaleItem_item_id").val(ui.item.id);
-                    $("#add_item_form").ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: itemScannedSuccess});
+                    $("#add_item_form").ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: qtyScannedSuccess(ui.item.id)});
                 }',
                 //'search' => 'js:function(){ $(".waiting").show(); }',
                 //'open' => 'js:function(){ $(".waiting").hide(); }',

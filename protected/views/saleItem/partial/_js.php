@@ -131,7 +131,7 @@ Yii::app()->clientScript->registerScript( 'setComment', "
 ?>
 
 <?php
-Yii::app()->clientScript->registerScript( 'selectProduct', "
+/*Yii::app()->clientScript->registerScript( 'selectProduct', "
         jQuery( function($){
             $('div#product_show').on('click','a.list-product',function(e) {
                 e.preventDefault();
@@ -166,10 +166,11 @@ Yii::app()->clientScript->registerScript( 'selectProduct', "
                                   return false;
                                 }
                           }
-                }); /* End Ajax */
+                });
              });
          });
       ");
+*/
 ?>
 
 <?php
@@ -192,7 +193,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
       ");
 ?>
 
-<?php if  (Yii::app()->settings->get('sale', 'disableConfirmation')=='1') { ?>
+<?php /*if  (Yii::app()->settings->get('sale', 'disableConfirmation')=='1') { */?><!--
     <script>
         $(document).ready(function()
         {
@@ -200,17 +201,19 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
                 e.preventDefault();
                 $("#finish_sale_button").hide();
                 $('#finish_sale_form').submit();
+                $("#SaleItem_client_id").focus();
+                return false;
             });
         });
     </script>
-<?php } else { ?>
+<?php /*} else { */?>
     <script>
         $(document).ready(function()
         {
             $('#payment_cart').on('click','a.complete-sale',function(e) {
                 e.preventDefault();
                 $("#finish_sale_button").hide();
-                if (confirm("<?php echo Yii::t('app','Are you sure you want to submit this sale? This cannot be undone.'); ?>")){
+                if (confirm("<?php /*echo Yii::t('app','Are you sure you want to submit this sale? This cannot be undone.'); */?>")){
                     $('#finish_sale_form').submit();
                 } else { //Bring back submit and unmask if fail to confirm
                     $("#finish_sale_button").show();
@@ -218,7 +221,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
             });
         });
     </script>
-<?php } ?>
+--><?php /*} */?>
 
 <script>
 
@@ -260,12 +263,17 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
 
         $('#client_cart').on('click','a.detach-customer', function(e) {
             e.preventDefault();
-            $('#client_selected_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit});
+            $('#client_selected_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: clientScannedSuccess});
         });
 
         $('#total_discount_cart').on('change','input.input-totaldiscount',function(e) {
             e.preventDefault();
             $(this.form).ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit });
+        });
+
+        $('#payment_cart').on('click','a.complete-sale', function(e) {
+            e.preventDefault();
+            $('#finish_sale_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: clientScannedSuccess });
         });
 
     });
@@ -280,11 +288,26 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         $('.waiting').show();
     }
 
+
     function itemScannedSuccess(responseText, statusText, xhr, $form)
     {
         //$('.waiting').hide();
         setTimeout(function(){$('#SaleItem_item_id').focus();}, 10);
     }
+
+    // really thanks to this http://www.stefanolocati.it/blog/?p=1413
+    function qtyScannedSuccess(itemId)
+    {
+        return function (responseText, statusText, xhr, $form ) {
+            setTimeout(function(){$('#quantity_' + itemId).select();}, 10);
+        }
+    }
+
+    function clientScannedSuccess(responseText, statusText, xhr, $form)
+    {
+        setTimeout(function(){$('#SaleItem_client_id').focus();}, 10);
+    }
+
 
 </script>
 
@@ -292,7 +315,6 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
     $(document).keydown(function(event)
     {
         var mycode = event.keyCode;
-        //console.log(mycode);
         //F1
         if ( mycode === 112) {
             $('#payment_amount_id').focus();

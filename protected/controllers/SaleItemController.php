@@ -71,11 +71,17 @@ class SaleItemController extends Controller
         if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
             $sale_type = $_GET['sale_type'];
             $this->setSaleType($sale_type);
+
+            /* Set default customer id for first page load
+            if (!isset($customer_id) || $customer_id==NULL) {
+             $customer_id = $sale_type=='R'?1:NULL;
+             Yii::app()->getsetSession->setCustomerId($customer_id);
+            }
+            */
             // Looking to change this to set in Shop / System Setting hard code for now
-            $price_tier_id = $sale_type=='R'?4:1;
-            $customer_id = $sale_type=='R'?1:NULL;
-            Yii::app()->getsetSession->setPriceTierId($price_tier_id);
-            Yii::app()->getsetSession->setCustomerId($customer_id);
+            //$price_tier_id = $sale_type=='R'?4:1;
+            //Yii::app()->getsetSession->setPriceTierId($price_tier_id);
+
             $this->reload();
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');
@@ -187,10 +193,11 @@ class SaleItemController extends Controller
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             Yii::app()->getsetSession->clearCustomerId();
+            //$this->backIndex();
             $this->reload();
         } else {
-            //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
             Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
+            //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
         }
     }
 
@@ -250,27 +257,24 @@ class SaleItemController extends Controller
         $data = $this->sessionInfo();
 
         if (empty($data['items'])) {
-            $this->redirect(array('saleItem/index'));
+            $this->backIndex();
         }
 
-        //Save transaction to db
-        /*
-        $data['sale_id'] = Sale::model()->saveSale($data['session_sale_id'], $data['items'], $data['payments'],
-            $data['payment_received'], $data['customer_id'], $data['employee_id'], $data['sub_total'], $data['comment'],
-            Yii::app()->params['sale_complete_status'], $data['total_discount'],'R');
-        */
-
-        $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id']);
-
         $customer = $this->customerInfo($data['customer_id']);
-        $data['cust_fullname'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
+        $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
 
-        if ($data['amount_change'] > 0 && $customer == null) {
+        if ($data['sale_type']=='W') {
+            Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
+            $this->backIndex();
+            $this->reload($data);
+        } elseif ($data['amount_change'] > 0 && $customer == null) {
             Yii::app()->user->setFlash('warning', Yii::t('app',"There is due amount, please select customer"));
             $this->reload($data);
         } elseif (substr($data['sale_id'], 0, 2) == '-1') {
             Yii::app()->user->setFlash('warning', $data['sale_id']);
         } else {
+            //Save transaction to db
+            $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id']);
             $this->render('partial/_receipt', $data);
             Yii::app()->shoppingCart->clearAll();
         }
@@ -446,7 +450,7 @@ class SaleItemController extends Controller
         $data['location_id'] = Common::getCurLocationID();
         $data['employee_id'] = Common::getEmployeeID();
         $data['user_id'] = Common::getUserID();
-        // $data['customer_id'] = Common::getCustomerID(); // !isset(customer_id) then NULL
+        $data['customer_id'] = Common::getCustomerID();
         $data['sale_type'] = Common::getSaleType();
 
         $data['count_item'] = SaleOrder::model()->getQtyTotal();
@@ -516,6 +520,10 @@ class SaleItemController extends Controller
     protected function setSaleType($sale_type) {
         Yii::app()->shoppingCart->setSaleType($sale_type);
     }
-    
+
+    protected function backIndex()
+    {
+        $this->redirect(array('saleItem/index?sale_type=' . Common::getSaleType()));
+    }
 
 }
