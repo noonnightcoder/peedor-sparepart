@@ -304,11 +304,12 @@ class SaleOrder extends CActiveRecord
 
     public function orderSave($sale_id)
     {
-        $sql="SELECT func_order_save(:sale_id,:location_id,:employee_id,:user_id,:save_status) sale_id";
+        $sql="SELECT func_order_save(:sale_id,:location_id,:client_id,:employee_id,:user_id,:save_status) sale_id";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':sale_id' => $sale_id,
                 ':location_id' => Common::getCurLocationID(),
+                ':client_id' => Common::getCustomerID(),
                 ':employee_id' => Common::getEmployeeID(),
                 ':user_id' => Common::getUserID(),
                 ':save_status' => Yii::app()->params['sale_complete_status']

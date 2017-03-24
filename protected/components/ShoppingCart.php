@@ -45,7 +45,8 @@ class ShoppingCart extends CApplicationComponent
         $this->session['payments'] = $payments_data;
     }
 
-    public function getSaleId()
+    // Change to Common.php
+    /*public function getSaleId()
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['sale_id'])) {
@@ -64,7 +65,7 @@ class ShoppingCart extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         unset($this->session['sale_id']);
-    }
+    }*/
     
     public function getPriceTier()
     {
@@ -130,12 +131,12 @@ class ShoppingCart extends CApplicationComponent
 
     public function editItem($item_id, $quantity, $price, $discount, $discount_type='%')
     {
-        SaleOrder::model()->orderEdit($this->getSaleId(),$item_id, $quantity, $price, $discount, $discount_type);
+        SaleOrder::model()->orderEdit(Common::getSaleID(),$item_id, $quantity, $price, $discount, $discount_type);
     }
 
     public function deleteItem($item_id)
     {
-        SaleOrder::model()->orderDel($this->getSaleId(),$item_id);
+        SaleOrder::model()->orderDel(Common::getSaleID(),$item_id);
     }
 
     public function f5ItemPriceTier()

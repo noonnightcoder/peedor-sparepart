@@ -75,7 +75,7 @@ if (isset($error_message))
             <!-- <div class="panel panel-default"> -->
                     <p>
                         <?php echo Yii::t('app','Cashier') . " : ". TbHtml::encode(ucwords($employee)); ?> <br>
-                        <?php echo Yii::t('app','Customer') . " : ". TbHtml::encode(ucwords($cust_fullname)); ?> <br>
+                        <?php echo Yii::t('app','Customer') . " : ". TbHtml::encode(ucwords($customer_name)); ?> <br>
                     </p>
             <!-- </div> -->
         </div>

@@ -114,9 +114,9 @@ class SaleItemController extends Controller
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $data = array();
             $model = new SaleItem;
-            $quantity = isset($_POST['SaleItem']['quantity']) ? $_POST['SaleItem']['quantity'] : null;
-            $price = isset($_POST['SaleItem']['price']) ? $_POST['SaleItem']['price'] : null;
-            $discount = isset($_POST['SaleItem']['discount']) ? $_POST['SaleItem']['discount'] : null;
+            $quantity = isset($_POST['SaleItem']['quantity']) ? $_POST['SaleItem']['quantity'] : NULL;
+            $price = isset($_POST['SaleItem']['price']) ? $_POST['SaleItem']['price'] : NULL;
+            $discount = isset($_POST['SaleItem']['discount']) ? $_POST['SaleItem']['discount'] : NULL;
             //$description = 'test';
 
             $model->quantity = $quantity;
@@ -232,10 +232,15 @@ class SaleItemController extends Controller
 
     public function actionSetPriceTier()
     {
-        $price_tier_id = $_POST['price_tier_id'];
-        Yii::app()->shoppingCart->setPriceTier($price_tier_id);
-        Yii::app()->shoppingCart->f5ItemPriceTier();
-        $this->reload();
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            $price_tier_id = $_POST['price_tier_id'];
+            Yii::app()->getsetSession->setPriceTierId($price_tier_id);
+            //Yii::app()->shoppingCart->f5ItemPriceTier();
+            $this->reload();
+        } else {
+            Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
+        }
+
     }
 
     public function actionCancelSale()
@@ -263,7 +268,7 @@ class SaleItemController extends Controller
         $customer = $this->customerInfo($data['customer_id']);
         $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
 
-        if ($data['sale_type']=='W') {
+        if ($data['sale_type']=='W' && $data['customer_id']==NULL) {
             Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
             $this->backIndex();
             $this->reload($data);
@@ -446,6 +451,8 @@ class SaleItemController extends Controller
         $data['customer_id'] = NULL;
         $data['customer_name'] = '';
         $data['sale_type'] = '';
+        $data['transaction_date'] = date('d/m/Y');
+        $data['transaction_time'] = date('h:i:s');
 
         $data['location_id'] = Common::getCurLocationID();
         $data['employee_id'] = Common::getEmployeeID();

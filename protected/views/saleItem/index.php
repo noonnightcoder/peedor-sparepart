@@ -1,5 +1,8 @@
 <div id="register_container">
+    <?php echo 'Sale Type : ' . Common::getSaleType() .  "<br>" ?>
+    <?php echo 'Sale ID : ' . Common::getSaleID() .  "<br>" ?>
     <?php echo 'Customer ID : ' . Common::getCustomerID() .  "<br>" ?>
+    <?php echo 'Price Tier ID : ' . Common::getPriceTierID() .  "<br>" ?>
     <?php echo' Price Tier HTML Value : ' . Common::priceTierDisable() . "<br>" ?>
 
     <?php $this->renderPartial('partial/_left_panel',
