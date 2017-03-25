@@ -20,7 +20,7 @@
  */
 class SaleOrder extends CActiveRecord
 {
-    private $active_status = 1;
+    //private $active_status = 1;
 
     /**
      * @return string the associated database table name
@@ -94,14 +94,17 @@ class SaleOrder extends CActiveRecord
         return parent::model($className);
     }
 
+    /* change to get OrerInfo below to remove */
+    /*
     public function getOrderId()
     {
-        $sql = "SELECT sfunc_order_find_id(NULL,:user_id,:location_id) sale_id";
+        $sql = "SELECT sfunc_order_info(:user_id,:location_id,:status) order_info";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true,
             array(
                 ':user_id' => Common::getUserID(),
                 ':location_id' => Common::getCurLocationID(),
+                ':status' => Yii::app()->params['order_status_ongoing']
             )
         );
 
@@ -110,6 +113,44 @@ class SaleOrder extends CActiveRecord
         }
 
         return $id;
+    }
+    */
+
+    public function getOrderInfo()
+    {
+        $sql = "SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 1), ';', -1) sale_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 2), ';', -1) client_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 3), ';', -1) location_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 4), ';', -1) user_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 5), ';', -1) sale_type
+                FROM (
+                  SELECT sfunc_order_info(:user_id,:location_id,:status) as order_info
+                ) as t1";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+            array(
+                ':user_id' => Common::getUserID(),
+                ':location_id' => Common::getCurLocationID(),
+                ':status' => Yii::app()->params['order_status_ongoing']
+            )
+        );
+
+        $sale_id = NULL;
+        $client_id = NULL;
+        $location_id = NULL;
+        $user_id = NULL;
+        $sale_type = NULL;
+
+        foreach ($result as $record) {
+            $sale_id = $record['sale_id'];
+            $client_id = $record['client_id'];
+            $location_id = $record['location_id'];
+            $user_id = $record['user_id'];
+            $sale_type = $record['sale_type'];
+        }
+
+
+        return array($sale_id, $client_id, $location_id, $user_id,$sale_type);;
     }
 
     public function getOrderCart()
@@ -130,7 +171,7 @@ class SaleOrder extends CActiveRecord
         return Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':user_id' => Common::getUserID(),
                 ':location_id' => Common::getCurLocationID(),
-                ':status' => '1', // To change to variable
+                ':status' => Yii::app()->params['order_status_ongoing'],
                 ':sale_type' => Common::getSaleType()
             )
         );
@@ -312,7 +353,7 @@ class SaleOrder extends CActiveRecord
                 ':client_id' => Common::getCustomerID(),
                 ':employee_id' => Common::getEmployeeID(),
                 ':user_id' => Common::getUserID(),
-                ':save_status' => Yii::app()->params['sale_complete_status']
+                ':save_status' => Yii::app()->params['order_status_complete']
             )
         );
 

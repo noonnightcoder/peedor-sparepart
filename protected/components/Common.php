@@ -185,12 +185,12 @@ Class Common
 
     public static function getSaleID()
     {
-        return SaleOrder::model()->getOrderId(); //Yii::app()->shoppingCart->getSaleId();
+        return Yii::app()->shoppingCart->getSaleId();
     }
 
     public static function getCustomerID()
     {
-        return Yii::app()->getsetSession->getCustomerId();
+        return Yii::app()->shoppingCart->getCustomerId();
     }
 
     public static function getPriceTierID()

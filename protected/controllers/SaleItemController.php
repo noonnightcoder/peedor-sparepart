@@ -181,7 +181,7 @@ class SaleItemController extends Controller
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $client_id = $_POST['SaleItem']['client_id'];
             $client = Client::model()->findByPk($client_id);
-            Yii::app()->getsetSession->setCustomerId($client_id);
+            Yii::app()->shoppingCart->setCustomerId($client_id);
             Yii::app()->getsetSession->setPriceTierId($client->price_tier_id);
             $this->reload();
         } else {
@@ -192,7 +192,7 @@ class SaleItemController extends Controller
     public function actionRemoveCustomer()
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            Yii::app()->getsetSession->clearCustomerId();
+            Yii::app()->shoppingCart->clearCustomerId();
             //$this->backIndex();
             $this->reload();
         } else {

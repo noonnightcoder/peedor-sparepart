@@ -22,7 +22,7 @@
                     <?php $account_name = $acc["name"]; ?>
                 <?php } ?>
 
-                <?php echo TbHtml::link(ucwords($account_name),$this->createUrl('Client/View/',array('id'=>$customer_id)), array(
+                <?php echo TbHtml::link(ucwords('Test'),$this->createUrl('Client/View/',array('id'=>$customer_id)), array(
                     'class'=>'update-dialog-open-link',
                     'data-update-dialog-title' => Yii::t('app','Customer Information'),
                 )); ?>

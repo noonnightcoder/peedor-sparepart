@@ -21,6 +21,8 @@ class ShoppingCart extends CApplicationComponent
     {
         $cart = SaleOrder::model()->getOrderCart();
 
+        $this->settingOrderInfo();
+
         return $cart;
     }
 
@@ -66,7 +68,9 @@ class ShoppingCart extends CApplicationComponent
         $this->setSession(Yii::app()->session);
         unset($this->session['sale_id']);
     }*/
-    
+
+    // Move to GetsetSessoin.php to remove after testing done
+    /*
     public function getPriceTier()
     {
         $this->setSession(Yii::app()->session);
@@ -87,6 +91,7 @@ class ShoppingCart extends CApplicationComponent
         $this->setSession(Yii::app()->session);
         unset($this->session['pricetier']);
     }
+    */
 
     public function getComment()
     {
@@ -331,6 +336,21 @@ class ShoppingCart extends CApplicationComponent
         $this->setSaleId($sale_id);
     }
 
+    public function getSaleId()
+    {
+        $this->setSession(Yii::app()->session);
+        if (!isset($this->session['sale_id'])) {
+            $this->setSaleId(NULL);
+        }
+        return $this->session['sale_id'];
+    }
+
+    public function setSaleId($customer_id)
+    {
+        $this->setSession(Yii::app()->session);
+        $this->session['sale_id'] = $customer_id;
+    }
+
     public function getSaleType()
     {
         $this->setSession(Yii::app()->session);
@@ -343,6 +363,27 @@ class ShoppingCart extends CApplicationComponent
         $this->session['sale_type'] = $sale_type;
     }
 
+    public function getCustomerId()
+    {
+        $this->setSession(Yii::app()->session);
+        if (!isset($this->session['customer_id'])) {
+            $this->setCustomerId($this->defaultCustomerId());
+        }
+        return $this->session['customer_id'];
+    }
+
+    public function setCustomerId($customer_id)
+    {
+        $this->setSession(Yii::app()->session);
+        $this->session['customer_id'] = $customer_id;
+    }
+
+    public function clearCustomerId()
+    {
+        $this->setSession(Yii::app()->session);
+        unset($this->session['customer_id']);
+    }
+
     public function settingSaleSum()
     {
         $all_total = SaleOrder::model()->getAllTotal($this->getTableId(),$this->getGroupId(),Common::getCurLocationID());
@@ -353,6 +394,17 @@ class ShoppingCart extends CApplicationComponent
         $this->setSaleDiscount($all_total[3]);
     }
 
+    public function settingOrderInfo()
+    {
+        $order_infos = SaleOrder::model()->getOrderInfo();
+        $this->setSaleId($order_infos[0]);
+        $this->setCustomerId($order_infos[1]);
+    }
+
+    protected function defaultCustomerId()
+    {
+        return Common::getSaleType()=='R'?1:NULL;
+    }
 
     /*
     public function clearAll()

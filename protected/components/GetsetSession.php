@@ -262,25 +262,10 @@ class GetsetSession extends CApplicationComponent
         $this->session['price_tier_id'] = $price_tier_id;
     }
 
-    public function getCustomerId()
+    public function clearPriceTierId()
     {
         $this->setSession(Yii::app()->session);
-        if (!isset($this->session['customer_id'])) {
-            $this->setCustomerId($this->defaultCustomerId());
-        }
-        return $this->session['customer_id'];
-    }
-
-    public function setCustomerId($customer_id)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['customer_id'] = $customer_id;
-    }
-
-    public function clearCustomerId()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['customer_id']);
+        unset($this->session['price_tier_id']);
     }
 
     public function setDayInterval($data)
@@ -307,11 +292,6 @@ class GetsetSession extends CApplicationComponent
     protected function defaultPriceTierId()
     {
         return Common::getSaleType()=='R'?4:1;
-    }
-
-    protected function defaultCustomerId()
-    {
-        return Common::getSaleType()=='R'?1:NULL;
     }
 
 
