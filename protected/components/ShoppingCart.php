@@ -255,7 +255,6 @@ class ShoppingCart extends CApplicationComponent
         return round($total, Common::getDecimalPlace());
     }
 
-    //Alain Multiple Payments
     public function getPaymentsTotal()
     {
         $subtotal = 0;
@@ -345,10 +344,10 @@ class ShoppingCart extends CApplicationComponent
         return $this->session['sale_id'];
     }
 
-    public function setSaleId($customer_id)
+    public function setSaleId($sale_id)
     {
         $this->setSession(Yii::app()->session);
-        $this->session['sale_id'] = $customer_id;
+        $this->session['sale_id'] = $sale_id;
     }
 
     public function getSaleType()
@@ -367,7 +366,7 @@ class ShoppingCart extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['customer_id'])) {
-            $this->setCustomerId($this->defaultCustomerId());
+            $this->setCustomerId(NULL);
         }
         return $this->session['customer_id'];
     }
@@ -382,6 +381,27 @@ class ShoppingCart extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         unset($this->session['customer_id']);
+    }
+
+    public function getPriceTierId()
+    {
+        $this->setSession(Yii::app()->session);
+        if (!isset($this->session['price_tier_id'])) {
+            $this->setPriceTierId($this->defaultPriceTierId());
+        }
+        return $this->session['price_tier_id'];
+    }
+
+    public function setPriceTierId($price_tier_id)
+    {
+        $this->setSession(Yii::app()->session);
+        $this->session['price_tier_id'] = $price_tier_id;
+    }
+
+    public function clearPriceTierId()
+    {
+        $this->setSession(Yii::app()->session);
+        unset($this->session['price_tier_id']);
     }
 
     public function settingSaleSum()
@@ -401,14 +421,21 @@ class ShoppingCart extends CApplicationComponent
         $this->setCustomerId($order_infos[1]);
     }
 
-    protected function defaultCustomerId()
+    /*protected function defaultCustomerId()
     {
         return Common::getSaleType()=='R'?1:NULL;
+    }*/
+
+    protected function defaultPriceTierId()
+    {
+        return Common::getSaleType()=='R'?4:1;
     }
 
-    /*
     public function clearAll()
     {
+        $this->clearCustomerId();
+        $this->clearPriceTierId();
+        /*
         $this->emptyCart();
         $this->emptyPayment();
        // $this->removeCustomer();
@@ -419,7 +446,7 @@ class ShoppingCart extends CApplicationComponent
         $this->clearPriceTier();
         //$this->clearTotalDiscount();
         $this->clearPaymentNote();
+        */
     }
-    */
 
 }

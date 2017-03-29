@@ -71,6 +71,13 @@ class SaleItemController extends Controller
         if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
             $sale_type = $_GET['sale_type'];
             $this->setSaleType($sale_type);
+            Yii::app()->shoppingCart->clearAll(); // Clear previously set session move form Retail to Whole Sale
+
+
+            if ($sale_type=='R') {
+                Yii::app()->shoppingCart->setPriceTierId(4);
+                Yii::app()->shoppingCart->setCustomerId(1);
+            }
 
             /* Set default customer id for first page load
             if (!isset($customer_id) || $customer_id==NULL) {
@@ -182,7 +189,8 @@ class SaleItemController extends Controller
             $client_id = $_POST['SaleItem']['client_id'];
             $client = Client::model()->findByPk($client_id);
             Yii::app()->shoppingCart->setCustomerId($client_id);
-            Yii::app()->getsetSession->setPriceTierId($client->price_tier_id);
+            Yii::app()->shoppingCart->setPriceTierId($client->price_tier_id);
+            SaleOrder::model()->orderStatusCH($client_id);
             $this->reload();
         } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -234,7 +242,7 @@ class SaleItemController extends Controller
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $price_tier_id = $_POST['price_tier_id'];
-            Yii::app()->getsetSession->setPriceTierId($price_tier_id);
+            Yii::app()->shoppingCart->setPriceTierId($price_tier_id);
             //Yii::app()->shoppingCart->f5ItemPriceTier();
             $this->reload();
         } else {
@@ -268,7 +276,7 @@ class SaleItemController extends Controller
         $customer = $this->customerInfo($data['customer_id']);
         $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
 
-        if ($data['sale_type']=='W' && $data['customer_id']==NULL) {
+        if ($data['sale_type']=='W' && $data['customer_id']==-1) {
             Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
             $this->backIndex();
             $this->reload($data);
@@ -280,8 +288,9 @@ class SaleItemController extends Controller
         } else {
             //Save transaction to db
             $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id']);
-            $this->render('partial/_receipt', $data);
+            //$this->render('partial/_receipt', $data);
             Yii::app()->shoppingCart->clearAll();
+            $this->backIndex();
         }
 
     }
@@ -400,8 +409,6 @@ class SaleItemController extends Controller
         $this->layout = '//layouts/column_sale';
 
         $model = new SaleItem;
-        $data['model'] = $model;
-        $data['status'] = 'success';
 
         $data = $this->sessionInfo($data);
 
@@ -410,7 +417,6 @@ class SaleItemController extends Controller
 
         if (Yii::app()->request->isAjaxRequest) {
 
-            //Yii::app()->clientScript->scriptMap['*.js'] = false;
             $cs = Yii::app()->clientScript;
             $cs->scriptMap = array(
                 'jquery.js' => false,
@@ -435,12 +441,17 @@ class SaleItemController extends Controller
     protected function sessionInfo($data = array())
     {
         /* Define Default Variables Value */
+        $model = new SaleItem;
+
+        $data['model'] = $model;
+        $data['status'] = 'success';
         $data['sale_id'] = null;
         $data['time_go'] = '';
         $data['count_item'] = 0;
         $data['sub_total'] = 0;
         $data['sub_total_kh'] = 0;
         $data['total_kh'] = 0;
+        $data['discount_amount'] = 0;
         $data['amount_due'] = 0;
         $data['amount_change'] = 0;
         $data['count_payment'] = 0;
@@ -450,6 +461,7 @@ class SaleItemController extends Controller
         $data['comment'] = 'Default Comment';
         $data['customer_id'] = NULL;
         $data['customer_name'] = '';
+        $data['account_name'] = '';
         $data['sale_type'] = '';
         $data['transaction_date'] = date('d/m/Y');
         $data['transaction_time'] = date('h:i:s');
@@ -468,8 +480,10 @@ class SaleItemController extends Controller
         $data['items'] = Yii::app()->shoppingCart->getCart();
         $data['sale_id'] = Common::getSaleID();
         $data['employee'] = ucwords(Yii::app()->session['emp_fullname']);
-        $account = $this->custAccountInfo($data['customer_id']);
-        $data['account'] = isset($account)?$account:$data['account'];
+        $data['account'] =  $this->custAccountInfo($data['customer_id']);;
+
+        // HTML Table Properties
+        $data['colspan'] = Yii::app()->settings->get('sale', 'discount') == 'hidden' ? '2' : '3';
 
         /*
         $data['count_item'] = Yii::app()->shoppingCart->getQuantityTotal();
@@ -516,8 +530,8 @@ class SaleItemController extends Controller
 
     protected function custAccountInfo($customer_id)
     {
-        $model = null;
-        if ($customer_id != null) {
+        $model = NULL;
+        if ($customer_id !== NULL) {
             $model = Account::model()->getAccountInfo($customer_id);
         }
 

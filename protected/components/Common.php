@@ -195,12 +195,12 @@ Class Common
 
     public static function getPriceTierID()
     {
-        return Yii::app()->getsetSession->getPriceTierId();
+        return Yii::app()->shoppingCart->getPriceTierId();
     }
 
     public static function priceTierDisable()
     {
-        return Common::getSaleType()=='R'?true:false;
+        return Common::getSaleType()=='R'?TRUE:FALSE;
     }
 
 }

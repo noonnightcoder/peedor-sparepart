@@ -281,7 +281,7 @@ class SaleOrder extends CActiveRecord
                 ':price_tier_id' => Common::getPriceTierID(),
                 ':price' => $price,
                 ':location_id' => Common::getCurLocationID(),
-                ':client_id' => Common::getCustomerID(),
+                ':client_id' => Common::getCustomerID(), // To check here
                 ':employee_id' => Common::getEmployeeID(),
                 ':user_id' => Common::getUserID(),
                 ':discount_amount' => $discount_amount,
@@ -354,6 +354,32 @@ class SaleOrder extends CActiveRecord
                 ':employee_id' => Common::getEmployeeID(),
                 ':user_id' => Common::getUserID(),
                 ':save_status' => Yii::app()->params['order_status_complete']
+            )
+        );
+
+        foreach ($result as $record) {
+            $sale_id = $record['sale_id'];
+        }
+
+        return $sale_id;
+
+    }
+
+    public function orderStatusCH($client_id)
+    {
+        $sql="SELECT sfunc_order_status_ch(:sale_id,:location_id,:order_status,:order_status_ch,:cart_status,:client_id,:employee_id,:user_id,:update_timestamp,:del_timestamp) sale_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => Common::getSaleID(),
+                ':location_id' => Common::getCurLocationID(),
+                ':order_status' => Yii::app()->params['order_status_ongoing'],
+                ':order_status_ch' => NULL,
+                ':cart_status' => NULL,
+                ':client_id' => $client_id,
+                ':employee_id' => Common::getEmployeeID(),
+                ':user_id' => Common::getUserID(),
+                ':update_timestamp' => NULL,
+                ':del_timestamp' => NULL,
             )
         );
 

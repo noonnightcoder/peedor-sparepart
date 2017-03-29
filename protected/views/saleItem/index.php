@@ -4,6 +4,7 @@
     <?php echo 'Customer ID : ' . Common::getCustomerID() .  "<br>" ?>
     <?php echo 'Price Tier ID : ' . Common::getPriceTierID() .  "<br>" ?>
     <?php echo' Price Tier HTML Value : ' . Common::priceTierDisable() . "<br>" ?>
+    <?php print_r($account) . "<br>" ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(
@@ -15,6 +16,7 @@
         'model' => $model,
         'count_item' => $count_item,
         'customer_name' => $customer_name,
+        //'account_name' => $account_name,
         'account' => $account,
         'total_discount' => $total_discount,
         'total_kh' => $total_kh,

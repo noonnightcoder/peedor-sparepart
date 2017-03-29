@@ -22,12 +22,14 @@
                     <?php $account_name = $acc["name"]; ?>
                 <?php } ?>
 
-                <?php echo TbHtml::link(ucwords('Test'),$this->createUrl('Client/View/',array('id'=>$customer_id)), array(
+                <?php echo TbHtml::link(ucwords($account_name),$this->createUrl('Client/View/',array('id'=>$customer_id)), array(
                     'class'=>'update-dialog-open-link',
                     'data-update-dialog-title' => Yii::t('app','Customer Information'),
                 )); ?>
             </ul>
         </div>
+
+        <?php if (Common::getSaleType()=='W') { ?>
 
         <?php echo TbHtml::linkButton(Yii::t( 'app', 'Edit' ),array(
             'color'=>TbHtml::BUTTON_COLOR_SUCCESS,
@@ -43,6 +45,8 @@
             'icon'=>'glyphicon-remove white',
             'class'=>'btn btn-sm detach-customer',
         )); ?>
+
+        <?php } ?>
     
         <?php if (PriceTier::model()->checkExists()<>0) { ?>
             <p>
@@ -52,5 +56,5 @@
 
             </p>
         <?php } ?>
-        
+
 <?php $this->endWidget(); ?>

@@ -38,7 +38,7 @@
             <p>
                 <?php echo $form->dropDownListControlGroup($model,'tier_id', PriceTier::model()->getPriceTier(),array('id'=>'price_tier_id',
                     'options'=>array(Common::getPriceTierID()=>array('selected'=>true)),
-                    'class'=>'col-xs-10 col-sm-8','empty'=>'None','disabled' => true,'labelOptions'=>array('label'=>Yii::t('app','Price Tier')))); ?>
+                    'class'=>'col-xs-10 col-sm-8','empty'=>'None','disabled' => Common::priceTierDisable(),'labelOptions'=>array('label'=>Yii::t('app','Price Tier')))); ?>
 
             </p>
         <?php } ?>
