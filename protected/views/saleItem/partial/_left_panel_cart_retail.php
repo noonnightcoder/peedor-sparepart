@@ -49,7 +49,7 @@
                     <?php $this->endWidget(); ?>
                 </td>
                 <td>
-                    <?= $item['price_kh']; ?>
+                    <?= '៛' . $item['price_kh']; ?>
                 </td>
                 <td>
                     <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -89,7 +89,7 @@
                     <?php $this->endWidget(); ?>
                 </td>
                 <td><?= $item['currency_symbol'] . $item['total'] ?>
-                <td><?= $item['total_kh'] ?>
+                <td><?= '៛' . $item['total_kh'] ?>
                 <td><?php
                     echo TbHtml::linkButton('', array(
                         'color' => TbHtml::BUTTON_COLOR_DANGER,

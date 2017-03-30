@@ -9,6 +9,7 @@
                 'layout' => TbHtml::FORM_LAYOUT_INLINE,
             ));
             ?>
+
             <table class="table table-bordered table-condensed">
                 <tbody>
                 <tr>
@@ -20,13 +21,22 @@
 
                     $this->renderPartial('partial/_right_panel_total_wsale');
 
-                }?>
+                } else {
+                    $this->renderPartial('partial/_right_panel_total_retail', array(
+                        'count_payment' => $count_payment,
+                        'model' => $model,
+                    ));
+                }
+                ?>
 
-                <?php if (Common::getSaleType()=='R') {
+                <?php /*if (Common::getSaleType()=='R') {
 
-                    $this->renderPartial('partial/_right_panel_payment_retail');
+                    $this->renderPartial('partial/_right_panel_payment_retail', array(
+                        'count_payment' => $count_payment,
+                        'model' => $model,
+                    ));
 
-                }?>
+                }*/?>
                 </tbody>
             </table>
 

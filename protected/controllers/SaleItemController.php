@@ -70,9 +70,9 @@ class SaleItemController extends Controller
     {
         if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
             $sale_type = $_GET['sale_type'];
-            $this->setSaleType($sale_type);
             Yii::app()->shoppingCart->clearAll(); // Clear previously set session move form Retail to Whole Sale
-
+            //$this->setSaleType($sale_type);
+            Yii::app()->shoppingCart->setSaleType($sale_type);
 
             if ($sale_type=='R') {
                 Yii::app()->shoppingCart->setPriceTierId(4);

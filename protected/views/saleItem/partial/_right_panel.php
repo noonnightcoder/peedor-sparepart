@@ -7,13 +7,15 @@
     )); ?>
     <!-- #/section:right.panel.header -->
 
-    <!-- #section:right.panel.client -->
-    <?php $this->renderPartial('partial/_right_panel_client', array(
-        'model' => $model,
-        'customer_name' => $customer_name,
-        'account' => $account,
-    )); ?>
-    <!-- #/section:right.panel.client -->
+    <?php if (Common::getSaleType()=='W') { ?>
+        <!-- #section:right.panel.client -->
+        <?php $this->renderPartial('partial/_right_panel_client', array(
+            'model' => $model,
+            'customer_name' => $customer_name,
+            'account' => $account,
+        )); ?>
+        <!-- #/section:right.panel.client -->
+    <?php } ?>
 
     <!-- #section:right.panel.payment -->
     <?php $this->renderPartial('partial/_right_panel_payment', array(

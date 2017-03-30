@@ -219,7 +219,7 @@ class SaleOrder extends CActiveRecord
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
             ':user_id' => Common::getUserID(),
             ':location_id' => Common::getCurLocationID(),
-            ':status' => '1', // To change to variable
+            ':status' => Yii::app()->params['order_status_ongoing'], // To change to variable
             ':sale_type' => Common::getSaleType()
         ));
 
@@ -245,7 +245,7 @@ class SaleOrder extends CActiveRecord
         $sql = "SELECT sale_id,
                  SUM(oc.price_kh*oc.quantity) sub_total,
                  SUM(oc.price_kh*oc.quantity) - (SUM(oc.price_kh*oc.quantity)*IFNULL(so.discount_amount,0)/100) total,
-                 SUM(oc.prprice_khice*oc.quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
+                 SUM(oc.price_kh*oc.quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
                 FROM v_order_cart oc JOIN sale_order so
                    ON so.id = oc.sale_id 
                     AND so.user_id = oc.user_id
@@ -260,7 +260,7 @@ class SaleOrder extends CActiveRecord
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
             ':user_id' => Common::getUserID(),
             ':location_id' => Common::getCurLocationID(),
-            ':status' => '1', // To change to variable
+            ':status' => Yii::app()->params['order_status_ongoing'], // To change to variable
             ':sale_type' => Common::getSaleType()
         ));
 
@@ -281,7 +281,7 @@ class SaleOrder extends CActiveRecord
                 ':price_tier_id' => Common::getPriceTierID(),
                 ':price' => $price,
                 ':location_id' => Common::getCurLocationID(),
-                ':client_id' => Common::getCustomerID(), // To check here
+                ':client_id' => Common::getCustomerID(),
                 ':employee_id' => Common::getEmployeeID(),
                 ':user_id' => Common::getUserID(),
                 ':discount_amount' => $discount_amount,
