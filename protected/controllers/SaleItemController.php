@@ -287,7 +287,7 @@ class SaleItemController extends Controller
             Yii::app()->user->setFlash('warning', $data['sale_id']);
         } else {
             //Save transaction to db
-            $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id']);
+            $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id'],Yii::app()->params['order_status_complete']);
             //$this->render('partial/_receipt', $data);
             Yii::app()->shoppingCart->clearAll();
             $this->backIndex();
@@ -298,31 +298,33 @@ class SaleItemController extends Controller
     public function actionSuspendSale()
     {
         if (Yii::app()->request->isAjaxRequest) {
+            $this->layout = '//layouts/column_receipt';
+
             $data = $this->sessionInfo();
 
-            //Save transaction to db
-            $data['sale_id'] = 'POS ' . Sale::model()->saveSale($data['session_sale_id'], $data['items'],
-                    $data['payments'], $data['payment_received'], $data['customer_id'], $data['employee_id'],
-                    $data['sub_total'], $data['comment'], Yii::app()->params['sale_suspend_status'],
-                    $data['total_discount']);
-
-            $customer = $this->customerInfo($data['customer_id']);
-            $data['cust_fullname'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
-
-            if ($data['sale_id'] == 'POS -1') {
-                echo "NOK";
-                Yii::app()->end();
-            } else {
-                if (Yii::app()->settings->get('sale', 'receiptPrintDraftSale') == '1') {
-                    $this->layout = '//layouts/column_receipt';
-                    $this->render('_receipt_suspend', $data);
-                    Yii::app()->shoppingCart->clearAll();
-                } else {
-                    Yii::app()->shoppingCart->clearAll();
-                }
+            if (empty($data['items'])) {
+                $this->backIndex();
             }
 
-            $this->reload();
+            $customer = $this->customerInfo($data['customer_id']);
+            $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
+
+            if ($data['sale_type']=='W' && $data['customer_id']==-1) {
+                Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
+                $this->backIndex();
+                $this->reload($data);
+            } elseif ($data['amount_change'] > 0 && $customer == null) {
+                Yii::app()->user->setFlash('warning', Yii::t('app',"There is due amount, please select customer"));
+                $this->reload($data);
+            } elseif (substr($data['sale_id'], 0, 2) == '-1') {
+                Yii::app()->user->setFlash('warning', $data['sale_id']);
+            } else {
+                //Save transaction to db
+                $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id'],Yii::app()->params['order_status_suspend']);
+                //$this->render('partial/_receipt', $data);
+                Yii::app()->shoppingCart->clearAll();
+                $this->backIndex();
+            }
         } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
         }

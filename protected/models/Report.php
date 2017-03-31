@@ -114,7 +114,7 @@ class Report extends CFormModel
     {
         $sql= "SELECT sale_id,sale_time,client_name,
                 CASE
-                    WHEN client_name IS NULL THEN 'RETAIL'
+                    WHEN sale_type='R' THEN 'RETAIL'
                     ELSE 'WHOLESALE' 
                 END sale_type,employee_name,quantity,
                 CONCAT(currency_symbol,FORMAT(total,2)) total,CONCAT('៛',FORMAT(total*rate,2)) total_in_riel,paid,balance,status_f
