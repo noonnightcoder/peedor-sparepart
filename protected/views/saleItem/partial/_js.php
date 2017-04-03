@@ -249,6 +249,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         $('#cancel_cart').on('click','a.suspend-sale',function(e) {
             e.preventDefault();
             if (confirm("<?php echo Yii::t('app','Are you sure you want to suspend this sale?'); ?>")){
+                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_suspend'])); ?>');
                 $('#suspend_sale_form').submit();
             }
         });

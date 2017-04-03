@@ -488,9 +488,11 @@ class SaleOrder extends CActiveRecord
                                             FROM sale_order_item si INNER JOIN item i ON i.id=si.item_id 
                                             GROUP BY si.sale_id
                                             ) st ON st.sale_id=s.id
-                    WHERE status=:status";
+                    WHERE status=:status
+                    AND sale_type=:sale_type";
             $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
-                ':status' => Yii::app()->params['order_status_suspend']
+                ':status' => Yii::app()->params['order_status_suspend'],
+                ':sale_type' => Common::getSaleType()
             ));
 
         } else {
@@ -505,12 +507,14 @@ class SaleOrder extends CActiveRecord
                                                  GROUP BY si.sale_id
                                                  ) st ON st.sale_id=s.id
                          WHERE status=:status
+                         AND sale_type=:sale_type
                     ) as t1
                     WHERE sale_id=:sale_id OR client_id like :client_id";
             $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
                 ':sale_id' => $this->search_client,
                 ':client_id' =>'%' . $this->search_client .'%',
-                ':status' => Yii::app()->params['order_status_suspend']
+                ':status' => Yii::app()->params['order_status_suspend'],
+                ':sale_type' => Common::getSaleType()
             ));
         }
 
