@@ -21,6 +21,7 @@
 class SaleOrder extends CActiveRecord
 {
     //private $active_status = 1;
+    public $search_client;
 
     /**
      * @return string the associated database table name
@@ -365,15 +366,15 @@ class SaleOrder extends CActiveRecord
 
     }
 
-    public function orderStatusCH($client_id)
+    public function orderStatusCH($sale_id,$client_id,$order_status,$order_status_ch)
     {
         $sql="SELECT sfunc_order_status_ch(:sale_id,:location_id,:order_status,:order_status_ch,:cart_status,:client_id,:employee_id,:user_id,:update_timestamp,:del_timestamp) sale_id";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
-                ':sale_id' => Common::getSaleID(),
+                ':sale_id' => $sale_id,
                 ':location_id' => Common::getCurLocationID(),
-                ':order_status' => Yii::app()->params['order_status_ongoing'],
-                ':order_status_ch' => NULL,
+                ':order_status' => $order_status,
+                ':order_status_ch' => $order_status_ch,
                 ':cart_status' => NULL,
                 ':client_id' => $client_id,
                 ':employee_id' => Common::getEmployeeID(),
@@ -473,6 +474,59 @@ class SaleOrder extends CActiveRecord
 
         return $quantity;
 
+    }
+
+    public function ListSuspendSale()
+    {
+
+        if (!isset($this->search_client)) {
+
+            $sql = "SELECT s.id sale_id,s.client_id client_id,
+                      (SELECT CONCAT_WS(' ',first_name,last_name) FROM `client` c WHERE c.id=s.client_id) client_name,
+                       DATE_FORMAT(s.sale_time,'%d-%m-%Y %H:%i') sale_time,st.items,remark
+                    FROM sale_order s INNER JOIN (SELECT si.sale_id, substring_index(group_concat(i.name SEPARATOR ','), ',', 5) items
+                                            FROM sale_order_item si INNER JOIN item i ON i.id=si.item_id 
+                                            GROUP BY si.sale_id
+                                            ) st ON st.sale_id=s.id
+                    WHERE status=:status";
+            $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
+                ':status' => Yii::app()->params['order_status_suspend']
+            ));
+
+        } else {
+            $sql = "SELECT sale_id,client_id,client_name,sale_time,items,remark
+                    FROM (
+                        SELECT s.id sale_id,
+                              s.client_id client_id,
+                             (SELECT CONCAT_WS(' ',first_name,last_name) FROM `client` c WHERE c.id=s.client_id) client_name,
+                             DATE_FORMAT(s.sale_time,'%d-%m-%Y %H:%i') sale_time,st.items,remark
+                         FROM sale_order s INNER JOIN (SELECT si.sale_id, GROUP_CONCAT(i.name) items
+                                                 FROM sale_order_item si INNER JOIN item i ON i.id=si.item_id 
+                                                 GROUP BY si.sale_id
+                                                 ) st ON st.sale_id=s.id
+                         WHERE status=:status
+                    ) as t1
+                    WHERE sale_id=:sale_id OR client_id like :client_id";
+            $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
+                ':sale_id' => $this->search_client,
+                ':client_id' =>'%' . $this->search_client .'%',
+                ':status' => Yii::app()->params['order_status_suspend']
+            ));
+        }
+
+
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => 'sale_id',
+            'sort' => array(
+                'attributes' => array(
+                    'sale_time',
+                ),
+            ),
+            'pagination' => false,
+        ));
+
+        return $dataProvider; // Return as array object
     }
 
 }

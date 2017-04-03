@@ -256,7 +256,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         $('#cancel_cart').on('click','a.cancel-sale',function(e) {
             e.preventDefault();
             if (confirm("<?php echo Yii::t('app','Are you sure you want to clear this sale? All items will cleared.'); ?>")){
-                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/cancelSale/'); ?>');
+                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_cancel'])); ?>');
                 $('#suspend_sale_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit});
             }
         });

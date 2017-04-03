@@ -4,8 +4,8 @@
     'headerButtons' => array(
         TbHtml::buttonGroup(
             array(
-                //array('label' => Yii::t('app','On-going Sale'),'url' =>Yii::app()->createUrl('SaleItem/ListSuspendedSale/'),'icon'=>'ace-icon fa fa-spinner fa-spin white'),
-                //array('label'=>' | '),
+                array('label' => Yii::t('app','On-going Sale'),'url' =>Yii::app()->createUrl('SaleItem/ListSuspendedSale/'),'icon'=>'ace-icon fa fa-spinner fa-spin white'),
+                array('label'=>' | '),
                 array('label' => Yii::t('app','New Item'),'url' =>Yii::app()->createUrl('Item/createImage',array('grid_cart'=>'S')),'icon'=>'ace-icon fa fa-plus white'),
             ),array('color'=>TbHtml::BUTTON_COLOR_PRIMARY,'size'=>TbHtml::BUTTON_SIZE_SMALL)
         ),

@@ -251,51 +251,83 @@ class SaleItemController extends Controller
 
     }
 
-    public function actionCancelSale()
+    // To remove after verified
+    /*public function actionCancelSale()
     {
-        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            Yii::app()->shoppingCart->clearAll();
-            $this->reload();
+        if (Yii::app()->request->isAjaxRequest) {
+            $this->layout = '//layouts/column_receipt';
+
+            $data = $this->sessionInfo();
+            $action_status = $_GET['action_status'];
+
+            if (empty($data['items'])) {
+                $this->backIndex();
+            }
+
+            $customer = $this->customerInfo($data['customer_id']);
+            $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
+
+            if ($data['sale_type']=='W' && $data['customer_id']==-1) {
+                Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
+                $this->backIndex();
+                $this->reload($data);
+            } elseif ($data['amount_change'] > 0 && $customer == null) {
+                Yii::app()->user->setFlash('warning', Yii::t('app',"There is due amount, please select customer"));
+                $this->reload($data);
+            } elseif (substr($data['sale_id'], 0, 2) == '-1') {
+                Yii::app()->user->setFlash('warning', $data['sale_id']);
+            } else {
+                //Save transaction to db
+                $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id'],$action_status);
+                //$this->render('partial/_receipt', $data);
+                Yii::app()->shoppingCart->clearAll();
+                $this->backIndex();
+            }
         } else {
-            //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-            Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
         }
-    }
+
+    }*/
 
     public function actionCompleteSale()
     {
+        if (Yii::app()->request->isAjaxRequest) {
+            $this->layout = '//layouts/column_receipt';
 
-        $this->layout = '//layouts/column_receipt';
+            $data = $this->sessionInfo();
+            $action_status = $_GET['action_status'];
 
-        $data = $this->sessionInfo();
+            if (empty($data['items'])) {
+                $this->backIndex();
+            }
 
-        if (empty($data['items'])) {
-            $this->backIndex();
-        }
+            $customer = $this->customerInfo($data['customer_id']);
+            $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
 
-        $customer = $this->customerInfo($data['customer_id']);
-        $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
-
-        if ($data['sale_type']=='W' && $data['customer_id']==-1) {
-            Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
-            $this->backIndex();
-            $this->reload($data);
-        } elseif ($data['amount_change'] > 0 && $customer == null) {
-            Yii::app()->user->setFlash('warning', Yii::t('app',"There is due amount, please select customer"));
-            $this->reload($data);
-        } elseif (substr($data['sale_id'], 0, 2) == '-1') {
-            Yii::app()->user->setFlash('warning', $data['sale_id']);
+            if ($data['sale_type']=='W' && $data['customer_id']==-1) {
+                Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
+                $this->backIndex();
+                $this->reload($data);
+            } elseif ($data['amount_change'] > 0 && $customer == null) {
+                Yii::app()->user->setFlash('warning', Yii::t('app',"There is due amount, please select customer"));
+                $this->reload($data);
+            } elseif (substr($data['sale_id'], 0, 2) == '-1') {
+                Yii::app()->user->setFlash('warning', $data['sale_id']);
+            } else {
+                //Save transaction to db
+                $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id'],$action_status);
+                //$this->render('partial/_receipt', $data);
+                Yii::app()->shoppingCart->clearAll();
+                $this->backIndex();
+            }
         } else {
-            //Save transaction to db
-            $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id'],Yii::app()->params['order_status_complete']);
-            //$this->render('partial/_receipt', $data);
-            Yii::app()->shoppingCart->clearAll();
-            $this->backIndex();
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
         }
 
     }
 
-    public function actionSuspendSale()
+    // To remove after verified
+    /*public function actionSuspendSale()
     {
         if (Yii::app()->request->isAjaxRequest) {
             $this->layout = '//layouts/column_receipt';
@@ -328,7 +360,7 @@ class SaleItemController extends Controller
         } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
         }
-    }
+    }*/
 
     public function actionEditSale($sale_id)
     {
@@ -375,18 +407,20 @@ class SaleItemController extends Controller
 
     public function actionListSuspendedSale()
     {
-        $model = new Sale;
+        $model = new SaleOrder;
         $this->render('sale_suspended', array('model' => $model));
     }
 
-    public function actionUnsuspendSale($sale_id)
+    public function actionUnsuspendSale($sale_id,$client_id)
     {
         Yii::app()->shoppingCart->clearAll();
-        Yii::app()->shoppingCart->copyEntireSuspendSale($sale_id);
-        //Sale::model()->saveUnsuspendSale($sale_id); // Roll back stock cut to original stock$this->redirect('index');
 
+        SaleOrder::model()->orderStatusCH($sale_id,$client_id,Yii::app()->params['order_status_suspend'],Yii::app()->params['order_status_ongoing']);
+        $this->backIndex();
+
+        //Yii::app()->shoppingCart->copyEntireSuspendSale($sale_id);
+        //Sale::model()->saveUnsuspendSale($sale_id); // Roll back stock cut to original stock
         $this->reload();
-        //exit;
     }
 
     public function actionDeleteSale($sale_id)

@@ -15,7 +15,7 @@
                     'color' => TbHtml::BUTTON_COLOR_INFO,
                     'size' => TbHtml::BUTTON_SIZE_SMALL,
                     'icon' => 'ace-icon fa fa-save white',
-                    'url' => Yii::app()->createUrl('SaleItem/SuspendSale/'),
+                    'url' => Yii::app()->createUrl('SaleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_suspend'])),
                     'class' => 'suspend-sale',
                     'title' => Yii::t('app', 'Suspend Sale'),
                 ));
@@ -26,7 +26,7 @@
                     'color' => TbHtml::BUTTON_COLOR_DANGER,
                     'size' => TbHtml::BUTTON_SIZE_SMALL,
                     'icon' => '	glyphicon-remove white',
-                    'url' => Yii::app()->createUrl('SaleItem/CancelSale/'),
+                    'url' => Yii::app()->createUrl('SaleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_cancel'])),
                     'class' => 'cancel-sale',
                     'id' => 'cancel_sale_button',
                     'title' => Yii::t('app', 'Cancel Sale'),

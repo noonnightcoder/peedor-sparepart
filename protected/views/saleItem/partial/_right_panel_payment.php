@@ -4,7 +4,7 @@
             <?php
             $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                 'id' => 'finish_sale_form',
-                'action' => Yii::app()->createUrl('saleItem/completeSale/'),
+                'action' => Yii::app()->createUrl('saleItem/completeSale/',array('action_status' => Yii::app()->params['order_status_complete'])),
                 'enableAjaxValidation' => false,
                 'layout' => TbHtml::FORM_LAYOUT_INLINE,
             ));
