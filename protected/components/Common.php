@@ -203,4 +203,12 @@ Class Common
         return Common::getSaleType()=='R'?TRUE:FALSE;
     }
 
+    public static function saleTitle() {
+        return Common::getSaleType()=='R'?'Retail':'Whole Sale';
+    }
+
+    public static function saleIcon() {
+        return Common::getSaleType()=='R'?'fa fa-shopping-basket':'fa fa-cart-plus';
+    }
+
 }

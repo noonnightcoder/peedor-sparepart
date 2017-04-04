@@ -190,7 +190,8 @@ class SaleItemController extends Controller
             $client = Client::model()->findByPk($client_id);
             Yii::app()->shoppingCart->setCustomerId($client_id);
             Yii::app()->shoppingCart->setPriceTierId($client->price_tier_id);
-            SaleOrder::model()->orderStatusCH($client_id);
+            $this->changeOrderStatus(Common::getSaleID(),$client_id,Yii::app()->params['order_status_ongoing'],Yii::app()->params['order_status_ongoing']);
+            //SaleOrder::model()->orderStatusCH($client_id);
             $this->reload();
         } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -414,8 +415,7 @@ class SaleItemController extends Controller
     public function actionUnsuspendSale($sale_id,$client_id)
     {
         Yii::app()->shoppingCart->clearAll();
-
-        SaleOrder::model()->orderStatusCH($sale_id,$client_id,Yii::app()->params['order_status_suspend'],Yii::app()->params['order_status_ongoing']);
+        $this->changeOrderStatus($sale_id,$client_id,Yii::app()->params['order_status_suspend'],Yii::app()->params['order_status_ongoing']);
         $this->backIndex();
 
         //Yii::app()->shoppingCart->copyEntireSuspendSale($sale_id);
@@ -581,6 +581,10 @@ class SaleItemController extends Controller
     protected function backIndex()
     {
         $this->redirect(array('saleItem/index?sale_type=' . Common::getSaleType()));
+    }
+
+    protected function changeOrderStatus($sale_id,$client_id,$current_status,$to_status) {
+        SaleOrder::model()->orderStatusCH($sale_id,$client_id,$current_status,$to_status);
     }
 
 }

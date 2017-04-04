@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs=array(
-	'Sales'=>array('index'),
+	Common::saleTitle()=>array('index?sale_type=' . Common::getSaleType()),
 	'Suspended Sales',
 );
 ?>
@@ -13,7 +13,7 @@ $this->breadcrumbs=array(
 <?php $this->renderPartial('//layouts/alert/_flash'); ?>
     
 <?php $box = $this->beginWidget('yiiwheels.widgets.box.WhBox', array(
-              'title' =>Yii::t('app','List Of Suspended Sales'),
+              'title' =>Yii::t('app','List Of Suspended ' . Common::saleTitle() ),
               'headerIcon' => 'icon-list fa fa-bookmark ',
               'htmlHeaderOptions'=>array('class'=>'widget-header-flat widget-header-small'),
 ));?>

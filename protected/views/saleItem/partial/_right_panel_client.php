@@ -14,8 +14,8 @@
             ));
         } else {
             $this->widget('yiiwheels.widgets.box.WhBox', array(
-                'title' => Yii::t('app', 'Select Customer (Optional)'),
-                'headerIcon' => 'ace-icon fa fa-users',
+                'title' => Yii::t('app', 'Select Customer (Require)'),
+                'headerIcon' => 'ace-icon fa fa-female',
                 'htmlHeaderOptions'=>array('class'=>'widget-header-flat widget-header-small'),
                 'content' => $this->renderPartial('partial/_client', array('model' => $model), true)
             ));
