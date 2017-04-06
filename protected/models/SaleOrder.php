@@ -178,6 +178,30 @@ class SaleOrder extends CActiveRecord
         );
     }
 
+    public function getOrderCartById($sale_id,$location_id,$status,$sale_type)
+    {
+
+        $sql = "SELECT item_id,currency_code,currency_symbol,`name`,item_number,quantity,
+                 price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,
+                 (price*quantity) total,
+                 (price_kh*quantity)-IFNULL(discount_amount,0) total_kh,
+                 NULL description,sale_type
+                FROM v_order_cart
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                and `status`=:status
+                AND ISNULL(deleted_at)
+                AND sale_type=:sale_type";
+
+        return Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':status' => $status,
+                ':sale_type' => $sale_type
+            )
+        );
+    }
+
     public function getAllTotal()
     {
         /*$quantity = 0;

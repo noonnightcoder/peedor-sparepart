@@ -1,9 +1,3 @@
-<?php
-$this->breadcrumbs=array(
-	Common::saleTitle()=>array('index?sale_type=' . Common::getSaleType()),
-	'Suspended Sales',
-);
-?>
 <div>
 
 <?php /*if(Yii::app()->user->hasFlash('success')):*/?><!--

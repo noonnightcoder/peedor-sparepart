@@ -74,24 +74,24 @@ class Report extends CFormModel
 
         if ($this->search_id !== '') {
 
-            $sql = "SELECT sale_id,sale_time,client_name,employee_name,employee_id,client_id,sum(quantity) quantity,sum(sub_total*rate) sub_total,
-                      discount_amount,vat_amount,sum(total*rate) total,sum(paid*rate) paid,sum(balance*rate) balance,status,status_f
+            $sql = "SELECT sale_id,location_id,sale_time,client_name,employee_name,employee_id,client_id,sum(quantity) quantity,sum(sub_total*rate) sub_total,
+                      discount_amount,vat_amount,sum(total*rate) total,sum(paid*rate) paid,sum(balance*rate) balance,status,status_f,sale_type
                     FROM v_sale_invoice
                     WHERE sale_id=:search_id OR (c_first_name like :first_name OR c_last_name like :last_name OR client_name like :full_name )
-                    group by sale_id,sale_time,client_name,employee_name,employee_id,client_id,quantity,discount_amount,vat_amount,status,status_f
+                    group by sale_id,location,sale_time,client_name,employee_name,employee_id,client_id,quantity,discount_amount,vat_amount,status,status_f,sale_type
                     ORDER By sale_time desc";
 
             $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':search_id' => $this->search_id, ':first_name' => '%' . $this->search_id . '%', ':last_name' => '%' . $this->search_id . '%', ':full_name' => '%' . $this->search_id . '%'));
 
         } else {
 
-            $sql= "SELECT sale_id,sale_time,client_name,employee_name,employee_id,client_id,
+            $sql= "SELECT sale_id,location_id,sale_time,client_name,employee_name,employee_id,client_id,
                     sum(quantity) quantity,sum(sub_total*rate) sub_total,
-                    sum(discount_amount) discount_amount,sum(vat_amount) vat_amount,sum(total*rate) total,sum(paid*rate) paid,sum(balance*rate) balance,status,status_f
+                    sum(discount_amount) discount_amount,sum(vat_amount) vat_amount,sum(total*rate) total,sum(paid*rate) paid,sum(balance*rate) balance,status,status_f,sale_type
                    FROM v_sale_invoice
                    WHERE sale_time>=str_to_date(:from_date,'%d-%m-%Y')
                    AND sale_time<=date_add(str_to_date(:to_date,'%d-%m-%Y'),INTERVAL 1 DAY)
-                   GROUP BY sale_id,sale_time,client_name,employee_name,employee_id,client_id,status,status_f
+                   GROUP BY sale_id,location_id,sale_time,client_name,employee_name,employee_id,client_id,status,status_f,sale_type
                    ORDER By sale_time desc";
 
             $rawData = Yii::app()->db->createCommand($sql)->queryAll(true, array(':from_date' => $this->from_date, ':to_date' => $this->to_date));

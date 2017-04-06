@@ -104,7 +104,7 @@ class ReportColumn extends CModel
                     'print' => array(
                         'label'=>'print',
                         'icon'=>'glyphicon-print',
-                        'url'=>'Yii::app()->createUrl("saleItem/Receipt", array("sale_id"=>$data["sale_id"]))',
+                        'url'=>'Yii::app()->createUrl("saleItem/Receipt", array("sale_id"=>$data["sale_id"],"location_id"=>$data["location_id"],"status"=>$data["status"],"sale_type"=>$data["sale_type"]))',
                         'options' => array(
                             'target'=>'_blank',
                             'title'=>Yii::t('app','Invoice Printing'),

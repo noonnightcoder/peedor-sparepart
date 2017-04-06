@@ -539,4 +539,27 @@ class Sale extends CActiveRecord
             return isset($_items[$type]) ? $_items[$type] : false;
     }
 
+    public function getSaleInfoById($sale_id,$location_id,$status,$sale_type)
+    {
+
+        $sql = "SELECT sale_id,location_id,sale_time,client_id,client_name,employee_id,user_id,employee_name,
+                  currency_code,rate,quantity,sub_total,discount_amount,total,paid,vat_amount
+                `status`,status_f,sale_type
+                FROM v_sale_invoice
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                and `status`=:status
+                AND sale_type=:sale_type";
+
+        return Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':status' => $status,
+                ':sale_type' => $sale_type
+            )
+        );
+    }
+
+
+
 }

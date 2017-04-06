@@ -56,7 +56,7 @@ class GetsetSession extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['location_name'])) {
-            $this->setLocationName(array());
+            $this->setLocationName(NULL);
         }
         return $this->session['location_name'];
     }

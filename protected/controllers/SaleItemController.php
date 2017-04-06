@@ -292,7 +292,7 @@ class SaleItemController extends Controller
 
     public function actionCompleteSale()
     {
-        if (Yii::app()->request->isAjaxRequest) {
+        //if (Yii::app()->request->isAjaxRequest) {
             $this->layout = '//layouts/column_receipt';
 
             $data = $this->sessionInfo();
@@ -316,14 +316,20 @@ class SaleItemController extends Controller
                 Yii::app()->user->setFlash('warning', $data['sale_id']);
             } else {
                 //Save transaction to db
-                $data['sale_id']= SaleOrder::model()->orderSave($data['sale_id'],$action_status);
-                //$this->render('partial/_receipt', $data);
-                Yii::app()->shoppingCart->clearAll();
-                $this->backIndex();
+                $data['sale_id'] = SaleOrder::model()->orderSave($data['sale_id'],$action_status);
+                if ($data['sale_type'] == 'R') {
+                    $data = $this->receiptInfo($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
+                    Yii::app()->session->close();
+                    Yii::app()->shoppingCart->clearAll();
+                    $this->render('receipt/index', $data);
+                } else {
+                    Yii::app()->shoppingCart->clearAll();
+                    $this->backIndex();
+                }
             }
-        } else {
+        /*} else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-        }
+        }*/
 
     }
 
@@ -378,28 +384,14 @@ class SaleItemController extends Controller
         }
     }
 
-    public function actionReceipt($sale_id)
+    public function actionReceipt($sale_id,$location_id,$status,$sale_type)
     {
         if (Yii::app()->user->checkAccess('invoice.print')) {
 
             $this->layout = '//layouts/column_receipt';
+            $data = $this->receiptInfo($sale_id,$location_id,$status,$sale_type);
+            $this->render('receipt/index', $data);
 
-            Yii::app()->shoppingCart->clearAll();
-            Yii::app()->shoppingCart->copyEntireSale($sale_id);
-
-            $data = $this->sessionInfo();
-
-            $data['sale_id'] = $sale_id;
-
-            $customer = $this->customerInfo($data['customer_id']);
-            $data['customer'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : '';
-
-            if (count($data['items']) == 0) {
-                $data['error_message'] = 'Sale Transaction Failed';
-            }
-            $this->render('partial/_receipt', $data);
-            //$this->render('_receipt', $data);
-            Yii::app()->shoppingCart->clearAll();
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');
         }
@@ -485,13 +477,14 @@ class SaleItemController extends Controller
         $data['time_go'] = '';
         $data['count_item'] = 0;
         $data['sub_total'] = 0;
+        $data['total'] = 0;
         $data['sub_total_kh'] = 0;
         $data['total_kh'] = 0;
         $data['discount_amount'] = 0;
         $data['amount_due'] = 0;
         $data['amount_change'] = 0;
         $data['count_payment'] = 0;
-        $data['payments'] = 0;
+        $data['payments'] = array();
         $data['items'] = array();
         $data['account'] = array();
         $data['comment'] = 'Default Comment';
@@ -550,6 +543,27 @@ class SaleItemController extends Controller
         $data['cust_fullname'] = $account !== null ? $account->name : '';
         $data['acc_balance'] = $account !== null ? $account->current_balance : '';
         */
+
+        return $data;
+    }
+
+    protected function receiptInfo($sale_id,$location_id,$status,$sale_type) {
+        $data['payments'] = array();
+        $data['amount_due'] = 0;
+
+        $data['sale_id'] = $sale_id;
+        $data['sale_type'] = $sale_type;
+        $data['items'] = SaleOrder::model()->getOrderCartById($sale_id,$location_id,$status,$sale_type);
+        $sale_infos = Sale::model()->getSaleInfoById($sale_id,$location_id,$status,$sale_type);
+
+        foreach ($sale_infos as $sale_info) {
+            $data['employee_name'] = $sale_info['employee_name'];
+            $data['client_name'] = $sale_info['client_name'];
+            $data['sale_time'] = $sale_info['sale_time'];
+            $data['sub_total'] = $sale_info['sub_total'];
+            $data['total'] = $sale_info['total'];
+            $data['discount_amount'] = $sale_info['discount_amount'];
+        }
 
         return $data;
     }
