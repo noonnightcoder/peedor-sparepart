@@ -193,6 +193,23 @@ class SaleOrder extends CActiveRecord
                 AND ISNULL(deleted_at)
                 AND sale_type=:sale_type";
 
+        $sql= "SELECT item_id,currency_code,currency_symbol,`name`,item_number,rate to_val,sale_type,
+                 SUM(quantity) quantity,
+                 SUM(price) price,
+                 SUM(CASE WHEN currency_code=2 THEN price ELSE 0 END) price_khr,
+                 SUM(CASE WHEN currency_code=3 THEN price ELSE 0 END) price_thb,
+                 SUM(CASE WHEN currency_code=1 THEN price ELSE 0 END) price_usd,
+                 SUM(discount_amount) discount,
+                 SUM((price*quantity)) total,
+                 SUM((price_kh*quantity)-IFNULL(discount_amount,0)) total_kh
+                FROM v_sale_cart
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                AND `status`=:status
+                AND ISNULL(deleted_at)
+                AND sale_type=:sale_type
+                GROUP BY item_id,currency_code,currency_symbol,`name`,item_number,sale_type,rate";
+
         return Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':sale_id' => $sale_id,
                 ':location_id' => $location_id,

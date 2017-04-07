@@ -1,5 +1,3 @@
-<!--<link rel="stylesheet" type="text/css" href="<?/*= Yii::app()->basePath */?>views/layouts/receipt/partial/header.css" />-->
-
 <style>
     #sale_return_policy {
         width: 80%;
@@ -23,22 +21,19 @@
 <div class="container" id="receipt_wrapper">
 
     <?php $this->renderPartial('receipt/partial/header', array(
-            'sale_id' => $sale_id,
-            'employee_name' => $employee_name,
-            'client_name' => $client_name,
-            'sale_time' => $sale_time,
+        'sale_id' => $sale_id,
+        'employee_name' => $employee_name,
+        'client_name' => $client_name,
+        'sale_time' => $sale_time,
     )); ?>
 
-    <?php $this->renderPartial($view_body, array(
+    <?php $this->renderPartial('receipt/partial/body', array(
         'items' => $items,
         'sub_total' => $sub_total,
         'discount_amount' => $discount_amount,
         'total' => $total,
         'payments' => $payments,
         'amount_due' => $amount_due,
-        'currency_type' => $currency_type,
-        'sale_infos' => $sale_infos,
-        'col_span' => $col_span,
     )); ?>
 
 </div>

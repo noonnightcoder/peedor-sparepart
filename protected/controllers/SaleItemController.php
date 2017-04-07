@@ -390,7 +390,7 @@ class SaleItemController extends Controller
 
             $this->layout = '//layouts/column_receipt';
             $data = $this->receiptInfo($sale_id,$location_id,$status,$sale_type);
-            $this->render('receipt/index', $data);
+            $this->render($data['view_file'], $data);
 
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');
@@ -550,11 +550,18 @@ class SaleItemController extends Controller
     protected function receiptInfo($sale_id,$location_id,$status,$sale_type) {
         $data['payments'] = array();
         $data['amount_due'] = 0;
+        $data['col_span'] = 3;
 
         $data['sale_id'] = $sale_id;
         $data['sale_type'] = $sale_type;
         $data['items'] = SaleOrder::model()->getOrderCartById($sale_id,$location_id,$status,$sale_type);
+        $data['currency_type'] = CurrencyType::model()->getActiveCurrency();
         $sale_infos = Sale::model()->getSaleInfoById($sale_id,$location_id,$status,$sale_type);
+        $data['sale_infos'] = $sale_infos;
+
+        // View files variable
+        $data['view_file'] = $sale_type=='R'?'receipt/index':'receipt/index';
+        $data['view_body'] = $sale_type=='R'?'receipt/partial/body':'receipt/partial/body_wsale';
 
         foreach ($sale_infos as $sale_info) {
             $data['employee_name'] = $sale_info['employee_name'];

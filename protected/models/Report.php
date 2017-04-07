@@ -117,7 +117,8 @@ class Report extends CFormModel
                     WHEN sale_type='R' THEN 'RETAIL'
                     ELSE 'WHOLESALE' 
                 END sale_type,employee_name,quantity,
-                CONCAT(currency_symbol,FORMAT(total,2)) total,CONCAT('៛',FORMAT(total*rate,2)) total_in_riel,paid,balance,status_f
+                CONCAT(currency_symbol,FORMAT(total,2)) total,
+                CONCAT('៛',FORMAT(total*rate,2)) total_in_riel,paid,balance,status_f
                 FROM v_sale_invoice t1
                 INNER JOIN currency_type t2 ON t1.currency_code=t2.code
                 WHERE sale_id=:sale_id";

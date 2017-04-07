@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-xs-6">
         <p>
-            <?php echo TbHtml::image(Yii::app()->baseUrl . '/images/shop_logo.png','Company\'s logo',array('width'=>'150')); ?> <br>
+            <?php echo TbHtml::image(Yii::app()->baseUrl . '/images/shop_logo.gif','Company\'s logo',array('width'=>'150')); ?> <br>
              <?= TbHtml::encode('The Best Bookshop'); ?> <br>
                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= TbHtml::encode('For Your Education'); ?><br>
         </p>
