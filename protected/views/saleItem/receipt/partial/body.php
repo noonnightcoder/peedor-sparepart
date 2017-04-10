@@ -17,19 +17,20 @@
     <?php foreach($items as $id=>$item): ?>
         <?php
         $i=$i+1;
-        $total_item=number_format($item['total'],Common::getDecimalPlace());
+        //$total_item=number_format($item['total'],Common::getDecimalPlace());
         $item_id=$item['item_id'];
         ?>
         <tr>
             <!-- <td class="center"><?php //echo TbHtml::encode($i); ?></td> -->
 
             <td><?php echo TbHtml::encode($item['name']); ?></td>
-            <td class="center"><?php echo TbHtml::encode(number_format($item['price'],Common::getDecimalPlace())); ?></td>
+            <td class="center"><?php echo TbHtml::encode(number_format($item['price_kh'],Common::getDecimalPlace())); ?></td>
             <td class="center"><?php echo TbHtml::encode($item['quantity']); ?></td>
             <!-- <td class="<?php //echo Yii::app()->settings->get('sale','discount'); ?>"><?php //echo TbHtml::encode($item['discount']); ?></td> -->
-            <td class="text-right"><?php echo TbHtml::encode($total_item); ?>
+            <td class="text-right"><?php echo TbHtml::encode(number_format($item['total_kh'], Common::getDecimalPlace())); ?>
         </tr>
     <?php endforeach; ?> <!--/endforeach-->
+
     <tr class="gift_receipt_element">
         <td colspan="3" style='text-align:right;border-top:2px solid #000000;'><?= Yii::t('app','Sub Total'); ?></td>
         <td colspan="1" style='text-align:right;border-top:2px solid #000000;'>

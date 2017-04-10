@@ -183,8 +183,8 @@ class SaleOrder extends CActiveRecord
 
         $sql = "SELECT item_id,currency_code,currency_symbol,`name`,item_number,quantity,
                  price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,
-                 (price*quantity) total,
-                 (price_kh*quantity)-IFNULL(discount_amount,0) total_kh,
+                 (price*quantity) sub_total,(price*quantity)-IFNULL(discount_amount,0)  total,
+                 (price_kh*quantity) sub_total_kh,(price_kh*quantity)-IFNULL(discount_amount,0) total_kh,
                  NULL description,sale_type
                 FROM v_order_cart
                 WHERE sale_id=:sale_id
@@ -193,6 +193,7 @@ class SaleOrder extends CActiveRecord
                 AND ISNULL(deleted_at)
                 AND sale_type=:sale_type";
 
+        /*
         $sql= "SELECT item_id,currency_code,currency_symbol,`name`,item_number,rate to_val,sale_type,
                  SUM(quantity) quantity,
                  SUM(price) price,
@@ -201,6 +202,7 @@ class SaleOrder extends CActiveRecord
                  SUM(CASE WHEN currency_code=1 THEN price ELSE 0 END) price_usd,
                  SUM(discount_amount) discount,
                  SUM((price*quantity)) total,
+                 SUM((price_kh*quantity)) sub_total_kh,
                  SUM((price_kh*quantity)-IFNULL(discount_amount,0)) total_kh
                 FROM v_sale_cart
                 WHERE sale_id=:sale_id
@@ -209,6 +211,7 @@ class SaleOrder extends CActiveRecord
                 AND ISNULL(deleted_at)
                 AND sale_type=:sale_type
                 GROUP BY item_id,currency_code,currency_symbol,`name`,item_number,sale_type,rate";
+        */
 
         return Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':sale_id' => $sale_id,

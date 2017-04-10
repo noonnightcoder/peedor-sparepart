@@ -193,7 +193,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
       ");
 ?>
 
-<?php /*if  (Yii::app()->settings->get('sale', 'disableConfirmation')=='1') { */?><!--
+<?php if  (Yii::app()->settings->get('sale', 'disableConfirmation')=='1') { ?>
     <script>
         $(document).ready(function()
         {
@@ -206,14 +206,14 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
             });
         });
     </script>
-<?php /*} else { */?>
+<?php } else { ?>
     <script>
         $(document).ready(function()
         {
             $('#payment_cart').on('click','a.complete-sale',function(e) {
                 e.preventDefault();
                 $("#finish_sale_button").hide();
-                if (confirm("<?php /*echo Yii::t('app','Are you sure you want to submit this sale? This cannot be undone.'); */?>")){
+                if (confirm("<?php echo Yii::t('app','Are you sure you want to submit this sale? This cannot be undone.'); ?>")){
                     $('#finish_sale_form').submit();
                 } else { //Bring back submit and unmask if fail to confirm
                     $("#finish_sale_button").show();
@@ -221,7 +221,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
             });
         });
     </script>
---><?php /*} */?>
+<?php } ?>
 
 <script>
 

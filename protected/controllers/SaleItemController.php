@@ -318,10 +318,11 @@ class SaleItemController extends Controller
                 //Save transaction to db
                 $data['sale_id'] = SaleOrder::model()->orderSave($data['sale_id'],$action_status);
                 if ($data['sale_type'] == 'R') {
-                    $data = $this->receiptInfo($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
+                    //$data = $this->receiptInfo($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
                     Yii::app()->session->close();
-                    Yii::app()->shoppingCart->clearAll();
-                    $this->render('receipt/index', $data);
+                    //Yii::app()->shoppingCart->clearAll();
+                    //$this->render('receipt/test');
+                    $this->actionReceipt($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
                 } else {
                     Yii::app()->shoppingCart->clearAll();
                     $this->backIndex();
@@ -390,8 +391,8 @@ class SaleItemController extends Controller
 
             $this->layout = '//layouts/column_receipt';
             $data = $this->receiptInfo($sale_id,$location_id,$status,$sale_type);
+            Yii::app()->shoppingCart->clearAll();
             $this->render($data['view_file'], $data);
-
         } else {
             throw new CHttpException(403, 'You are not authorized to perform this action');
         }
@@ -556,7 +557,8 @@ class SaleItemController extends Controller
         $data['sale_type'] = $sale_type;
         $data['items'] = SaleOrder::model()->getOrderCartById($sale_id,$location_id,$status,$sale_type);
         $data['currency_type'] = CurrencyType::model()->getActiveCurrency();
-        $sale_infos = Sale::model()->getSaleInfoById($sale_id,$location_id,$status,$sale_type);
+        $sale_infos = $sale_type=='R'?Sale::model()->getRetailInfoById($sale_id,$location_id,$status,$sale_type):Sale::model()->getSaleInfoById($sale_id,$location_id,$status,$sale_type);
+
         $data['sale_infos'] = $sale_infos;
 
         // View files variable

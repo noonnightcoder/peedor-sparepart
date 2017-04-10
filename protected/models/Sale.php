@@ -563,4 +563,25 @@ class Sale extends CActiveRecord
     }
 
 
+    public function getRetailInfoById($sale_id,$location_id,$status,$sale_type)
+    {
+
+        $sql = "SELECT client_name,employee_name,sale_time,SUM(sub_total*rate) sub_total,sum(discount_amount) discount_amount,sum(total*rate) total
+                FROM v_sale_invoice s 
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                AND s.`status`=:status
+                AND sale_type=:sale_type
+                GROUP BY sale_time,client_name,employee_name
+                ";
+
+        return Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':status' => $status,
+                ':sale_type' => $sale_type
+            )
+        );
+    }
+
 }
