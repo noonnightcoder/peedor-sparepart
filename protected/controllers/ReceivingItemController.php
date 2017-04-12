@@ -255,8 +255,17 @@ class ReceivingItemController extends Controller
         ));
     }
 
-    public function actionCancelRecv($receive_id)
+    public function actionCancelRecv($receive_id='')
     {
+        if($receive_id!='')
+        {
+            $receive_id=$receive_id;
+        }else{
+            $items = Yii::app()->receivingCart->getCart();
+            foreach ($items as $item)
+                $receive_id= $item['receive_id'];
+        };
+
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             Yii::app()->receivingCart->cancelItem($receive_id);
             $this->reload();
@@ -387,12 +396,16 @@ class ReceivingItemController extends Controller
 
     protected function sessionInfo($data = array())
     {
-        $data['supplier'] = null;
+        $receive_id='';
+        $data['items'] = Yii::app()->receivingCart->getCart();
+        foreach ($data['items'] as $item) $receive_id= $item['receive_id'];
 
+        $data['supplier'] = null;
+        $data['receive_id'] = $receive_id;
         $data['trans_mode'] = Yii::app()->receivingCart->getMode();
         $data['trans_header'] = Receiving::model()->transactionHeader();
         $data['status'] = 'success';
-        $data['items'] = Yii::app()->receivingCart->getCart();
+
         $data['payments'] = Yii::app()->receivingCart->getPayments();
         $data['payment_total'] = Yii::app()->receivingCart->getPaymentsTotal();
         $data['count_item'] = Yii::app()->receivingCart->getQuantityTotal();

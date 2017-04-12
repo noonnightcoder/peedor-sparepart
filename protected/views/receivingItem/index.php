@@ -9,6 +9,7 @@
             'hide_editprice' => $hide_editprice,
             'expiredate_class' => $expiredate_class,
             'items' => $items,
+            'receive_id' => $receive_id,
             'discount_symbol' => $discount_symbol,
         )); ?>
     <!--/left.panel-->

@@ -163,4 +163,26 @@ function itemScannedSuccess(itemId)
     setTimeout(function(){$('#ReceivingItem_item_id').focus();}, 10);
 }*/
 
+$("a").click(function(e){
+    e.preventDefault();
+    var curr_link = window.location.href;
+    var host = window.location.origin;
+    var clicked_link = host+$(this).attr("href");
+    var url="/ReceivingItem/cancelRecv/";
+
+    if(curr_link!=clicked_link)
+    {
+        var answer=confirm('Your process will be suspend if you leave this current page, Are you sure?');
+        if(answer)
+        {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function(data) {
+                    location.href = clicked_link;
+                }
+            });
+        }
+    }
+});
 </script>
