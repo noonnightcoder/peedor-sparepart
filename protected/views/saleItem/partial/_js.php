@@ -131,7 +131,7 @@ Yii::app()->clientScript->registerScript( 'setComment', "
 ?>
 
 <?php
-Yii::app()->clientScript->registerScript( 'selectProduct', "
+/*Yii::app()->clientScript->registerScript( 'selectProduct', "
         jQuery( function($){
             $('div#product_show').on('click','a.list-product',function(e) {
                 e.preventDefault();
@@ -166,10 +166,11 @@ Yii::app()->clientScript->registerScript( 'selectProduct', "
                                   return false;
                                 }
                           }
-                }); /* End Ajax */
+                });
              });
          });
       ");
+*/
 ?>
 
 <?php
@@ -200,6 +201,8 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
                 e.preventDefault();
                 $("#finish_sale_button").hide();
                 $('#finish_sale_form').submit();
+                $("#SaleItem_client_id").focus();
+                return false;
             });
         });
     </script>
@@ -246,6 +249,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         $('#cancel_cart').on('click','a.suspend-sale',function(e) {
             e.preventDefault();
             if (confirm("<?php echo Yii::t('app','Are you sure you want to suspend this sale?'); ?>")){
+                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_suspend'])); ?>');
                 $('#suspend_sale_form').submit();
             }
         });
@@ -253,19 +257,24 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         $('#cancel_cart').on('click','a.cancel-sale',function(e) {
             e.preventDefault();
             if (confirm("<?php echo Yii::t('app','Are you sure you want to clear this sale? All items will cleared.'); ?>")){
-                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/cancelSale/'); ?>');
+                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_cancel'])); ?>');
                 $('#suspend_sale_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit});
             }
         });
 
         $('#client_cart').on('click','a.detach-customer', function(e) {
             e.preventDefault();
-            $('#client_selected_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit});
+            $('#client_selected_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: clientScannedSuccess});
         });
 
         $('#total_discount_cart').on('change','input.input-totaldiscount',function(e) {
             e.preventDefault();
             $(this.form).ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit });
+        });
+
+        $('#payment_cart').on('click','a.complete-sale', function(e) {
+            e.preventDefault();
+            $('#finish_sale_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: clientScannedSuccess });
         });
 
     });
@@ -280,11 +289,26 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         $('.waiting').show();
     }
 
+
     function itemScannedSuccess(responseText, statusText, xhr, $form)
     {
         //$('.waiting').hide();
         setTimeout(function(){$('#SaleItem_item_id').focus();}, 10);
     }
+
+    // really thanks to this http://www.stefanolocati.it/blog/?p=1413
+    function qtyScannedSuccess(itemId)
+    {
+        return function (responseText, statusText, xhr, $form ) {
+            setTimeout(function(){$('#quantity_' + itemId).select();}, 10);
+        }
+    }
+
+    function clientScannedSuccess(responseText, statusText, xhr, $form)
+    {
+        setTimeout(function(){$('#SaleItem_client_id').focus();}, 10);
+    }
+
 
 </script>
 
@@ -292,7 +316,6 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
     $(document).keydown(function(event)
     {
         var mycode = event.keyCode;
-        //console.log(mycode);
         //F1
         if ( mycode === 112) {
             $('#payment_amount_id').focus();

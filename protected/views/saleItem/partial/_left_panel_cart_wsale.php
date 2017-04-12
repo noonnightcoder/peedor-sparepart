@@ -7,7 +7,6 @@
         <tr>
             <th><?php echo Yii::t('app', 'Item Name'); ?></th>
             <th><?php echo Yii::t('app', 'Price'); ?></th>
-            <th><?php echo Yii::t('app', 'Price KH'); ?></th>
             <th><?php echo Yii::t('app', 'Quantity'); ?></th>
             <th class="<?php echo Yii::app()->settings->get('sale', 'discount'); ?>"><?php echo Yii::t('app',
                     'Discount'); ?></th>
@@ -43,12 +42,9 @@
                             'placeholder' => 'Price',
                             'maxlength' => 10
                         )); ?>
-                        <i class="ace-icon blue"><?php echo $item['currency_symbol']; ?> </i>
+                        <i class="ace-icon blue"><?= $item['currency_symbol']; ?> </i>
                     </span>
                     <?php $this->endWidget(); ?>
-                </td>
-                <td>
-                    <?= $item['price_kh']; ?>
                 </td>
                 <td>
                     <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -76,8 +72,7 @@
                     <?php echo $form->textField($model, "discount", array(
                             'value' => $item['discount'],
                             'class' => 'input-small input-grid',
-                            'id' =>
-                                "discount_$item_id",
+                            'id' => "discount_$item_id",
                             'placeholder' => 'Discount',
                             'data-id' => "$item_id",
                             'maxlength' => 9,
@@ -87,7 +82,7 @@
                     ?>
                     <?php $this->endWidget(); ?>
                 </td>
-                <td><?= $item['total'] ?>
+                <td><?= $item['currency_symbol'] . number_format($item['total'],0,'.',',') ?>
                 <td><?php
                     echo TbHtml::linkButton('', array(
                         'color' => TbHtml::BUTTON_COLOR_DANGER,

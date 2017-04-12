@@ -59,6 +59,27 @@ class UserIdentity extends CUserIdentity
 
             EmployeeLocation::model()->setEmployeeLocation($employeeId);
 
+            $emp_location = EmployeeLocation::model()->find('employee_id=:employeeID', array(':employeeID' => (int) $employeeId));
+
+            if ($emp_location) {
+                Yii::app()->getsetSession->setLocationId($emp_location->location_id);
+                $location = Location::model()->findByPk($emp_location->location_id);
+                Yii::app()->getsetSession->setLocationCode($location->loc_code);
+                Yii::app()->getsetSession->setLocationName($location->name);
+                Yii::app()->getsetSession->setLocationNameKH($location->name_kh);
+                Yii::app()->getsetSession->setLocationPhone($location->phone);
+                Yii::app()->getsetSession->setLocationPhone1($location->phone1);
+                Yii::app()->getsetSession->setLocationAddress($location->address);
+                Yii::app()->getsetSession->setLocationAddress1($location->address1);
+                Yii::app()->getsetSession->setLocationAddress2($location->address2);
+                Yii::app()->getsetSession->setLocationWifi($location->wifi_password);
+                Yii::app()->getsetSession->setLocationEmail($location->email);
+                Yii::app()->getsetSession->setLocationPrinterFood($location->printer1);
+                Yii::app()->getsetSession->setLocationPrinterBeverage($location->printer2);
+                Yii::app()->getsetSession->setLocationPrinterReceipt($location->printer3);
+                Yii::app()->getsetSession->setLocationVat($location->vat);
+            }
+
             //Saving User Login & out timing
             Yii::app()->session['unique_id'] = uniqid();
 

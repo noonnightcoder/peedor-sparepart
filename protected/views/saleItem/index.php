@@ -1,6 +1,10 @@
 <div id="register_container">
-
-    <?= $sale_type; ?>
+    <?php //echo 'Sale Type : ' . Common::getSaleType() .  "<br>" ?>
+    <?php //echo 'Sale ID : ' . Common::getSaleID() .  "<br>" ?>
+    <?php //echo 'Customer ID : ' . Common::getCustomerID() .  "<br>" ?>
+    <?php //echo 'Price Tier ID : ' . Common::getPriceTierID() .  "<br>" ?>
+    <?php //echo' Price Tier HTML Value : ' . Common::priceTierDisable() . "<br>" ?>
+    <?php //print_r($account) . "<br>" ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(
@@ -11,8 +15,9 @@
     <?php $this->renderPartial('partial/_right_panel', array(
         'model' => $model,
         'count_item' => $count_item,
-        'cust_fullname' => $cust_fullname,
-        'acc_balance' => $acc_balance,
+        'customer_name' => $customer_name,
+        //'account_name' => $account_name,
+        'account' => $account,
         'total_discount' => $total_discount,
         'total_kh' => $total_kh,
         'count_payment' => $count_payment,

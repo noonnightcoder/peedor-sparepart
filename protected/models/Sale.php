@@ -539,4 +539,49 @@ class Sale extends CActiveRecord
             return isset($_items[$type]) ? $_items[$type] : false;
     }
 
+    public function getSaleInfoById($sale_id,$location_id,$status,$sale_type)
+    {
+
+        $sql = "SELECT sale_id,location_id,sale_time,client_id,client_name,employee_id,user_id,employee_name,
+                  s.currency_code,c.currency_symbol,c.currency_id,rate,quantity,sub_total,discount_amount,total,paid,vat_amount
+                `status`,status_f,sale_type,c.sort_order
+                FROM v_sale_invoice s inner join currency_type c 
+                 on c.code = s.currency_code
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                AND s.`status`=:status
+                AND sale_type=:sale_type
+                ORDER BY c.sort_order";
+
+        return Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':status' => $status,
+                ':sale_type' => $sale_type
+            )
+        );
+    }
+
+
+    public function getRetailInfoById($sale_id,$location_id,$status,$sale_type)
+    {
+
+        $sql = "SELECT client_name,employee_name,sale_time,SUM(sub_total*rate) sub_total,sum(discount_amount) discount_amount,sum(total*rate) total
+                FROM v_sale_invoice s 
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                AND s.`status`=:status
+                AND sale_type=:sale_type
+                GROUP BY sale_time,client_name,employee_name
+                ";
+
+        return Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':status' => $status,
+                ':sale_type' => $sale_type
+            )
+        );
+    }
+
 }

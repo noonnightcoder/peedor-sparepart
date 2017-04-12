@@ -51,7 +51,7 @@ class DashboardController extends Controller
 	public function actionView()
 	{        
             if ( Yii::app()->user->checkAccess('report.index') ) {
-                $report=new Report;  
+                $report=new Dashboard;
                 $this->render('index',array('report'=>$report));
             } else {
                 throw new CHttpException(403, 'You are not authorized to perform this action');

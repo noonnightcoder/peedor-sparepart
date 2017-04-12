@@ -11,15 +11,12 @@
         $cs = Yii::app()->getClientScript();
     ?>
     <?php //Yii::app()->bootstrap->register(); ?>
-     <script>
-        var BASE_URL="<?php print Yii::app()->request->baseUrl;?>";
-    </script>
-    
+
     <link rel="icon" type="image/ico" href="<?php echo $baseUrl ?>/css/img/bakouicon.ico" />
     
-    <!-- bootstrap & fontawesome -->
+    <!-- bootstrap & font-awesome -->
     <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/font-awesome.min.css" />
+    <!--<link rel="stylesheet" type="text/css" href="<?php /*echo $baseUrl */?>/css/font-awesome.min.css" />-->
     
     <!-- page specific plugin styles -->
     
@@ -28,18 +25,8 @@
     
     <!-- ace styles -->
     <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/ace.min.css" />
-    
-    <!--[if lte IE 9]>
-        <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/ace-part2.min.css" />
-    <![endif]-->
-    <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/ace-skins.min.css" />
-    <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/ace-rtl.min.css" />
-    
-    <!--[if lte IE 9]>
-        <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/ace-ie.min.css" />
-    <![endif]-->
-    
-    <link rel="stylesheet" type="text/css" href="<?php echo $baseUrl ?>/css/loading_animation.css" />
+
+    <!--<link rel="stylesheet" type="text/css" href="<?php /*echo $baseUrl */?>/css/loading_animation.css" />-->
     
     <!-- <link rel="stylesheet" type="text/css" href="<?php //echo Yii::app()->request->baseUrl ?>/css/custom.css" /> -->
    

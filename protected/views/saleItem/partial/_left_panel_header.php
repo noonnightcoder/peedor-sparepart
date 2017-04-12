@@ -1,11 +1,11 @@
 <?php $box = $this->beginWidget('yiiwheels.widgets.box.WhBox',array(
-    'title'         =>  Common::getSaleType()=='W' ? Yii::t('app','Whole Sale Register') : Yii::t('app','Retail Register'),
-    'headerIcon'    => 'menu-icon fa fa-shopping-cart',
+    'title'         =>  Yii::t('app',Common::saleTitle() . ' Register'),
+    'headerIcon'    => 'menu-icon ' . Common::saleIcon(),
     'headerButtons' => array(
         TbHtml::buttonGroup(
             array(
-                //array('label' => Yii::t('app','On-going Sale'),'url' =>Yii::app()->createUrl('SaleItem/ListSuspendedSale/'),'icon'=>'ace-icon fa fa-spinner fa-spin white'),
-                //array('label'=>' | '),
+                    array('label' => Yii::t('app','On-going ' . Common::saleTitle()),'url' =>Yii::app()->createUrl('SaleItem/ListSuspendedSale/'),'icon'=>'ace-icon fa fa-spinner fa-spin white'),
+                array('label'=>' | '),
                 array('label' => Yii::t('app','New Item'),'url' =>Yii::app()->createUrl('Item/createImage',array('grid_cart'=>'S')),'icon'=>'ace-icon fa fa-plus white'),
             ),array('color'=>TbHtml::BUTTON_COLOR_PRIMARY,'size'=>TbHtml::BUTTON_SIZE_SMALL)
         ),
@@ -40,7 +40,7 @@
                 'select'=>'js:function(event, ui) {
                     event.preventDefault();
                     $("#SaleItem_item_id").val(ui.item.id);
-                    $("#add_item_form").ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: itemScannedSuccess});
+                    $("#add_item_form").ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit, success: qtyScannedSuccess(ui.item.id)});
                 }',
                 //'search' => 'js:function(){ $(".waiting").show(); }',
                 //'open' => 'js:function(){ $(".waiting").hide(); }',

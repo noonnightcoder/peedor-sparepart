@@ -20,7 +20,8 @@
  */
 class SaleOrder extends CActiveRecord
 {
-    private $active_status = 1;
+    //private $active_status = 1;
+    public $search_client;
 
     /**
      * @return string the associated database table name
@@ -94,14 +95,17 @@ class SaleOrder extends CActiveRecord
         return parent::model($className);
     }
 
+    /* change to get OrerInfo below to remove */
+    /*
     public function getOrderId()
     {
-        $sql = "SELECT sfunc_order_find_id(NULL,:user_id,:location_id) sale_id";
+        $sql = "SELECT sfunc_order_info(:user_id,:location_id,:status) order_info";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true,
             array(
                 ':user_id' => Common::getUserID(),
                 ':location_id' => Common::getCurLocationID(),
+                ':status' => Yii::app()->params['order_status_ongoing']
             )
         );
 
@@ -111,12 +115,52 @@ class SaleOrder extends CActiveRecord
 
         return $id;
     }
+    */
+
+    public function getOrderInfo()
+    {
+        $sql = "SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 1), ';', -1) sale_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 2), ';', -1) client_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 3), ';', -1) location_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 4), ';', -1) user_id,
+                 SUBSTRING_INDEX(SUBSTRING_INDEX(order_info, ';', 5), ';', -1) sale_type
+                FROM (
+                  SELECT sfunc_order_info(:user_id,:location_id,:status) as order_info
+                ) as t1";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+            array(
+                ':user_id' => Common::getUserID(),
+                ':location_id' => Common::getCurLocationID(),
+                ':status' => Yii::app()->params['order_status_ongoing']
+            )
+        );
+
+        $sale_id = NULL;
+        $client_id = NULL;
+        $location_id = NULL;
+        $user_id = NULL;
+        $sale_type = NULL;
+
+        foreach ($result as $record) {
+            $sale_id = $record['sale_id'];
+            $client_id = $record['client_id'];
+            $location_id = $record['location_id'];
+            $user_id = $record['user_id'];
+            $sale_type = $record['sale_type'];
+        }
+
+
+        return array($sale_id, $client_id, $location_id, $user_id,$sale_type);;
+    }
 
     public function getOrderCart()
     {
 
         $sql = "SELECT item_id,currency_code,currency_symbol,`name`,item_number,quantity,
-                 price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,(price_kh*quantity)-IFNULL(discount_amount,0) total,
+                 price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,
+                 (price*quantity) total,
+                 (price_kh*quantity)-IFNULL(discount_amount,0) total_kh,
                  NULL description,sale_type
                 FROM v_order_cart
                 WHERE user_id=:user_id
@@ -128,20 +172,64 @@ class SaleOrder extends CActiveRecord
         return Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':user_id' => Common::getUserID(),
                 ':location_id' => Common::getCurLocationID(),
-                ':status' => '1', // To change to variable
+                ':status' => Yii::app()->params['order_status_ongoing'],
                 ':sale_type' => Common::getSaleType()
+            )
+        );
+    }
+
+    public function getOrderCartById($sale_id,$location_id,$status,$sale_type)
+    {
+
+        $sql = "SELECT item_id,currency_code,currency_symbol,`name`,item_number,quantity,
+                 price,price_kh,price_kh price_verify,rate to_val,discount_amount discount,
+                 (price*quantity) sub_total,(price*quantity)-IFNULL(discount_amount,0)  total,
+                 (price_kh*quantity) sub_total_kh,(price_kh*quantity)-IFNULL(discount_amount,0) total_kh,
+                 NULL description,sale_type
+                FROM v_order_cart
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                and `status`=:status
+                AND ISNULL(deleted_at)
+                AND sale_type=:sale_type";
+
+        /*
+        $sql= "SELECT item_id,currency_code,currency_symbol,`name`,item_number,rate to_val,sale_type,
+                 SUM(quantity) quantity,
+                 SUM(price) price,
+                 SUM(CASE WHEN currency_code=2 THEN price ELSE 0 END) price_khr,
+                 SUM(CASE WHEN currency_code=3 THEN price ELSE 0 END) price_thb,
+                 SUM(CASE WHEN currency_code=1 THEN price ELSE 0 END) price_usd,
+                 SUM(discount_amount) discount,
+                 SUM((price*quantity)) total,
+                 SUM((price_kh*quantity)) sub_total_kh,
+                 SUM((price_kh*quantity)-IFNULL(discount_amount,0)) total_kh
+                FROM v_sale_cart
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                AND `status`=:status
+                AND ISNULL(deleted_at)
+                AND sale_type=:sale_type
+                GROUP BY item_id,currency_code,currency_symbol,`name`,item_number,sale_type,rate";
+        */
+
+        return Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':status' => $status,
+                ':sale_type' => $sale_type
             )
         );
     }
 
     public function getAllTotal()
     {
-        $quantity = 0;
+        /*$quantity = 0;
         $sub_total = 0;
         $total = 0;
-        $discount_amount = 0;
+        $discount_amount = 0;*/
 
-        $sql="SELECT sale_id,sum(quantity) quantity,
+        /*$sql="SELECT sale_id,sum(quantity) quantity,
                     SUM(price*quantity) sub_total,
                     SUM(price*quantity) - (SUM(price*quantity)*IFNULL(so.discount_amount,0)/100) total,
                     SUM(price*quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
@@ -155,16 +243,34 @@ class SaleOrder extends CActiveRecord
               and so.`status`=:status
               AND ISNULL(oc.deleted_at)
               AND so.sale_type=:sale_type            
-              GROUP BY sale_id";
+              GROUP BY sale_id";*/
 
+        $sql = "SELECT sale_id,currency_code,currency_symbol,
+                 SUM(oc.quantity) quantity,
+                 SUM(oc.price*oc.quantity) sub_total,
+                 SUM(oc.price*oc.quantity) - (SUM(oc.price*oc.quantity)*IFNULL(so.discount_amount,0)/100) total,
+                 SUM(oc.price*oc.quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
+                FROM v_order_cart oc JOIN sale_order so
+                   ON so.id = oc.sale_id 
+                    AND so.user_id = oc.user_id
+                    AND so.location_id = oc.location_id
+                WHERE so.user_id = :user_id
+                AND so.location_id = :location_id
+                AND so.`status`= :status
+                AND ISNULL(oc.deleted_at)
+                AND so.sale_type = :sale_type          
+                GROUP BY sale_id,currency_code,currency_symbol";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
             ':user_id' => Common::getUserID(),
             ':location_id' => Common::getCurLocationID(),
-            ':status' => '1', // To change to variable
+            ':status' => Yii::app()->params['order_status_ongoing'], // To change to variable
             ':sale_type' => Common::getSaleType()
         ));
 
+        return $result;
+
+        /*
         if ($result) {
             foreach ($result as $record) {
                 $quantity = $record['quantity'];
@@ -175,6 +281,36 @@ class SaleOrder extends CActiveRecord
         }
 
         return array($quantity, $sub_total, $total, $discount_amount);
+        */
+    }
+
+    public function getAllTotalKH()
+    {
+
+        $sql = "SELECT sale_id,
+                 SUM(oc.price_kh*oc.quantity) sub_total,
+                 SUM(oc.price_kh*oc.quantity) - (SUM(oc.price_kh*oc.quantity)*IFNULL(so.discount_amount,0)/100) total,
+                 SUM(oc.price_kh*oc.quantity)*IFNULL(so.discount_amount,0)/100 discount_amount
+                FROM v_order_cart oc JOIN sale_order so
+                   ON so.id = oc.sale_id 
+                    AND so.user_id = oc.user_id
+                    AND so.location_id = oc.location_id
+                WHERE so.user_id = :user_id
+                AND so.location_id = :location_id
+                AND so.`status`= :status
+                AND ISNULL(oc.deleted_at)
+                AND so.sale_type = :sale_type          
+                GROUP BY sale_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+            ':user_id' => Common::getUserID(),
+            ':location_id' => Common::getCurLocationID(),
+            ':status' => Yii::app()->params['order_status_ongoing'], // To change to variable
+            ':sale_type' => Common::getSaleType()
+        ));
+
+        return $result;
+
     }
 
     public function orderAdd($item_id,$quantity,$price, $discount_amount)
@@ -252,15 +388,43 @@ class SaleOrder extends CActiveRecord
         return $result_id;
     }
 
-    public function orderSave($sale_id)
+    public function orderSave($sale_id,$save_status)
     {
-        $sql="SELECT func_order_save(:sale_id,:location_id,:employee_id,:user_id) sale_id";
+        $sql="SELECT func_order_save(:sale_id,:location_id,:client_id,:employee_id,:user_id,:save_status) sale_id";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':sale_id' => $sale_id,
                 ':location_id' => Common::getCurLocationID(),
+                ':client_id' => Common::getCustomerID(),
                 ':employee_id' => Common::getEmployeeID(),
-                ':user_id' => Common::getUserID()
+                ':user_id' => Common::getUserID(),
+                ':save_status' => $save_status
+            )
+        );
+
+        foreach ($result as $record) {
+            $sale_id = $record['sale_id'];
+        }
+
+        return $sale_id;
+
+    }
+
+    public function orderStatusCH($sale_id,$client_id,$order_status,$order_status_ch)
+    {
+        $sql="SELECT sfunc_order_status_ch(:sale_id,:location_id,:order_status,:order_status_ch,:cart_status,:client_id,:employee_id,:user_id,:update_timestamp,:del_timestamp) sale_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => Common::getCurLocationID(),
+                ':order_status' => $order_status,
+                ':order_status_ch' => $order_status_ch,
+                ':cart_status' => NULL,
+                ':client_id' => $client_id,
+                ':employee_id' => Common::getEmployeeID(),
+                ':user_id' => Common::getUserID(),
+                ':update_timestamp' => NULL,
+                ':del_timestamp' => NULL,
             )
         );
 
@@ -325,6 +489,92 @@ class SaleOrder extends CActiveRecord
             $model->temp_status = $status;
             $model->save();
         }
+    }
+
+    public function getQtyTotal() {
+
+        $sql = "SELECT SUM(oc.quantity) quantity
+                FROM v_order_cart oc
+                WHERE oc.user_id = :user_id
+                AND oc.location_id = :location_id
+                AND oc.`status`= :status
+                AND ISNULL(oc.deleted_at)
+                AND oc.sale_type = :sale_type";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+            ':user_id' => Common::getUserID(),
+            ':location_id' => Common::getCurLocationID(),
+            ':status' => '1', // To change to variable
+            ':sale_type' => Common::getSaleType()
+        ));
+
+        $quantity=0;
+
+        if ($result) {
+            foreach ($result as $record) {
+                $quantity = $record['quantity'];
+            }
+        }
+
+        return $quantity;
+
+    }
+
+    public function ListSuspendSale()
+    {
+
+        if (!isset($this->search_client)) {
+
+            $sql = "SELECT s.id sale_id,s.client_id client_id,
+                      (SELECT CONCAT_WS(' ',first_name,last_name) FROM `client` c WHERE c.id=s.client_id) client_name,
+                       DATE_FORMAT(s.sale_time,'%d-%m-%Y %H:%i') sale_time,st.items,remark
+                    FROM sale_order s INNER JOIN (SELECT si.sale_id, substring_index(group_concat(i.name SEPARATOR ','), ',', 5) items
+                                            FROM sale_order_item si INNER JOIN item i ON i.id=si.item_id 
+                                            GROUP BY si.sale_id
+                                            ) st ON st.sale_id=s.id
+                    WHERE status=:status
+                    AND sale_type=:sale_type";
+            $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
+                ':status' => Yii::app()->params['order_status_suspend'],
+                ':sale_type' => Common::getSaleType()
+            ));
+
+        } else {
+            $sql = "SELECT sale_id,client_id,client_name,sale_time,items,remark
+                    FROM (
+                        SELECT s.id sale_id,
+                              s.client_id client_id,
+                             (SELECT CONCAT_WS(' ',first_name,last_name) FROM `client` c WHERE c.id=s.client_id) client_name,
+                             DATE_FORMAT(s.sale_time,'%d-%m-%Y %H:%i') sale_time,st.items,remark
+                         FROM sale_order s INNER JOIN (SELECT si.sale_id, GROUP_CONCAT(i.name) items
+                                                 FROM sale_order_item si INNER JOIN item i ON i.id=si.item_id 
+                                                 GROUP BY si.sale_id
+                                                 ) st ON st.sale_id=s.id
+                         WHERE status=:status
+                         AND sale_type=:sale_type
+                    ) as t1
+                    WHERE sale_id=:sale_id OR client_id like :client_id";
+            $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
+                ':sale_id' => $this->search_client,
+                ':client_id' =>'%' . $this->search_client .'%',
+                ':status' => Yii::app()->params['order_status_suspend'],
+                ':sale_type' => Common::getSaleType()
+            ));
+        }
+
+
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => 'sale_id',
+            'sort' => array(
+                'attributes' => array(
+                    'sale_time',
+                ),
+            ),
+            'pagination' => false,
+        ));
+
+        return $dataProvider; // Return as array object
     }
 
 }

@@ -178,9 +178,6 @@ Class Common
         return Yii::app()->session['user_id'];
     }
 
-    /**
-     * Sale Common Session Variable in Use
-     */
     public static function getSaleType()
     {
         return  Yii::app()->shoppingCart->getSaleType();
@@ -188,18 +185,30 @@ Class Common
 
     public static function getSaleID()
     {
-        return  Yii::app()->shoppingCart->getSaleId();
+        return Yii::app()->shoppingCart->getSaleId();
     }
 
     public static function getCustomerID()
     {
-        // To change @ GetsetSession.php
-        return 1; //Yii::app()->getsetSession->getCustomerId();
+        return Yii::app()->shoppingCart->getCustomerId();
     }
 
     public static function getPriceTierID()
     {
-        return Yii::app()->getsetSession->getPriceTierId();
+        return Yii::app()->shoppingCart->getPriceTierId();
+    }
+
+    public static function priceTierDisable()
+    {
+        return Common::getSaleType()=='R'?TRUE:FALSE;
+    }
+
+    public static function saleTitle() {
+        return Common::getSaleType()=='R'?'Retail':'Whole Sale';
+    }
+
+    public static function saleIcon() {
+        return Common::getSaleType()=='R'?'fa fa-shopping-basket':'fa fa-cart-plus';
     }
 
 }

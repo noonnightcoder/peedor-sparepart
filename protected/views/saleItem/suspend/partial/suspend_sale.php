@@ -1,9 +1,3 @@
-<?php
-$this->breadcrumbs=array(
-	'Sales'=>array('index'),
-	'Suspended Sales',
-);
-?>
 <div>
 
 <?php /*if(Yii::app()->user->hasFlash('success')):*/?><!--
@@ -13,7 +7,7 @@ $this->breadcrumbs=array(
 <?php $this->renderPartial('//layouts/alert/_flash'); ?>
     
 <?php $box = $this->beginWidget('yiiwheels.widgets.box.WhBox', array(
-              'title' =>Yii::t('app','List Of Suspended Sales'),
+              'title' =>Yii::t('app','List Of Suspended ' . Common::saleTitle() ),
               'headerIcon' => 'icon-list fa fa-bookmark ',
               'htmlHeaderOptions'=>array('class'=>'widget-header-flat widget-header-small'),
 ));?>
@@ -34,16 +28,16 @@ $this->breadcrumbs=array(
             'header' => Yii::t('app', 'Sale Time'),
             'value' => '$data["sale_time"]',
         ),
-        array('name' => 'client_id',
+        array('name' => 'client_name',
             'header' => Yii::t('app', 'Customer Name'),
-            'value' => '$data["client_id"]',
+            'value' => '$data["client_name"]',
         ),
         array('name' => 'items',
             'header' => Yii::t('app', 'Items'),
             'value' => '$data["items"]',
         ),
         array('name' => 'Unsuspend',
-            'value' => 'CHtml::link("Unsuspend", Yii::app()->createUrl("SaleItem/UnsuspendSale",array("sale_id"=>$data["sale_id"])),
+            'value' => 'CHtml::link("Unsuspend", Yii::app()->createUrl("SaleItem/UnsuspendSale",array("sale_id"=>$data["sale_id"],"client_id"=>$data["client_id"])),
                                 array("class"=>"btn btn-info btn-xs"))',
             'type' => 'raw',
         ),

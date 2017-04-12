@@ -56,7 +56,7 @@ class GetsetSession extends CApplicationComponent
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['location_name'])) {
-            $this->setLocationName(array());
+            $this->setLocationName(NULL);
         }
         return $this->session['location_name'];
     }
@@ -247,40 +247,25 @@ class GetsetSession extends CApplicationComponent
         $this->session['location_vat'] = $data;
     }
 
-    public function getPriceTierId()
+    public function setDayInterval($data)
     {
         $this->setSession(Yii::app()->session);
-        if (!isset($this->session['price_tier_id'])) {
-            $this->setPriceTierId(4);
+        $this->session['dayinterval'] = $data;
+    }
+
+    public function getDayInterval()
+    {
+        $this->setSession(Yii::app()->session);
+        if (!isset($this->session['dayinterval'])) {
+            $this->setTotalDiscount(1);
         }
-        return $this->session['price_tier_id'];
+        return $this->session['dayinterval'];
     }
 
-    public function setPriceTierId($price_tier_id)
+    public function clearDayInterval()
     {
         $this->setSession(Yii::app()->session);
-        $this->session['price_tier_id'] = $price_tier_id;
-    }
-
-    public function getCustomerId()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['customer_id'])) {
-            $this->setCustomer(null);
-        }
-        return $this->session['customer_id'];
-    }
-
-    public function setCustomer($customer_id)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['customer_id'] = $customer_id;
-    }
-
-    public function removeCustomer()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['customer_id']);
+        unset($this->session['dayinterval']);
     }
 
 

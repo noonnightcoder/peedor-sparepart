@@ -46,7 +46,7 @@ $this->breadcrumbs=array(
                                                 Ratana Plazza, Khan Sensok, Phnom Penh.
                                                 <br />
                                                 <abbr title="Phone">Mobile Number:</abbr>
-                                                <span class="badge badge-info"><strong> (089) 555-006 </strong></span>
+                                                <span class="badge badge-info"><strong> (012) 797-008 </strong></span>
                                         </address>
 
                                         <address>
