@@ -18,7 +18,6 @@ $this->widget('bootstrap.widgets.TbNav', array(
     'type' => TbHtml::NAV_TYPE_LIST,
     'submenuHtmlOptions'=>array('class'=>'submenu'),
     'encodeLabel' => false,
-    'id'=>'sidebar',
     'items' => array(
             array('label'=>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Dashboard')) . '</span>', 'icon'=>'menu-icon fa fa-tachometer', 'url'=>Yii::app()->urlManager->createUrl('dashboard/view'), 'active'=>$this->id .'/'. $this->action->id=='dashboard/view'?true:false,
                     'visible'=> Yii::app()->user->checkAccess('report.index')
