@@ -41,9 +41,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ?>
 
 <?php //if ($count_payment == 0) { ?>
-<!--<tr>
+<tr>
     <td colspan="2" style='text-align:right'>
-        <?php /*echo $form->textFieldControlGroup($model, 'payment_amount', array(
+        <?php echo $form->textFieldControlGroup($model, 'payment_amount', array(
             'value' => '', //$amount_change,
             'class' => 'input-mini text-right payment-amount-txt',
             'id' => 'payment_amount_id',
@@ -51,22 +51,22 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
             'placeholder' => Yii::t('app', 'Payment Amount'),
             //'prepend' => Yii::app()->settings->get('site', 'currencySymbol'),
         ));
-        */?>
+        ?>
     </td>
 </tr>
 <tr>
-    <td colspan="2" style='text-align:right'><?php
-/*        echo TbHtml::linkButton(Yii::t('app', 'Add Payment'), array(
+    <td colspan="2" style='text-align:right'>
+        <?php echo TbHtml::linkButton(Yii::t('app', 'Add Payment'), array(
             'color' => TbHtml::BUTTON_COLOR_INFO,
             'size' => TbHtml::BUTTON_SIZE_MINI,
             'icon' => 'glyphicon-plus white',
             'url' => Yii::app()->createUrl('SaleItem/AddPayment/'),
             'class' => 'add-payment',
-            //'title' => Yii::t('app', 'Add Payment'),
+            'title' => Yii::t('app', 'Add Payment'),
         ));
-        */?>
+        ?>
     </td>
-</tr>-->
+</tr>
 <?php //} ?>
 
 <?php $this->endWidget(); ?>

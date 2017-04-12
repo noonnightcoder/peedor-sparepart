@@ -38,7 +38,7 @@
                     ?>
                     <span class="input-icon">
                         <?php echo $form->textField($model, "price", array(
-                            'value' => $item['price'],
+                            'value' => number_format($item['price'],Common::getDecimalPlaceRS(),'',''),
                             'class' => 'input-small input-grid',
                             'id' => "price_$item_id",
                             'placeholder' => 'Price',
@@ -49,7 +49,7 @@
                     <?php $this->endWidget(); ?>
                 </td>
                 <td>
-                    <?= '៛' . $item['price_kh']; ?>
+                    <?= '៛' . number_format($item['price_kh'],Common::getDecimalPlaceRS()); ?>
                 </td>
                 <td>
                     <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -88,8 +88,8 @@
                     ?>
                     <?php $this->endWidget(); ?>
                 </td>
-                <td><?= $item['currency_symbol'] . $item['total'] ?>
-                <td><?= '៛' . $item['total_kh'] ?>
+                <td><?= $item['currency_symbol'] . number_format($item['total'],Common::getDecimalPlaceRS()) ?>
+                <td><?= '៛' .number_format($item['total_kh'],Common::getDecimalPlaceRS()); ?>
                 <td><?php
                     echo TbHtml::linkButton('', array(
                         'color' => TbHtml::BUTTON_COLOR_DANGER,

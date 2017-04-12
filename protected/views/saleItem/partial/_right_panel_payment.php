@@ -30,13 +30,12 @@
                 ?>
 
                 <?php /*if (Common::getSaleType()=='R') {
-
                     $this->renderPartial('partial/_right_panel_payment_retail', array(
                         'count_payment' => $count_payment,
                         'model' => $model,
                     ));
-
-                }*/?>
+                }
+                */?>
                 </tbody>
             </table>
 
