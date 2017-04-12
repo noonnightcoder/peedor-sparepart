@@ -163,7 +163,7 @@ function itemScannedSuccess(itemId)
     setTimeout(function(){$('#ReceivingItem_item_id').focus();}, 10);
 }*/
 
-$("a").click(function(e){
+$("#sidebar a").click(function(e){
     e.preventDefault();
     var curr_link = window.location.href;
     var host = window.location.origin;
@@ -172,8 +172,8 @@ $("a").click(function(e){
 
     if(curr_link!=clicked_link)
     {
-        var answer=confirm('Your process will be suspend if you leave this current page, Are you sure?');
-        if(answer)
+        //var answer=confirm('Your process will be suspend if you leave this current page, Are you sure?');
+        if(confirm('Your process will be suspend if you leave this current page, Are you sure?'))
         {
             $.ajax({
                 url: url,
