@@ -142,6 +142,11 @@ Class Common
         return 0;
     }
 
+    public static function getDecimalPlaceQty()
+    {
+        return 0;
+    }
+
     public static function rielRoundUp($amount)
     {
         return  ceil($amount/100-0.1)*100;

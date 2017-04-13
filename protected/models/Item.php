@@ -216,7 +216,7 @@ class Item extends CActiveRecord
             'pagination' => array(
                 'pageSize' => Yii::app()->user->getState('pageSize',Yii::app()->settings->get('item', 'itemNumberPerPage')),
             ),
-            'sort' => array('defaultOrder' => 't.name')
+            'sort' => array('defaultOrder' => 't.modified_date desc')
         ));
     }
 

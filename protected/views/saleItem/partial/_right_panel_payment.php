@@ -14,14 +14,18 @@
                 <tbody>
                 <tr>
                     <td><?php echo Yii::t('app', 'Item in Cart'); ?> :</td>
-                    <td><?= $count_item; ?></td>
+                    <td><?= number_format($count_item,Common::getDecimalPlaceQty()); ?></td>
                 </tr>
+
 
                 <?php if (Common::getSaleType()=='W') {
 
                     $this->renderPartial('partial/_right_panel_total_wsale');
 
                 } else {
+
+                    echo "<br>";
+
                     $this->renderPartial('partial/_right_panel_total_retail', array(
                         'count_payment' => $count_payment,
                         'model' => $model,

@@ -318,8 +318,8 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         var mycode = event.keyCode;
         //F1
         if ( mycode === 112) {
-            $('#payment_amount_id').focus();
-            $('#payment_amount_id').select();
+            $('#SaleItem_item_id').focus();
+            $('#SaleItem_item_id').select();
         }
 
         //F2 focus to customer selection
@@ -330,7 +330,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
 
         //ESC
         if ( mycode === 27) {
-            $("#cancel_sale_button").focus();
+            $("#finish_sale_button").focus();
         }
     });
 </script>

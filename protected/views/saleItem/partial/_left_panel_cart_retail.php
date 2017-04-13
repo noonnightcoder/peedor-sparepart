@@ -7,12 +7,12 @@
         <tr>
             <th><?php echo Yii::t('app', 'Item Name'); ?></th>
             <th><?php echo Yii::t('app', 'Price'); ?></th>
-            <th><?php echo Yii::t('app', 'Price KH'); ?></th>
+            <th><?php echo Yii::t('app', 'Price ៛'); ?></th>
             <th><?php echo Yii::t('app', 'Quantity'); ?></th>
             <th class="<?php echo Yii::app()->settings->get('sale', 'discount'); ?>"><?php echo Yii::t('app',
                     'Discount'); ?></th>
             <th><?php echo Yii::t('app', 'Total'); ?></th>
-            <th><?php echo Yii::t('app', 'Total KH'); ?></th>
+            <th><?php echo Yii::t('app', 'Total ៛'); ?></th>
             <th></th>
         </tr>
         </thead>

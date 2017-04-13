@@ -5,12 +5,13 @@
     <table class="table table-hover table-condensed">
         <thead>
         <tr>
-            <th><?php echo Yii::t('app', 'Item Name'); ?></th>
-            <th><?php echo Yii::t('app', 'Price'); ?></th>
-            <th><?php echo Yii::t('app', 'Quantity'); ?></th>
-            <th class="<?php echo Yii::app()->settings->get('sale', 'discount'); ?>"><?php echo Yii::t('app',
-                    'Discount'); ?></th>
-            <th><?php echo Yii::t('app', 'Total'); ?></th>
+            <th><?= Yii::t('app', 'Item Name'); ?></th>
+            <th><?= Yii::t('app', 'Price'); ?></th>
+            <th><?= Yii::t('app', 'Quantity'); ?></th>
+            <th class="<?= Yii::app()->settings->get('sale', 'discount'); ?>">
+                <?= Yii::t('app', 'Discount'); ?>
+            </th>
+            <th><?= Yii::t('app', 'Total'); ?></th>
             <th></th>
         </tr>
         </thead>
@@ -24,8 +25,11 @@
             ?>
             <tr>
                 <td>
-                    <?php echo $item['name']; ?><br/>
-                    <span class="text-info"><?php echo $qty_in_stock . ' ' . Yii::t('app', 'in stock') ?> <?= $item['price_verify']; ?> </span>
+                    <?= $item['name']; ?><br/>
+                    <span class="text-info">
+                        <?= $qty_in_stock . ' ' . Yii::t('app', 'in stock') ?>
+                        <?= $item['price_verify']; ?>
+                    </span>
                 </td>
                 <td>
                     <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -35,8 +39,8 @@
                     ));
                     ?>
                     <span class="input-icon">
-                        <?php echo $form->textField($model, "price", array(
-                            'value' => $item['price'],
+                        <?= $form->textField($model, "price", array(
+                            'value' => number_format($item['price'],Common::getDecimalPlace(),'.',''),
                             'class' => 'input-small input-grid',
                             'id' => "price_$item_id",
                             'placeholder' => 'Price',
@@ -53,7 +57,7 @@
                         'htmlOptions' => array('class' => 'line_item_form'),
                     ));
                     ?>
-                        <?php echo $form->textField($model, "quantity", array(
+                        <?= $form->textField($model, "quantity", array(
                             'value' => $item['quantity'],
                             'class' => 'input-small input-grid',
                             'id' => "quantity_$item_id",
@@ -62,7 +66,7 @@
                         )); ?>
                     <?php $this->endWidget(); ?>
                 </td>
-                <td class="<?php echo Yii::app()->settings->get('sale', 'discount'); ?>">
+                <td class="<?= Yii::app()->settings->get('sale', 'discount'); ?>">
                     <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                         'method' => 'post',
                         'action' => Yii::app()->createUrl('saleItem/editItem/', array('item_id' => $item['item_id'])),
@@ -82,7 +86,7 @@
                     ?>
                     <?php $this->endWidget(); ?>
                 </td>
-                <td><?= $item['currency_symbol'] . number_format($item['total'],0,'.',',') ?>
+                <td><?= $item['currency_symbol'] . number_format($item['total'],Common::getDecimalPlace()) ?>
                 <td><?php
                     echo TbHtml::linkButton('', array(
                         'color' => TbHtml::BUTTON_COLOR_DANGER,
@@ -100,7 +104,6 @@
         </tbody>
     </table>
 
-
     <?php
     if (empty($items)) {
         echo Yii::t('app', 'There are no items in the cart');
@@ -117,7 +120,7 @@
                     'id' => 'total_discount_form'
                 ));
                 ?>
-                <?php echo $form->textField($model, 'total_discount', array(
+                <?= $form->textField($model, 'total_discount', array(
                         'id' => 'total_discount_id',
                         'class' => 'col-xs-12 input-totaldiscount',
                         'placeholder' => 'Total Discount',
