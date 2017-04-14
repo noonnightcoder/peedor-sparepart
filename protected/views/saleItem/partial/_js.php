@@ -312,10 +312,38 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
 
 </script>
 
+<?php if (!empty(Yii::app()->shoppingCart->getCart())) { ?>
+
+<script>
+$("#sidebar").on('click','a', function(e){
+    e.preventDefault();
+    var curr_link = window.location.href;
+    var host = window.location.origin;
+    var clicked_link = host + $(this).attr("href");
+    var url = "/SaleItem/CompleteSale/?action_status=2";
+
+    if (curr_link != clicked_link) {
+        //var answer=confirm('Your process will be suspend if you leave this current page, Are you sure?');
+        if (confirm('click OK to save you work before you leave here')) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function (data) {
+                    location.href = clicked_link;
+                    return false;
+                }
+            });
+        }
+    }
+});
+</script>
+<?php } ?>
+
 <script type="text/javascript" language="javascript">
     $(document).keydown(function(event)
     {
         var mycode = event.keyCode;
+
         //F1
         if ( mycode === 112) {
             $('#SaleItem_item_id').focus();
@@ -326,6 +354,12 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         if ( mycode === 113) {
             $('#SaleItem_client_id').focus();
             $('#SaleItem_client_id').select();
+        }
+
+        //F3 focus to payment amount
+        if ( mycode === 114) {
+            $('#payment_amount_id').focus();
+            $('#payment_amount_id').select();
         }
 
         //ESC

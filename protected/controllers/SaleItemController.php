@@ -292,46 +292,46 @@ class SaleItemController extends Controller
 
     public function actionCompleteSale()
     {
-        //if (Yii::app()->request->isAjaxRequest) {
-            $this->layout = '//layouts/column_receipt';
 
-            $data = $this->sessionInfo();
-            $action_status = $_GET['action_status'];
+        $this->layout = '//layouts/column_receipt';
 
-            if (empty($data['items'])) {
-                $this->backIndex();
-            }
+        $data = $this->sessionInfo();
+        $action_status = $_GET['action_status'];
 
-            $customer = $this->customerInfo($data['customer_id']);
-            $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
+        if (empty($data['items'])) {
+            $this->backIndex();
+        }
 
-            if ($data['sale_type']=='W' && $data['customer_id']==-1) {
-                Yii::app()->user->setFlash('warning', Yii::t('app',"This is whole sale, please select customer"));
-                $this->backIndex();
-                $this->reload($data);
-            } elseif ($data['amount_change'] > 0 && $customer == null) {
-                Yii::app()->user->setFlash('warning', Yii::t('app',"There is due amount, please select customer"));
-                $this->reload($data);
-            } elseif (substr($data['sale_id'], 0, 2) == '-1') {
-                Yii::app()->user->setFlash('warning', $data['sale_id']);
-            } else {
-                //Save transaction to db
-                $data['sale_id'] = SaleOrder::model()->orderSave($data['sale_id'],$action_status);
-                if ($data['sale_type'] == 'R') {
-                    //$data = $this->receiptInfo($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
-                    Yii::app()->session->close();
-                    //Yii::app()->shoppingCart->clearAll();
-                    //$this->render('receipt/test');
-                    $this->actionReceipt($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
+        $customer = $this->customerInfo($data['customer_id']);
+        $data['customer_name'] = $customer !== null ? $customer->first_name . ' ' . $customer->last_name : 'General';
+
+        if ($data['sale_type'] == 'W' && $data['customer_id'] == -1) {
+            Yii::app()->user->setFlash('warning', Yii::t('app', "This is whole sale, please select customer"));
+            $this->backIndex();
+            $this->reload($data);
+        } elseif ($data['amount_change'] > 0 && $customer == null) {
+            Yii::app()->user->setFlash('warning', Yii::t('app', "There is due amount, please select customer"));
+            $this->reload($data);
+        } elseif (substr($data['sale_id'], 0, 2) == '-1') {
+            Yii::app()->user->setFlash('warning', $data['sale_id']);
+        } else {
+            //Save transaction to db
+            $data['sale_id'] = SaleOrder::model()->orderSave($data['sale_id'], $action_status);
+            if ($data['sale_type'] == 'R') {
+                //$data = $this->receiptInfo($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
+                Yii::app()->session->close();
+                //Yii::app()->shoppingCart->clearAll();
+                //$this->render('receipt/test');
+                if ($action_status == '0') {
+                $this->actionReceipt($data['sale_id'], $data['location_id'], $action_status, $data['sale_type']);
                 } else {
-                    Yii::app()->shoppingCart->clearAll();
-                    $this->backIndex();
+                  $this->backIndex();
                 }
+            } else {
+                Yii::app()->shoppingCart->clearAll();
+                $this->backIndex();
             }
-        /*} else {
-            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-        }*/
-
+        }
     }
 
     // To remove after verified
@@ -402,7 +402,7 @@ class SaleItemController extends Controller
     public function actionListSuspendedSale()
     {
         $model = new SaleOrder;
-        $this->render('sale_suspended', array('model' => $model));
+        $this->render('suspend/index', array('model' => $model));
     }
 
     public function actionUnsuspendSale($sale_id,$client_id)

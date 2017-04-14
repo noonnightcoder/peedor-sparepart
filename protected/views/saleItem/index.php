@@ -4,7 +4,7 @@
     <?php //echo 'Customer ID : ' . Common::getCustomerID() .  "<br>" ?>
     <?php //echo 'Price Tier ID : ' . Common::getPriceTierID() .  "<br>" ?>
     <?php //echo' Price Tier HTML Value : ' . Common::priceTierDisable() . "<br>" ?>
-    <?php //print_r($account) . "<br>" ?>
+    <?php //print_r(Yii::app()->shoppingCart->getCart()) . "<br>" ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(

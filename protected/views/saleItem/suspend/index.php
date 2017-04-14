@@ -5,11 +5,11 @@ $this->breadcrumbs = array(
 );
 ?>
 
-<?php $this->renderPartial('partial/search', array(
+<?php $this->renderPartial('suspend/partial/search', array(
     'model' => $model,
 ));
 ?>
 
-<?php $this->renderPartial('partial/suspend_sale', array(
+<?php $this->renderPartial('suspend/partial/suspend_sale', array(
         'model' => $model,
 )); ?>
