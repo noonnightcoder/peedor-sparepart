@@ -56,11 +56,11 @@
 
             <div class="<?php echo $has_error; ?> col-sm-9">
 
-                <?php echo CHtml::activeDropDownList($model, 'day', Employee::itemAlias('day'), array('prompt' => yii::t('app','Day'))); ?>
+                <?php echo CHtml::activeDropDownList($model, 'day', Common::arrayFactory('day'), array('prompt' => yii::t('app','Day'))); ?>
 
-                <?php echo CHtml::activeDropDownList($model, 'month', Employee::itemAlias('month'), array('prompt' => yii::t('app','Month'))); ?>
+                <?php echo CHtml::activeDropDownList($model, 'month', Common::arrayFactory('month'), array('prompt' => yii::t('app','Month'))); ?>
 
-                <?php echo CHtml::activeDropDownList($model, 'year', Employee::itemAlias('year'), array('prompt' => yii::t('app','Year'))); ?>
+                <?php echo CHtml::activeDropDownList($model, 'year', Common::arrayFactory('year'), array('prompt' => yii::t('app','Year'))); ?>
 
                 <span class="help-block"> <?php echo $form->error($model,'dob'); ?> </span>
             </div>

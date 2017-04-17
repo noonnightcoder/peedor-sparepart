@@ -302,6 +302,31 @@ class SaleOrder extends CActiveRecord
                 AND so.sale_type = :sale_type          
                 GROUP BY sale_id";
 
+        $sql = "SELECT s.sale_id,s.location_id,
+                SUM(s.sub_total) sub_total,SUM(s.discount_amount) discount_amount,SUM(s.total) total,
+                SUM(IFNULL(p.payment_amount,0)) payment_amount,SUM((s.total-IFNULL(p.payment_amount,0))) amount_change,
+                p.id payment_id,p.`payment_type`,COUNT(p.`payment_id`) count_payment
+                FROM (
+                SELECT oc.sale_id,so.location_id,
+                      SUM(oc.price_kh*oc.quantity) sub_total,
+                      SUM(oc.price_kh*oc.quantity) - (SUM(oc.price_kh*oc.quantity)*IFNULL(so.discount_amount,0)/100) total,
+                      SUM(oc.price_kh*oc.quantity) * IFNULL(so.discount_amount,0)/100 discount_amount
+                 FROM v_order_cart oc JOIN sale_order so
+                    ON so.id = oc.sale_id AND
+                    so.user_id = oc.user_id AND
+                    so.location_id = oc.location_id
+                 WHERE so.user_id = :user_id
+                 AND so.location_id = :location_id
+                 AND so.`status`= :status
+                 AND ISNULL(oc.deleted_at)
+                 AND so.sale_type = :sale_type          
+                 GROUP BY oc.sale_id,so.location_id
+                 ) AS s LEFT JOIN sale_payment p ON 
+                   p.`sale_id`=s.sale_id AND
+                   p.`location_id`=s.location_id AND
+                   ISNULL(p.deleted_at)
+                 GROUP BY s.sale_id,s.location_id,p.id,p.`payment_type`";
+
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
             ':user_id' => Common::getUserID(),
             ':location_id' => Common::getCurLocationID(),

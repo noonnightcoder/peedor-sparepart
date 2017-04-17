@@ -50,7 +50,7 @@ class Client extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('first_name, mobile_no', 'required'),
-			array('city_id, price_tier_id, employee_id, contact_id', 'numerical', 'integerOnly'=>true),
+			array('city_id, price_tier_id, contact_id', 'numerical', 'integerOnly'=>true),
 			array('first_name, last_name', 'length', 'max'=>100),
 			array('mobile_no', 'length', 'max'=>15),
 			array('address1, address2', 'length', 'max'=>60),
@@ -63,7 +63,7 @@ class Client extends CActiveRecord
             array('updated_at', 'default', 'value' => date('Y-m-d H:i:s'), 'setOnEmpty' => false, 'on' => 'update'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, contact_id, price_tier_id, first_name, last_name, mobile_no, address1, address2, city_id, country_code, email, fax, notes, status, search, employee_id', 'safe', 'on'=>'search'),
+			array('id, contact_id, price_tier_id, first_name, last_name, mobile_no, address1, address2, city_id, country_code, email, fax, notes, status, search', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -196,9 +196,9 @@ class Client extends CActiveRecord
 
         // Recommended: Secure Way to Write SQL in Yii
         $sql = 'SELECT id ,concat_ws(" : ",concat_ws("  ",first_name,last_name),mobile_no) AS text
-                    FROM client 
-                    WHERE (first_name LIKE :name or last_name like :name or mobile_no like :name)
-                    AND status=:active_status';
+                FROM client 
+                WHERE (first_name LIKE :name or last_name like :name or mobile_no like :name)
+                AND status=:active_status';
 
         $name = '%' . $name . '%';
 
@@ -222,9 +222,16 @@ class Client extends CActiveRecord
 
     public function deleteClient($id)
     {
-        Client::model()->updateByPk($id, array('status' => Yii::app()->params['inactive_status']));
-        Account::model()->updateAll(array('status' => Yii::app()->params['inactive_status']), 'client_id=:client_id',
-            array(':client_id' => $id));
+        Client::model()->updateByPk($id, array(
+            'status' => Yii::app()->params['inactive_status'],
+            'deleted_at' => date('Y-m-d H:i:s'),
+            'deleted_by' => Common::getUserID()
+        ));
+        Account::model()->updateAll(array(
+                'status' => Yii::app()->params['inactive_status'],
+                'deleted_at' => date('Y-m-d H:i:s'),
+                'deleted_by' => Common::getUserID()
+            ), 'client_id=:client_id', array(':client_id' => $id));
     }
 
     public function undodeleteClient($id)

@@ -333,25 +333,23 @@ class ClientController extends Controller
             throw new CHttpException(403, 'You are not authorized to perform this action');
         }
     }
-        
-        public function actionUndoDelete($id)
-	{
-            if (Yii::app()->user->checkAccess('client.delete'))
-            {
-                if(Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest)
-		{
-                        Client::model()->undodeleteClient($id);
 
-			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-			if(!isset($_GET['ajax'])) 
-				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-		} else { 
-                    throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
-                }
+    public function actionUndoDelete($id)
+    {
+        if (Yii::app()->user->checkAccess('client.delete')) {
+            if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+                Client::model()->undodeleteClient($id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax']))
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
             } else {
-                throw new CHttpException(403, 'You are not authorized to perform this action');
+                throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
             }
-	}
+        } else {
+            throw new CHttpException(403, 'You are not authorized to perform this action');
+        }
+    }
         
 	/**
 	 * Manages all models.

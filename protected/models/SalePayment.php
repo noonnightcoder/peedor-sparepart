@@ -372,5 +372,45 @@ class SalePayment extends CActiveRecord
                 ORDER BY sale_id,sale_time";
     }
 
+    public function paymentAdd($sale_id, $location_id, $currency_code, $payment_id, $payment_type, $payment_amount, $user_id, $note) {
+        $sql="SELECT sfunc_payment_add(:sale_id,:location_id,:currency_code,:payment_id,:payment_type,:payment_amount,:user_id,:note) sale_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':currency_code' => $currency_code,
+                ':payment_id' => $payment_id,
+                ':payment_type' => $payment_type,
+                ':payment_amount' => $payment_amount,
+                ':user_id' => $user_id,
+                ':note' => $note
+            )
+        );
+
+        foreach ($result as $record) {
+            $sale_id = $record['sale_id'];
+        }
+
+        return $sale_id;
+
+    }
+
+    public function paymentDel($payment_id,$user_id) {
+        $sql="SELECT sfunc_payment_del(:payment_id,:user_id) id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(
+                ':payment_id' => $payment_id,
+                ':user_id' => $user_id
+            )
+        );
+
+        foreach ($result as $record) {
+            $id = $record['id'];
+        }
+
+        return $id;
+
+    }
+
 
 }

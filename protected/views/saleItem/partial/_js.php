@@ -357,7 +357,7 @@ $("#sidebar").on('click','a', function(e){
         }
 
         //F3 focus to payment amount
-        if ( mycode === 114) {
+        if ( mycode === 115) {
             $('#payment_amount_id').focus();
             $('#payment_amount_id').select();
         }

@@ -27,8 +27,10 @@
                     echo "<br>";
 
                     $this->renderPartial('partial/_right_panel_total_retail', array(
-                        'count_payment' => $count_payment,
                         'model' => $model,
+                        'count_payment' => $count_payment,
+                        'payments' => $payments,
+                        //'amount_change' => $amount_change,
                     ));
                 }
                 ?>

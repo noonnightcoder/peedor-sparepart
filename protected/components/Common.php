@@ -117,7 +117,10 @@ Class Common
                 'payment' => Yii::t('app', 'Payment'),
                 'report' => Yii::t('app', 'Report'),
                 'setting' => Yii::t('app', 'Setting')
-            )
+            ),
+            'payment_type' => array(
+                1 => Yii::t('app','Cash'),
+            ),
         );
 
         if (isset($code)) {
@@ -145,6 +148,15 @@ Class Common
     public static function getDecimalPlaceQty()
     {
         return 0;
+    }
+
+    public static function getCurrencySymbol() {
+        return '៛';
+        //return Yii::app()->settings->get('site', 'currencySymbol');
+    }
+
+    public static function getCurrencyCode() {
+        return 2;
     }
 
     public static function rielRoundUp($amount)

@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	Yii::t('app','Customer')=>array('admin'),
-	Yii::t('app','Update'),
+	//Yii::t('app','Update'),
 );
 ?>
 

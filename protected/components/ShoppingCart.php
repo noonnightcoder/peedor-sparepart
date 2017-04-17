@@ -131,7 +131,7 @@ class ShoppingCart extends CApplicationComponent
 
     public function addItem($item_id, $quantity = 1, $price=NULL, $discount_amount='0')
     {
-        return SaleOrder::model()->orderAdd($item_id,$quantity, $price, $discount_amount);
+        return SaleOrder::model()->orderAdd($item_id, $quantity, $price, $discount_amount);
     }
 
     public function editItem($item_id, $quantity, $price, $discount, $discount_type='%')
@@ -170,9 +170,14 @@ class ShoppingCart extends CApplicationComponent
         unset($this->session['cart']);
     }
 
-    public function addPayment($payment_id, $payment_amount)
+    public function addPayment($sale_id, $location_id, $currency_code, $payment_id, $payment_type, $payment_amount, $user_id, $note)
     {
+        return SalePayment::model()->paymentAdd($sale_id, $location_id, $currency_code, $payment_id, $payment_type, $payment_amount, $user_id, $note);
+
+        /*
+         *
         $this->setSession(Yii::app()->session);
+
         $payments = $this->getPayments();
         $payment = array($payment_id =>
             array(
@@ -191,13 +196,13 @@ class ShoppingCart extends CApplicationComponent
 
         $this->setPayments($payments);
         return true;
+        */
     }
 
-    public function deletePayment($payment_id)
+    public function deletePayment($payment_id,$user_id)
     {
-        $payments = $this->getPayments();
-        unset($payments[$payment_id]);
-        $this->setPayments($payments);
+        return salePayment::model()->paymentDel($payment_id,$user_id);
+
     }
 
     protected function emptyPayment()
@@ -350,6 +355,12 @@ class ShoppingCart extends CApplicationComponent
         $this->session['sale_id'] = $sale_id;
     }
 
+    public function clearSaleId()
+    {
+        $this->setSession(Yii::app()->session);
+        unset($this->session['sale_id']);
+    }
+
     public function getSaleType()
     {
         $this->setSession(Yii::app()->session);
@@ -435,6 +446,8 @@ class ShoppingCart extends CApplicationComponent
     {
         $this->clearCustomerId();
         $this->clearPriceTierId();
+        $this->clearSaleId();
+
         /*
         $this->emptyCart();
         $this->emptyPayment();

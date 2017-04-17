@@ -159,12 +159,14 @@ class SaleItemController extends Controller
     public function actionAddPayment()
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            $data = array();
+            $data = $this->sessionInfo();
+            $payment_id = 1;//$_POST['payment_id']; // This should be a reference to payment_history table
+            $payment_type = 'Cash';
             $payment_amount = trim($_POST['payment_amount']) == "" ? 0 : $_POST['payment_amount'];
-            $payment_id = $_POST['payment_id'];
-            $payment_note = $payment_amount;
-            Yii::app()->shoppingCart->setPaymentNote($payment_note);
-            Yii::app()->shoppingCart->addPayment($payment_id, $payment_amount);
+            $payment_note = 'Retail ' . $payment_amount;
+            //Yii::app()->shoppingCart->setPaymentNote($payment_note);
+            Yii::app()->shoppingCart->addPayment($data['sale_id'], $data['location_id'], $data['currency_code'], $payment_id,
+                $payment_type, $payment_amount, $data['user_id'], $payment_note);
             $this->reload($data);
         } else {
             //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -175,7 +177,7 @@ class SaleItemController extends Controller
     public function actionDeletePayment($payment_id)
     {
         if (Yii::app()->request->isPostRequest) {
-            Yii::app()->shoppingCart->deletePayment($payment_id);
+            Yii::app()->shoppingCart->deletePayment($payment_id,Common::getUserID());
             $this->reload();
         } else {
             //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -484,7 +486,6 @@ class SaleItemController extends Controller
         $data['discount_amount'] = 0;
         $data['amount_due'] = 0;
         $data['amount_change'] = 0;
-        $data['count_payment'] = 0;
         $data['payments'] = array();
         $data['items'] = array();
         $data['account'] = array();
@@ -505,12 +506,15 @@ class SaleItemController extends Controller
         $data['count_item'] = SaleOrder::model()->getQtyTotal();
         //$data['all_total'] = SaleOrder::model()->getAllTotal();
         $data['total_discount']=0;
+        $data['payments'] = Yii::app()->shoppingCart->getPayments();
+        $data['count_payment'] = count(Yii::app()->shoppingCart->getPayments());
+        $data['currency_code'] = Common::getCurrencyCode();
 
         // Retrieving actual data from backend
         $data['items'] = Yii::app()->shoppingCart->getCart();
         $data['sale_id'] = Common::getSaleID();
         $data['employee'] = ucwords(Yii::app()->session['emp_fullname']);
-        $data['account'] =  $this->custAccountInfo($data['customer_id']);;
+        $data['account'] =  $this->custAccountInfo($data['customer_id']);
 
         // HTML Table Properties
         $data['colspan'] = Yii::app()->settings->get('sale', 'discount') == 'hidden' ? '2' : '3';
@@ -549,8 +553,9 @@ class SaleItemController extends Controller
     }
 
     protected function receiptInfo($sale_id,$location_id,$status,$sale_type) {
-        $data['payments'] = array();
+        //$data['payments'] = array();
         $data['amount_due'] = 0;
+        $data['payment_amount'] = 0;
         $data['col_span'] = 3;
 
         $data['sale_id'] = $sale_id;
@@ -570,8 +575,10 @@ class SaleItemController extends Controller
             $data['client_name'] = $sale_info['client_name'];
             $data['sale_time'] = $sale_info['sale_time'];
             $data['sub_total'] = $sale_info['sub_total'];
-            $data['total'] = $sale_info['total'];
             $data['discount_amount'] = $sale_info['discount_amount'];
+            $data['total'] = $sale_info['total'];
+            $data['payment_amount'] = $sale_info['paid'];
+            $data['amount_due'] = $sale_info['balance'];
         }
 
         return $data;
