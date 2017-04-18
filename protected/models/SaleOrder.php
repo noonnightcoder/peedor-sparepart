@@ -150,7 +150,6 @@ class SaleOrder extends CActiveRecord
             $sale_type = $record['sale_type'];
         }
 
-
         return array($sale_id, $client_id, $location_id, $user_id,$sale_type);;
     }
 
@@ -461,6 +460,27 @@ class SaleOrder extends CActiveRecord
 
     }
 
+    public function orderDiscount($sale_id,$location_id,$discount_amount,$discount_type,$user_id)
+    {
+        $sql = "SELECT sfunc_order_discount(:sale_id,:location_id,:discount_amount,:discount_type,:user_id) result_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+            array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':discount_amount' => $discount_amount,
+                ':discount_type' => $discount_type,
+                ':user_id' => $user_id
+            )
+        );
+
+        foreach ($result as $record) {
+            $result_id = $record['result_id'];
+        }
+
+        return $result_id;
+    }
+
     public function newOrdering()
     {
         $sql="SELECT so.desk_id,d.`name` desk_name, concat(hour(so.sale_time), ':',minute(so.sale_time)) sale_time
@@ -600,6 +620,24 @@ class SaleOrder extends CActiveRecord
         ));
 
         return $dataProvider; // Return as array object
+    }
+
+    public function getOrderHeader($sale_id,$location_id)
+    {
+        $sql = "SELECT sale_id,location_id,client_id,user_id,sale_type
+                FROM v_sale_invoice
+                WHERE sale_id=:sale_id
+                AND location_id=:location_id
+                ";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+            array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+            )
+        );
+
+       return $result;
     }
 
 }

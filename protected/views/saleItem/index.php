@@ -18,7 +18,7 @@
         'customer_name' => $customer_name,
         //'account_name' => $account_name,
         'account' => $account,
-        'total_discount' => $total_discount,
+        //'total_discount' => $total_discount,
         'total_kh' => $total_kh,
         'count_payment' => $count_payment,
         'payments' => $payments,

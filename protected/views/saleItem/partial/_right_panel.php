@@ -21,7 +21,7 @@
     <?php $this->renderPartial('partial/_right_panel_payment', array(
         'model' => $model,
         'count_item' => $count_item,
-        'total_discount' => $total_discount,
+        //'total_discount' => $total_discount,
         'total_kh' => $total_kh,
         'count_payment' => $count_payment,
         'payments' => $payments,

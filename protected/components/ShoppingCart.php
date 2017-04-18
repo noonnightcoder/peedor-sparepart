@@ -199,6 +199,11 @@ class ShoppingCart extends CApplicationComponent
         */
     }
 
+    public function setTotalDiscount($sale_id, $location_id,$discount_amount,$discount_type,$user_id)
+    {
+        return SaleOrder::model()->orderDiscount($sale_id,$location_id,$discount_amount,$discount_type,$user_id);
+    }
+
     public function deletePayment($payment_id,$user_id)
     {
         return salePayment::model()->paymentDel($payment_id,$user_id);

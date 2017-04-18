@@ -160,7 +160,7 @@ class SaleItemController extends Controller
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $data = $this->sessionInfo();
-            $payment_id = 1;//$_POST['payment_id']; // This should be a reference to payment_history table
+            $payment_id = 1; //$_POST['payment_id']; // This should be a reference to payment_history table
             $payment_type = 'Cash';
             $payment_amount = trim($_POST['payment_amount']) == "" ? 0 : $_POST['payment_amount'];
             $payment_note = 'Retail ' . $payment_amount;
@@ -224,13 +224,15 @@ class SaleItemController extends Controller
     public function actionSetTotalDiscount()
     {
         if (Yii::app()->request->isPostRequest) {
-            $data = array();
+            $data = $this->sessionInfo();
+
             $model = new SaleItem;
             $total_discount = $_POST['SaleItem']['total_discount'];
+            $discount_type = '%'; // To change to support fixed discount $ and %
             $model->total_discount = $total_discount;
 
             if ($model->validate()) {
-                Yii::app()->shoppingCart->setTotalDiscount($total_discount);
+                Yii::app()->shoppingCart->setTotalDiscount($data['sale_id'],$data['location_id'],$total_discount,$discount_type,$data['user_id']);
             } else {
                 $error = CActiveForm::validate($model);
                 $errors = explode(":", $error);
@@ -505,7 +507,7 @@ class SaleItemController extends Controller
 
         $data['count_item'] = SaleOrder::model()->getQtyTotal();
         //$data['all_total'] = SaleOrder::model()->getAllTotal();
-        $data['total_discount']=0;
+        $data['total_discount'] = 0;
         $data['payments'] = Yii::app()->shoppingCart->getPayments();
         $data['count_payment'] = count(Yii::app()->shoppingCart->getPayments());
         $data['currency_code'] = Common::getCurrencyCode();

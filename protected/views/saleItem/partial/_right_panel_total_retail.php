@@ -22,6 +22,14 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         </td>
     </tr>
     <tr>
+        <td><?= Yii::t('app','Discount Amount')  ?> </td>
+        <td>
+            <span class="badge badge-info bigger-120">
+                <?= Common::getCurrencySymbol() . number_format($record['discount_amount'],0,'.',',') ?>
+            </span>
+        </td>
+    </tr>
+    <tr>
         <td><?= Yii::t('app','Total')  ?> </td>
         <td>
             <span class="badge badge-info bigger-120">
