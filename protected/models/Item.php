@@ -49,6 +49,7 @@ class Item extends CActiveRecord
     public $profit_margin;
     public $item_archived;
     public $search;
+    public $price_tier;
 
     /**
      * Returns the static model of the specified AR class.
