@@ -406,7 +406,17 @@ class SaleItemController extends Controller
     public function actionListSuspendedSale()
     {
         $model = new SaleOrder;
-        $this->render('suspend/index', array('model' => $model));
+
+        $model->search_client = isset($_GET['SaleOrder']['search_client']) ? $_GET['SaleOrder']['search_client'] : '';
+
+        if (Yii::app()->request->isAjaxRequest && !isset($_GET['ajax']) ) {
+            Yii::app()->clientScript->scriptMap['*.css'] = false;
+            Yii::app()->clientScript->scriptMap['*.js'] = false;
+
+            $this->renderPartial('suspend/partial/suspend_sale', array('model' => $model));
+        } else {
+            $this->render('suspend/index', array('model' => $model));
+        }
     }
 
     public function actionUnsuspendSale($sale_id,$client_id)

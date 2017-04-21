@@ -1,9 +1,3 @@
-<div>
-
-<?php /*if(Yii::app()->user->hasFlash('success')):*/?><!--
-    <?php /*$this->widget('bootstrap.widgets.TbAlert'); */?>
---><?php /*endif; */?>
-
 <?php $this->renderPartial('//layouts/alert/_flash'); ?>
     
 <?php $box = $this->beginWidget('yiiwheels.widgets.box.WhBox', array(

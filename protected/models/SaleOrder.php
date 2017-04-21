@@ -589,7 +589,7 @@ class SaleOrder extends CActiveRecord
     public function ListSuspendSale()
     {
 
-        if (!isset($this->search_client)) {
+        if ($this->search_client !== '') {
 
             $sql = "SELECT s.id sale_id,s.client_id client_id,
                       (SELECT CONCAT_WS(' ',first_name,last_name) FROM `client` c WHERE c.id=s.client_id) client_name,
@@ -622,13 +622,11 @@ class SaleOrder extends CActiveRecord
                     WHERE sale_id=:sale_id OR client_id like :client_id";
             $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
                 ':sale_id' => $this->search_client,
-                ':client_id' =>'%' . $this->search_client .'%',
+                ':client_id' => '%' . $this->search_client .'%',
                 ':status' => Yii::app()->params['order_status_suspend'],
                 ':sale_type' => Common::getSaleType()
             ));
         }
-
-
 
         $dataProvider = new CArrayDataProvider($rawData, array(
             'keyField' => 'sale_id',
