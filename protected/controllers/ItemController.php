@@ -57,79 +57,77 @@ class ItemController extends Controller
 
     public function actionCreateImage($grid_cart = 'N')
     {
+
+        Common::checkPermission('item.create');
+
         $model = new Item;
         $price_tiers = PriceTier::model()->getListPriceTier();
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
-        if (Yii::app()->user->checkAccess('item.create')) {
-            if (isset($_POST['Item'])) {
-                $model->attributes = $_POST['Item'];
-                $qty = isset($_POST['Item']['quantity']) ? $_POST['Item']['quantity'] : 0;
-                $unit_price = isset($_POST['Item']['unit_price']) ? $_POST['Item']['unit_price'] : 0;
-                $model->quantity = $qty;
-                $model->unit_price = $unit_price;
-                $category_name = $_POST['Item']['category_id'];
-                $publisher_name = $_POST['Item']['publisher_id'];
-                $author_name = $_POST['Item']['author_id'];
-                $employee_id = Yii::app()->session['employeeid'];
-                $trans_date=date('Y-m-d H:i:s');
+        if (isset($_POST['Item'])) {
+            $model->attributes = $_POST['Item'];
+            $qty = isset($_POST['Item']['quantity']) ? $_POST['Item']['quantity'] : 0;
+            $unit_price = isset($_POST['Item']['unit_price']) ? $_POST['Item']['unit_price'] : 0;
+            $model->quantity = $qty;
+            $model->unit_price = $unit_price;
+            $category_name = $_POST['Item']['category_id'];
+            $publisher_name = $_POST['Item']['publisher_id'];
+            $author_name = $_POST['Item']['author_id'];
+            $employee_id = Yii::app()->session['employeeid'];
+            $trans_date = date('Y-m-d H:i:s');
 
-                $publisher_id = Publisher::model()->savePublisher($publisher_name);
-                if ($publisher_id !== null) {
-                    $model->publisher_id = $publisher_id;
-                }
+            $publisher_id = Publisher::model()->savePublisher($publisher_name);
+            if ($publisher_id !== null) {
+                $model->publisher_id = $publisher_id;
+            }
 
-                $author_id = Author::model()->saveAuthor($author_name);
-                if ($author_id !== null) {
-                    $model->author_id = $author_id;
-                }
+            $author_id = Author::model()->saveAuthor($author_name);
+            if ($author_id !== null) {
+                $model->author_id = $author_id;
+            }
 
-                //Saving new category to `category` table
-                $category_id = Category::model()->saveCategory($category_name);
-                if ($category_id !== null) {
-                    $model->category_id = $category_id;
-                }
+            //Saving new category to `category` table
+            $category_id = Category::model()->saveCategory($category_name);
+            if ($category_id !== null) {
+                $model->category_id = $category_id;
+            }
 
-                if ($model->validate()) {
-                    $transaction = Yii::app()->db->beginTransaction();
-                    try {
-                        if ($model->save()) {
+            if ($model->validate()) {
+                $transaction = Yii::app()->db->beginTransaction();
+                try {
+                    if ($model->save()) {
 
-                            if (isset($_POST['Item']['count_interval'])) {
-                                Item::model()->saveItemCounSchedule($model->id);
-                            }
-
-                            //Saving to inventory
-                            Receiving::model()->saveInventory($model->id,$employee_id,$qty,$trans_date,'Create Item',$qty,0,$qty);
-
-                            // Saving Item Price Tier to `item_price_tier`
-                            ItemPriceTier::model()->saveItemPriceTier($model->id, $price_tiers);
-                            $this->addImages($model, $transaction);
-                            $transaction->commit();
-
-                            if ($grid_cart == 'N') {
-                                Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS,
-                                    'Item : <strong>' . $model->name . '</strong> have been saved successfully!');
-                                $this->redirect(array('createImage'));
-                            } elseif ($grid_cart == 'S') {
-                                Yii::app()->wshoppingCart->addItem($model->id);
-                                $this->redirect(array('wholeSale/index'));
-                            } elseif ($grid_cart == 'R') {
-                                Yii::app()->receivingCart->addItem($model->id);
-                                $this->redirect(array('receivingItem/index'));
-                            }
+                        if (isset($_POST['Item']['count_interval'])) {
+                            Item::model()->saveItemCounSchedule($model->id);
                         }
-                    } catch (Exception $e) {
-                        $transaction->rollback();
-                        //print_r($e);
-                        Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_WARNING, 'Oop something wrong : <strong>' . $e);
+
+                        //Saving to inventory
+                        Receiving::model()->saveInventory($model->id,$employee_id,$qty,$trans_date,'Create Item',$qty,0,$qty);
+
+                        // Saving Item Price Tier to `item_price_tier`
+                        ItemPriceTier::model()->saveItemPriceTier($model->id, $price_tiers);
+
+                        $this->addImages($model, $transaction);
+
+                        $transaction->commit();
+
+                        if ($grid_cart == 'N') {
+                            Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS,
+                                'Item : <strong>' . $model->name . '</strong> have been saved successfully!');
+                            $this->redirect(array('createImage'));
+                        } elseif ($grid_cart == 'S') {
+                            Yii::app()->wshoppingCart->addItem($model->id);
+                            $this->redirect(array('wholeSale/index'));
+                        } elseif ($grid_cart == 'R') {
+                            Yii::app()->receivingCart->addItem($model->id);
+                            $this->redirect(array('receivingItem/index'));
+                        }
                     }
+                } catch (Exception $e) {
+                    $transaction->rollback();
+                    //print_r($e);
+                    Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_WARNING, 'Oop something wrong : <strong>' . $e);
                 }
             }
-        } else {
-            //throw new CHttpException(403, 'You are not authorized to perform this action');
-            $this->redirect(array('site/ErrorException', 'err_no' => 403));
         }
 
         if (Yii::app()->request->isAjaxRequest) {
@@ -142,8 +140,6 @@ class ItemController extends Controller
                 'bootstrap.notify.js' => false,
                 'bootstrap.bootbox.min.js' => false,
             );
-
-            //Yii::app()->clientScript->scriptMap['*.js'] = false;
 
             echo CJSON::encode(array(
                 'status' => 'render',
@@ -169,8 +165,6 @@ class ItemController extends Controller
         $price_tiers = PriceTier::model()->getListPriceTierUpdate($id);
         $qty_in_stock = $model->quantity;
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
         if (Yii::app()->user->checkAccess('item.update')) {
             if (isset($_POST['Item'])) {
                 $old_price = $model->unit_price;

@@ -39,12 +39,12 @@
                 <div class="form-group">
                     <?php echo CHtml::label($price_tier["tier_name"]  , $i, array('class'=>'col-sm-3 control-label no-padding-right')); ?>
                     <div class="col-sm-9">
-                        <?php echo CHtml::TextField(get_class($model) . 'Price[' . $price_tier["tier_id"] . ']',$price_tier["price"]!==null ? round($price_tier["price"],Common::getDecimalPlace()) : $price_tier["price"],
-                                array(
-                                    'value' => $price_tier['price'],
-                                    'class'=>'span3 form-control'
-                                    )
-                                ); 
+                        <?php echo CHtml::TextField(get_class($model) . 'Price[' . $price_tier["tier_id"] . ']', $price_tier["price"] !== null ? round($price_tier["price"], Common::getDecimalPlace()) : $price_tier["price"],
+                            array(
+                                'value' => $price_tier['price'],
+                                'class' => 'span3 form-control'
+                            )
+                        );
                         ?>
                     </div>
                 </div>

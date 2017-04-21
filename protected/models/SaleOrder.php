@@ -481,6 +481,27 @@ class SaleOrder extends CActiveRecord
         return $result_id;
     }
 
+    public function orderUpdatePriceTier($sale_id, $location_id,$price_tier_id,$user_id)
+    {
+        $sql = "SELECT sfunc_orderitem_upricetier(:sale_id,:location_id,:price_tier_id,:user_id,:cur_timestamp) result_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+            array(
+                ':sale_id' => $sale_id,
+                ':location_id' => $location_id,
+                ':price_tier_id' => $price_tier_id,
+                ':user_id' => $user_id,
+                ':cur_timestamp' => date('Y-m-d H:i:s')
+            )
+        );
+
+        foreach ($result as $record) {
+            $result_id = $record['result_id'];
+        }
+
+        return $result_id;
+    }
+
     public function newOrdering()
     {
         $sql="SELECT so.desk_id,d.`name` desk_name, concat(hour(so.sale_time), ':',minute(so.sale_time)) sale_time

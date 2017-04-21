@@ -144,8 +144,11 @@ class ShoppingCart extends CApplicationComponent
         SaleOrder::model()->orderDel(Common::getSaleID(),$item_id);
     }
 
-    public function f5ItemPriceTier()
+    public function f5ItemPriceTier($sale_id, $location_id, $price_tier_id, $user_id)
     {
+        return SaleOrder::model()->orderUpdatePriceTier($sale_id, $location_id, $price_tier_id, $user_id);
+
+        /*
         $this->setSession(Yii::app()->session);
         //Get all items in the cart so far...
         $items = $this->getCart();
@@ -162,6 +165,7 @@ class ShoppingCart extends CApplicationComponent
         
         $this->setCart($items);
         return true;
+        */
     }
 
     protected function emptyCart()

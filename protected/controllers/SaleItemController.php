@@ -70,7 +70,7 @@ class SaleItemController extends Controller
     {
         if (Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')) {
             $sale_type = $_GET['sale_type'];
-            Yii::app()->shoppingCart->clearAll(); // Clear previously set session move form Retail to Whole Sale
+            Yii::app()->shoppingCart->clearAll(); // Clear previously set session move from Retail to Whole Sale
             //$this->setSaleType($sale_type);
             Yii::app()->shoppingCart->setSaleType($sale_type);
 
@@ -248,7 +248,7 @@ class SaleItemController extends Controller
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $price_tier_id = $_POST['price_tier_id'];
             Yii::app()->shoppingCart->setPriceTierId($price_tier_id);
-            //Yii::app()->shoppingCart->f5ItemPriceTier();
+            Yii::app()->shoppingCart->f5ItemPriceTier(Common::getSaleID(),Common::getCurLocationID(),$price_tier_id,Common::getUserID());
             $this->reload();
         } else {
             Yii::app()->user->setFlash('danger', "Invalid request. Please do not repeat this request again.");
@@ -413,10 +413,8 @@ class SaleItemController extends Controller
     {
         Yii::app()->shoppingCart->clearAll();
         $this->changeOrderStatus($sale_id,$client_id,Yii::app()->params['order_status_suspend'],Yii::app()->params['order_status_ongoing']);
-        $this->backIndex();
-
-        //Yii::app()->shoppingCart->copyEntireSuspendSale($sale_id);
-        //Sale::model()->saveUnsuspendSale($sale_id); // Roll back stock cut to original stock
+        Yii::app()->shoppingCart->setCustomerId($client_id);
+        //$this->backIndex();
         $this->reload();
     }
 
