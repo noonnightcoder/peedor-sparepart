@@ -13,17 +13,15 @@
                 ));
                 ?>
                 <div align="right">
-                    <?php /*
-                        echo TbHtml::linkButton(Yii::t('app', 'Suspend Sale'), array(
-                            'color' => TbHtml::BUTTON_COLOR_WARNING,
-                            'size' => TbHtml::BUTTON_SIZE_SMALL,
-                            'icon' => 'glyphicon-pause white',
-                            'url' => Yii::app()->createUrl('SaleItem/SuspendSale/'),
-                            'class' => 'suspend-sale',
-                            //'title' => Yii::t('app', 'Suspend Sale'),
-                        ));
-                         *
-                        */
+                    <?php
+                    echo TbHtml::linkButton(Yii::t('app', 'Save Transaction'), array(
+                        'color' => TbHtml::BUTTON_COLOR_INFO,
+                        'size' => TbHtml::BUTTON_SIZE_SMALL,
+                        'icon' => 'ace-icon fa fa-save white',
+                        'url' => array('CompleteRecv', 'receive_id'=>$receive_id,'trans_mode'=>Yii::app()->receivingCart->getMode(),'save_status'=>2),
+                        'class' => 'suspend-sale',
+                        'title' => Yii::t('app', 'Suspend Sale'),
+                    ));
                     ?>
 
                     <?php
@@ -34,7 +32,7 @@
                         'url' => array('cancelRecv', 'receive_id'=>$receive_id),
                         'class' => 'cancel-receiving',
                         'id' => 'cancel_receiving_button',
-                        //'title' => Yii::t('app', 'Cancel Receiving'),
+                        'title' => Yii::t('app', 'Cancel Transaction'),
                     ));
                     ?>
                 </div>
@@ -97,19 +95,18 @@
                     <tr>
                         <td><?php echo Yii::t('app', 'Sub Total'); ?> :</td>
                         <td><span class="badge badge-info bigger-120"><?php echo Yii::app()->settings->get('site',
-                                        'currencySymbol') . number_format($sub_total,
+                                        'currencySymbol') . number_format(@$sub_total,
                                         Common::getDecimalPlace(), '.', ','); ?></span></td>
                     </tr>
                     <tr>
-                        <td><?php echo $discount_symbol . $discount_amt . ' ' . Yii::t('app', 'Discount'); ?> :</td>
+                        <td><?php echo @$discount_symbol . @$discount_amt . ' ' . Yii::t('app', 'Discount'); ?> :</td>
                         <td><span class="badge badge-info bigger-120"><?php echo Yii::app()->settings->get('site',
-                                        'currencySymbol') . number_format($discount_amount,
-                                        Commmon::getDecimalPlace(), '.', ','); ?></span></td>
+                                        'currencySymbol') . number_format($discount_amount,2, '.', ','); ?></span></td>
                     </tr>
                 <?php } ?>
                 <?php foreach ($total_mc as $id => $totalmc): ?>
                     <tr>
-                        <td><?php echo Yii::t('app', 'Total in ') . $totalmc["currency_id"]  ; ?> :</td>
+                        <td><?php echo Yii::t('app', 'Total in ') . $totalmc["currency_id"]; ?> :</td>
                         <td>
                                             <span class="badge badge-primary bigger-120">
                                                 <?php echo $totalmc['currency_symbol']. $totalmc["total"]; ?>
@@ -127,7 +124,7 @@
                         'color' => TbHtml::BUTTON_COLOR_SUCCESS,
                         'size' => TbHtml::BUTTON_SIZE_SMALL,
                         'icon' => 'glyphicon-off white',
-                        'url' => array('CompleteRecv', 'receive_id'=>$receive_id,'trans_mode'=>Yii::app()->receivingCart->getMode()),
+                        'url' => array('CompleteRecv', 'receive_id'=>$receive_id,'trans_mode'=>Yii::app()->receivingCart->getMode(),'save_status'=>0),
                         'class' => 'complete-recv',
                         'title' => Yii::t('app', 'Complete'),
                     )); ?>

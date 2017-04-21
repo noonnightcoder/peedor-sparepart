@@ -25,7 +25,7 @@ class ReceivingItemController extends Controller
                 'actions' => array('RemoveSupplier','SetComment', 'DeleteItem',
                                     'Add', 'EditItem', 'EditItemPrice', 'Index',
                                     'IndexPara', 'AddPayment', 'CancelRecv',
-                                    'CompleteRecv', 'Complete', 'SuspendSale',
+                                    'CompleteRecv', 'Complete', 'SuspendSale','SuspendRecv',
                                     'DeletePayment', 'SelectSupplier', 'AddSupplier',
                                     'Receipt', 'SetRecvMode', 'EditReceiving',
                                     'SetTotalDiscount','Return'),
@@ -274,18 +274,18 @@ class ReceivingItemController extends Controller
         }
     }
 
-    public function actionCompleteRecv($receive_id,$trans_mode)
+    public function actionCompleteRecv($receive_id = '',$trans_mode='',$save_status='')
     {
         $data = $this->sessionInfo();
         if (!isset($data['supplier_id']) && $data['trans_mode']!='physical_count') {
-            Yii::app()->user->setFlash('error','Please select supplier...!');
+            Yii::app()->user->setFlash('warning',Yii::t('app','Please select supplier...!'));
             $this->redirect(array('receivingItem/index', 'trans_mode' => $data['trans_mode']));
         }else{
             if (empty($data['items'])) {
                 $this->redirect(array('receivingItem/index'));
             } else {
                 //Save transaction to db
-                $data['receiving_id'] = Receiving::model()->completedSave($receive_id,$trans_mode);
+                $data['receiving_id'] = Receiving::model()->completedSave($receive_id,$trans_mode,$save_status);
 
                 if (substr($data['receiving_id'], 0, 2) == '-1') {
                     $data['warning'] = $data['receiving_id'];
@@ -301,27 +301,20 @@ class ReceivingItemController extends Controller
 
     public function actionSuspendRecv()
     {
-        $data['items'] = Yii::app()->receivingCart->getCart();
-        $data['payments'] = Yii::app()->receivingCart->getPayments();
-        $data['sub_total'] = Yii::app()->receivingCart->getSubTotal();
-        $data['total'] = Yii::app()->receivingCart->getTotal();
-        $data['supplier_id'] = Yii::app()->receivingCart->getSupplier();
-        $data['comment'] = Yii::app()->receivingCart->getComment();
-        $data['employee_id'] = Yii::app()->session['employeeid'];
-        $data['transaction_time'] = date('m/d/Y h:i:s a');
-        $data['employee'] = ucwords(Yii::app()->session['emp_fullname']);
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            $data = $this->sessionInfo();
 
-        //Save transaction to db
-        $data['sale_id'] = 'POS ' . SaleSuspended::model()->saveSale($data['items'], $data['payments'], $data['supplier_id'], $data['employee_id'], $data['sub_total'], $data['comment']);
+            $items = Yii::app()->receivingCart->getCart();
+            if (!empty($items)) {
+                foreach ($items as $item)
+                    $receive_id = $item['receive_id'];
 
-        if ($data['sale_id'] == 'POS -1') {
-            echo CJSON::encode(array(
-                'status' => 'failed',
-                'message' => '<div class="alert in alert-block fade alert-error">Transaction Failed.. !<a class="close" data-dismiss="alert" href="#">&times;</a></div>',
-            ));
-        } else {
-            Yii::app()->receivingCart->clearAll();
-            $this->reload();
+                $save_status = 2;
+                $trans_mode = $data['trans_mode'];
+
+                //Save transaction to db
+                $data['receiving_id'] = Receiving::model()->completedSave($receive_id, $trans_mode, $save_status);
+            }
         }
     }
 

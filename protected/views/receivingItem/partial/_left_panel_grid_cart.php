@@ -137,7 +137,7 @@
             <div class="col-xs-4" id="total_discount_cart">
                 <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
                     'method'=>'post',
-                    'action' => Yii::app()->createUrl('wholeSale/setTotalDiscount/'),
+                    'action' => Yii::app()->createUrl('receivingItem/setTotalDiscount/'),
                     'id'=>'total_discount_form'
                 ));
                 ?>

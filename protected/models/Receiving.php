@@ -555,12 +555,12 @@ class Receiving extends CActiveRecord
                 return $value;
     }
 
-    public function completedSave($receive_id,$trans_mode)
+    public function completedSave($receive_id,$trans_mode,$save_status)
     {
         $supplier_id=Yii::app()->receivingCart->getSupplier();
         $user_id=Common::getUserID();
         $employee_id=Common::getEmployeeID();
-        $save_status =0;
+        //$save_status =0;
 
         $sql="SELECT func_recv_save(:receive_id,:trans_mode,:employee_id,:user_id,:save_status,:supplier_id) from dual";
 
