@@ -251,6 +251,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
             if (confirm("<?php echo Yii::t('app','Are you sure you want to suspend this sale?'); ?>")){
                 $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_suspend'])); ?>');
                 $('#suspend_sale_form').submit();
+                //location.reload();
             }
         });
 
@@ -259,6 +260,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
             if (confirm("<?php echo Yii::t('app','Are you sure you want to clear this sale? All items will cleared.'); ?>")){
                 $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/',array('action_status' => Yii::app()->params['order_status_cancel'])); ?>');
                 $('#suspend_sale_form').ajaxSubmit({target: "#register_container", beforeSubmit: salesBeforeSubmit});
+                //location.reload();
             }
         });
 
@@ -312,32 +314,67 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
 
 </script>
 
-<?php if (!empty(Yii::app()->shoppingCart->getCart())) { ?>
+<?php if (Common::getSaleID()!==NULL) { ?>
+    <script>
+        $('#sidebar').on('click','a',function(e) {
+            e.preventDefault();
+            if (confirm("<?= Yii::t('app', 'click OK to save you work before you leave here'); ?>")) {
+                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/', array('action_status' => Yii::app()->params['order_status_suspend'])); ?>');
+                $('#suspend_sale_form').ajaxSubmit({target: "#register_container"});
+                var host = window.location.origin;
+                location.href = host + $(this).attr("href");
+                return true;
+            } else {
+                return false;
+            }
+        });
+    </script>
+    <!--<script>
+    $("#sidebar").on('click','a', function(e){
+        e.preventDefault();
+        var curr_link = window.location.href;
+        var host = window.location.origin;
+        var clicked_link = host + $(this).attr("href");
+        var url = "/SaleItem/CompleteSale/?action_status=2";
 
-<script>
-$("#sidebar").on('click','a', function(e){
-    e.preventDefault();
-    var curr_link = window.location.href;
-    var host = window.location.origin;
-    var clicked_link = host + $(this).attr("href");
-    var url = "/SaleItem/CompleteSale/?action_status=2";
-
-    if (curr_link != clicked_link) {
-        //var answer=confirm('Your process will be suspend if you leave this current page, Are you sure?');
-        if (confirm('click OK to save you work before you leave here')) {
-            $.ajax({
-                url: url,
-                type: 'POST',
-                success: function (data) {
-                    location.href = clicked_link;
-                    return false;
-                }
-            });
+        if (curr_link != clicked_link) {
+            //var answer=confirm('Your process will be suspend if you leave this current page, Are you sure?');
+            if (confirm('click OK to save you work before you leave here')) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    success: function (data) {
+                        location.href = clicked_link;
+                        return false;
+                    }
+                });
+                return false;
+            } else {
+                return false;
+            }
         }
-    }
-});
-</script>
+
+    });
+    </script>-->
 <?php } ?>
+
+
+<!--<script>
+    var warnMessage = "You have unsaved changes on this page!";
+
+    $(document).ready(function() {
+        $('input:not(:button,:submit),textarea,select').change(function () {
+            window.onbeforeunload = function () {
+                if (warnMessage != null) return warnMessage;
+            }
+        });
+        $('input:submit').click(function(e) {
+            warnMessage = null;
+        });
+    });
+</script>-->
+
+
 
 <script type="text/javascript" language="javascript">
     $(document).keydown(function(event)

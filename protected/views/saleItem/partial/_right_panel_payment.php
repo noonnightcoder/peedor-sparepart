@@ -30,7 +30,7 @@
                         'model' => $model,
                         'count_payment' => $count_payment,
                         'payments' => $payments,
-                        //'amount_change' => $amount_change,
+                        'amount_change' => $amount_change,
                     ));
                 }
                 ?>

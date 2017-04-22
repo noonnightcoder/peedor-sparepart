@@ -6,13 +6,13 @@
         <thead>
         <tr>
             <th><?php echo Yii::t('app', 'Item Name'); ?></th>
-            <th><?php echo Yii::t('app', 'Price'); ?></th>
+            <!--<th><?php /*echo Yii::t('app', 'Price'); */?></th>-->
             <th><?php echo Yii::t('app', 'Price ៛'); ?></th>
             <th><?php echo Yii::t('app', 'Quantity'); ?></th>
             <th class="<?php echo Yii::app()->settings->get('sale', 'discount'); ?>"><?php echo Yii::t('app',
                     'Discount'); ?></th>
-            <th><?php echo Yii::t('app', 'Total'); ?></th>
-            <th><?php echo Yii::t('app', 'Total ៛'); ?></th>
+            <!--<th><?php /*echo Yii::t('app', 'Total'); */?></th>-->
+            <th><?= Yii::t('app', 'Total ៛'); ?></th>
             <th></th>
         </tr>
         </thead>
@@ -29,25 +29,25 @@
                     <?php echo $item['name']; ?><br/>
                     <span class="text-info"><?php echo $qty_in_stock . ' ' . Yii::t('app', 'in stock') ?> <?= $item['price_verify']; ?> </span>
                 </td>
-                <td>
-                    <?php $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+                <!--<td>
+                    <?php /*$form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                         'method' => 'post',
                         'action' => Yii::app()->createUrl('saleItem/editItem/', array('item_id' => $item['item_id'])),
                         'htmlOptions' => array('class' => 'line_item_form'),
                     ));
-                    ?>
+                    */?>
                     <span class="input-icon">
-                        <?php echo $form->textField($model, "price", array(
+                        <?php /*echo $form->textField($model, "price", array(
                             'value' => number_format($item['price'],Common::getDecimalPlaceRS(),'',''),
                             'class' => 'input-small input-grid',
                             'id' => "price_$item_id",
                             'placeholder' => 'Price',
                             'maxlength' => 10
-                        )); ?>
-                        <i class="ace-icon blue"><?= $item['currency_symbol']; ?> </i>
+                        )); */?>
+                        <i class="ace-icon blue"><?/*= $item['currency_symbol']; */?> </i>
                     </span>
-                    <?php $this->endWidget(); ?>
-                </td>
+                    <?php /*$this->endWidget(); */?>
+                </td>-->
                 <td>
                     <?= '៛' . number_format($item['price_kh'],Common::getDecimalPlaceRS()); ?>
                 </td>
@@ -88,7 +88,7 @@
                     ?>
                     <?php $this->endWidget(); ?>
                 </td>
-                <td><?= $item['currency_symbol'] . number_format($item['total'],Common::getDecimalPlaceRS()) ?>
+                <!--<td>--><?/*= $item['currency_symbol'] . number_format($item['total'],Common::getDecimalPlaceRS()) */?>
                 <td><?= '៛' .number_format($item['total_kh'],Common::getDecimalPlaceRS()); ?>
                 <td><?php
                     echo TbHtml::linkButton('', array(

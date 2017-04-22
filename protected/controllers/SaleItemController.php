@@ -324,10 +324,10 @@ class SaleItemController extends Controller
             if ($data['sale_type'] == 'R') {
                 //$data = $this->receiptInfo($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
                 Yii::app()->session->close();
-                //Yii::app()->shoppingCart->clearAll();
+                Yii::app()->shoppingCart->clearAll();
                 //$this->render('receipt/test');
                 if ($action_status == '0') {
-                $this->actionReceipt($data['sale_id'], $data['location_id'], $action_status, $data['sale_type']);
+                    $this->actionReceipt($data['sale_id'], $data['location_id'], $action_status, $data['sale_type']);
                 } else {
                   $this->backIndex();
                 }
@@ -428,7 +428,7 @@ class SaleItemController extends Controller
         $this->reload();
     }
 
-    public function actionDeleteSale($sale_id)
+    /*public function actionDeleteSale($sale_id)
     {
         $result_id = Sale::model()->deleteSale($sale_id, 'Cancel Suspended Sale',
             Yii::app()->shoppingCart->getEmployee());
@@ -443,7 +443,7 @@ class SaleItemController extends Controller
             $this->redirect('ListSuspendedSale');
         }
 
-    }
+    }*/
 
     private function reload($data = array())
     {
@@ -472,6 +472,7 @@ class SaleItemController extends Controller
 
             Yii::app()->clientScript->scriptMap['jquery-ui.css'] = false;
             Yii::app()->clientScript->scriptMap['box.css'] = false;
+
             $this->renderPartial('index', $data, false, true);
 
         } else {

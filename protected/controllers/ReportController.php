@@ -36,7 +36,8 @@ class ReportController extends Controller
                                 'SaleReportTab', 'SaleInvoice', 'SaleInvoiceDetail',
                                 'Inventory','SaleHourly','SaleItemSummary',
                                 'SaleDaily','SaleSummary','itemExpiry',
-                                'TopItem','Transaction','SaleWeeklyByCustomer',),
+                                'TopItem','Transaction','SaleWeeklyByCustomer',
+                                'SaleSumBySaleRep'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -188,6 +189,22 @@ class ReportController extends Controller
 
         $data['grid_columns'] = ReportColumn::getSaleSummaryColumns();
         $data['data_provider'] = $data['report']->saleSummary();
+
+        $this->renderView($data);
+    }
+
+    public function actionSaleSumBySaleRep()
+    {
+        Common::checkPermission('report.index');
+
+        $grid_id = 'rpt-sale-by-sale-rep-grid';
+        $title = 'Sale Summary By Sale Rep';
+
+        $data = $this->commonData($grid_id,$title);
+
+        $data['grid_columns'] = ReportColumn::getSaleSumBySaleRepColumns();
+
+        $data['data_provider'] = $data['report']->saleSummaryBySaleRep();
 
         $this->renderView($data);
     }
