@@ -29,7 +29,7 @@ class Report extends CFormModel
     public $receive_id;
     public $employee_id;
     
-     private $item_active = '1';
+    private $item_active = '1';
 
     /**
      * Returns the static model of the specified AR class.

@@ -1,10 +1,12 @@
 <div id="register_container">
     <?php //echo 'Sale Type : ' . Common::getSaleType() .  "<br>" ?>
-    <?php //echo 'Sale ID : ' . Common::getSaleID() .  "<br>" ?>
-    <?php //echo 'Customer ID : ' . Common::getCustomerID() .  "<br>" ?>
+    <?php echo 'Sale ID : ' . Common::getSaleID() .  "<br>" ?>
+    <?php echo 'Customer ID : ' . Common::getCustomerID() .  "<br>" ?>
+    <?php echo 'Client ID : ' . $customer_id .  "<br>" ?>
     <?php //echo 'Price Tier ID : ' . Common::getPriceTierID() .  "<br>" ?>
     <?php //echo' Price Tier HTML Value : ' . Common::priceTierDisable() . "<br>" ?>
     <?php //print_r(Yii::app()->shoppingCart->getCart()) . "<br>" ?>
+    <?php //print_r($account); ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(

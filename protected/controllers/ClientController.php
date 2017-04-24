@@ -110,9 +110,9 @@ class ClientController extends Controller
                             $transaction->commit();
 
                             if ($sale_mode == 'Y') {
-                                Yii::app()->wshoppingCart->setCustomer($client_id);
-                                Yii::app()->setPriceTier->setPriceTier($price_tier_id);
-                                $this->redirect(array('wholeSale/index'));
+                                Yii::app()->shoppingCart->setCustomerId($client_id);
+                                Yii::app()->shoppingCart->setPriceTierId($price_tier_id);
+                                $this->redirect(array('SaleItem/index?sale_type=' . Common::getSaleType()));
                             } else {
                                 Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS,
                                     '<strong>' . ucfirst($model->first_name) . '</strong> have been saved successfully!');

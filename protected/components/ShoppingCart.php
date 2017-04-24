@@ -437,8 +437,10 @@ class ShoppingCart extends CApplicationComponent
     public function settingOrderInfo()
     {
         $order_infos = SaleOrder::model()->getOrderInfo();
-        $this->setSaleId($order_infos[0]);
-        $this->setCustomerId($order_infos[1]);
+        if ($order_infos[0]!==NULL) {
+            $this->setSaleId($order_infos[0]);
+            $this->setCustomerId($order_infos[1]);
+        }
     }
 
     /*protected function defaultCustomerId()
