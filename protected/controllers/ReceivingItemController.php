@@ -27,8 +27,8 @@ class ReceivingItemController extends Controller
                                     'IndexPara', 'AddPayment', 'CancelRecv',
                                     'CompleteRecv', 'Complete', 'SuspendSale','SuspendRecv',
                                     'DeletePayment', 'SelectSupplier', 'AddSupplier',
-                                    'Receipt', 'SetRecvMode', 'EditReceiving',
-                                    'SetTotalDiscount','Return'),
+                                    'Receipt', 'SetRecvMode', 'EditReceiving','UnsuspendRecv',
+                                    'SetTotalDiscount','Return','ListSuspendedSale'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -229,13 +229,14 @@ class ReceivingItemController extends Controller
     public function actionSetTotalDiscount()
     {
         if (Yii::app()->request->isPostRequest) {
-            $data= array();
+            $data = $this->sessionInfo();
             $model = new ReceivingItem;
             $total_discount =$_POST['ReceivingItem']['total_discount'];
+            $discount_type = '%'; // To change to support fixed discount $ and %
             $model->total_discount=$total_discount;
 
             if ($model->validate()) {
-                Yii::app()->receivingCart->setTotalDiscount($total_discount);
+                Yii::app()->receivingCart->setTotalDiscount($data['receive_id'],$total_discount,$discount_type,$data['user_id']);
             } else {
                 $error=CActiveForm::validate($model);
                 $errors = explode(":", $error);
@@ -267,7 +268,7 @@ class ReceivingItemController extends Controller
         };
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            Yii::app()->receivingCart->cancelItem($receive_id);
+            Yii::app()->receivingCart->cancelItem($receive_id,Yii::app()->params['order_status_suspend'],Yii::app()->params['order_status_ongoing']);
             $this->reload();
         } else {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -318,13 +319,28 @@ class ReceivingItemController extends Controller
         }
     }
 
-    public function actionUnsuspendRecv($sale_id)
+    public function actionListSuspendedSale()
     {
-        Yii::app()->receivingCart->clearAll();
-        Yii::app()->receivingCart->copyEntireSuspendSale($sale_id);
-        SaleSuspended::model()->deleteSale($sale_id);
-        //$this->reload();
-        $this->redirect('index');
+        $model = new Receiving;
+
+        $model->search_client = isset($_GET['SaleOrder']['search_client']) ? $_GET['SaleOrder']['search_client'] : '';
+
+        if (Yii::app()->request->isAjaxRequest && !isset($_GET['ajax']) ) {
+            Yii::app()->clientScript->scriptMap['*.css'] = false;
+            Yii::app()->clientScript->scriptMap['*.js'] = false;
+
+            $this->renderPartial('suspend/partial/suspend_sale', array('model' => $model));
+        } else {
+            $this->render('suspend/index', array('model' => $model));
+        }
+    }
+
+    public function actionUnsuspendRecv($receive_id)
+    {
+        Yii::app()->shoppingCart->clearAll();
+        //$this->changeOrderStatus($receive_id,$client_id,Yii::app()->params['order_status_suspend'],Yii::app()->params['order_status_ongoing']);
+        Receiving::model()->cancelItem($receive_id,Yii::app()->params['order_status_ongoing'],Yii::app()->params['order_status_suspend']);
+        $this->reload();
 
     }
 
@@ -408,10 +424,14 @@ class ReceivingItemController extends Controller
         $data['amount_due'] = Yii::app()->receivingCart->getAmountDue();
         $data['comment'] = Yii::app()->receivingCart->getComment();
         $data['supplier_id'] = Yii::app()->receivingCart->getSupplier();
-        $data['employee_id'] = Yii::app()->session['employeeid'];
-        $data['total_discount'] = Yii::app()->receivingCart->getTotalDiscount();
-        $data['discount_amount'] = Common::calDiscountAmount($data['total_discount'], $data['sub_total']);
-        $data['total_mc'] = Yii::app()->receivingCart->getTotalMC(); //get total by currency
+        $data['employee_id'] = Common::getEmployeeID();
+        $tm_discount=Receiving::model()->findByPk($receive_id);
+        $data['total_discount'] = number_format(@$tm_discount->discount_amount,Common::getDecimalPlace(), '.', ',');
+
+        $data['discount_amount']=0;
+        $data['total_mc'] = Yii::app()->receivingCart->getTotalMC($receive_id); //get total by currency
+        $data['employee_id'] = Common::getEmployeeID();
+        $data['user_id'] = Common::getUserID();
 
         $discount_arr = Common::Discount($data['total_discount']);
         $data['discount_amt'] = $discount_arr[0];

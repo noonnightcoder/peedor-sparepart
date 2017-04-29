@@ -5,8 +5,10 @@
         'headerButtons' => array(
             TbHtml::buttonGroup(
                 array(
+                    array('label' => Yii::t('app','On-going Transaction '),'url' =>Yii::app()->createUrl('ReceivingItem/ListSuspendedSale/'),'icon'=>'ace-icon fa fa-spinner fa-spin white'),
+                    array('label'=>' | '),
                     array('label' => Yii::t('app','New Item'),'url' =>Yii::app()->createUrl('Item/createImage',array('grid_cart'=>'R')),'icon'=>'glyphicon-plus white'),
-                ),array('color'=>TbHtml::BUTTON_COLOR_SUCCESS,'size'=>TbHtml::BUTTON_SIZE_SMALL)
+                ),array('color'=>TbHtml::BUTTON_COLOR_PRIMARY,'size'=>TbHtml::BUTTON_SIZE_SMALL)
             ),
         )
 ));

@@ -223,9 +223,9 @@ class ReceivingCart extends CApplicationComponent
         return false;
     }
 
-    public function cancelItem($receive_id)
+    public function cancelItem($receive_id='',$receive_status_ch='',$receive_status='')
     {
-        Receiving::model()->cancelItem($receive_id);
+        Receiving::model()->cancelItem($receive_id,$receive_status_ch,$receive_status);
     }
 
     public function outofStock($item_id)
@@ -337,7 +337,7 @@ class ReceivingCart extends CApplicationComponent
             $total+= Common::calTotalAfterDiscount($item['discount'],$item['cost_price'],$item['quantity']);
         }
 
-        $total = $total - Common::calDiscountAmount($this->getTotalDiscount(),$total);
+        //$total = $total - Common::calDiscountAmount($this->getTotalDiscount(),$total);
 
         /* Have to calculate with tax if there is a tax */
         /*
@@ -351,33 +351,30 @@ class ReceivingCart extends CApplicationComponent
         return round($total, $this->getDecimalPlace());
     }
 
-    public function getTotalMC()
+    public function getTotalMC($receive_id='')
     {
         $currency_type = CurrencyType::model()->getActiveCurrency();
-        $total_data = array();
         $total_mc = array();
 
         foreach ($currency_type as $i=>$currency) {
             $total_=0;
-            foreach ($this->getCart() as $item) {
-                if ( $item['currency_id'] == $currency->currency_id ) {
-                    //$total_ . $currency->currency_id+= Common::calDiscount($item['discount'],$item['price'],$item['quantity']);
-                    $total_ += Common::calDiscount($item['discount'],$item['cost_price'],$item['quantity']);
+            foreach (Receiving::model()->getTotalAmount($receive_id) as $item) {
+                if ( $item['currency_code'] == $currency->code ) {
+                    $total_ =$item['total'];
                 }
             }
 
-            $total_ = $total_ - $total_*$this->getTotalDiscount()/100;
+            //$total_ = $total_ - $total_*$this->getTotalDiscount()/100;
             $total_data= array((int)$currency->code=>
                 array(
                     'currency_code' => $currency->code,
                     'currency_id' => $currency->currency_id,
                     'currency_symbol' => $currency->currency_symbol,
-                    'total' => $total_ //. $currency->currency_id,
+                    'total' => $total_, //. $currency->currency_id,
                 )
             );
 
             $total_mc += $total_data;
-
         }
 
         return $total_mc;
@@ -472,19 +469,24 @@ class ReceivingCart extends CApplicationComponent
         $this->setComment($sale->remark);
     }
 
-    public function getTotalDiscount()
+    /*public function getTotalDiscount()
     {
         $this->setSession(Yii::app()->session);
         if (!isset($this->session['recv_totaldiscount'])) {
             $this->setTotalDiscount(null);
         }
         return $this->session['recv_totaldiscount'];
-    }
+    }*/
 
-    public function setTotalDiscount($data)
+    /*public function setTotalDiscount($data)
     {
         $this->setSession(Yii::app()->session);
         $this->session['recv_totaldiscount'] = $data;
+    }*/
+
+    public function setTotalDiscount($receive_id,$discount_amount,$discount_type,$user_id)
+    {
+        return Receiving::model()->receiveDiscount($receive_id,$discount_amount,$discount_type,$user_id);
     }
 
     public function clearTotalDiscount()

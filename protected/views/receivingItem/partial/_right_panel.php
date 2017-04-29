@@ -91,25 +91,24 @@
                     <td><?php echo Yii::t('app', 'Item in Cart'); ?> :</td>
                     <td><?php echo $count_item; ?></td>
                 </tr>
-                <?php if ($discount_amount > 0) { ?>
-                    <tr>
-                        <td><?php echo Yii::t('app', 'Sub Total'); ?> :</td>
-                        <td><span class="badge badge-info bigger-120"><?php echo Yii::app()->settings->get('site',
-                                        'currencySymbol') . number_format(@$sub_total,
-                                        Common::getDecimalPlace(), '.', ','); ?></span></td>
-                    </tr>
-                    <tr>
-                        <td><?php echo @$discount_symbol . @$discount_amt . ' ' . Yii::t('app', 'Discount'); ?> :</td>
-                        <td><span class="badge badge-info bigger-120"><?php echo Yii::app()->settings->get('site',
-                                        'currencySymbol') . number_format($discount_amount,2, '.', ','); ?></span></td>
-                    </tr>
+                <?php foreach (Receiving::model()->getDiscountAmount(@$receive_id)as $discount) {?>
+                    <?php if (@$discount['discount_amount'] > 0) { ?>
+                        <tr>
+                            <td><?php echo Yii::t('app', 'Sub Total'); ?> :</td>
+                            <td><span class="badge badge-info bigger-120"><?php echo '៛' . number_format(@$discount['sub_total'],Common::getDecimalPlace(), '.', ','); ?></span></td>
+                        </tr>
+                        <tr>
+                            <td><?php echo Yii::t('app', 'Discount'); ?> :</td>
+                            <td><span class="badge badge-info bigger-120"><?php echo '៛' . number_format($discount['discount_amount'],2, '.', ','); ?></span></td>
+                        </tr>
+                    <?php } ?>
                 <?php } ?>
                 <?php foreach ($total_mc as $id => $totalmc): ?>
                     <tr>
                         <td><?php echo Yii::t('app', 'Total in ') . $totalmc["currency_id"]; ?> :</td>
                         <td>
                                             <span class="badge badge-primary bigger-120">
-                                                <?php echo $totalmc['currency_symbol']. $totalmc["total"]; ?>
+                                                <?php echo $totalmc['currency_symbol']. number_format(@$totalmc["total"],Common::getDecimalPlace(), '.', ',');?>
                                             </span>
                         </td>
                     </tr>

@@ -22,6 +22,7 @@ class Receiving extends CActiveRecord
 	 * @return string the associated database table name
 	 */
     public $currency_id;
+    public $search_client;
 	public function tableName()
 	{
 		return 'receiving';
@@ -419,8 +420,7 @@ class Receiving extends CActiveRecord
         return array($quantity, $inv_quantity);
     }
 
-    //this function may be duplicate with Lux
-    public function addItem($item_id,$quantity=1,$price_tier_id = null,$employee_id = null,$user_id = null,$discount_amount=0,$discount_type = null)
+    public function addItem($item_id,$quantity=1,$price_tier_id = null,$employee_id = null,$user_id = null,$discount_amount=0,$discount_type = '%')
     {
         //this is should remove and replace it into the function
         $models = Item::model()->getItemPriceTierWS($item_id, null);
@@ -461,6 +461,7 @@ class Receiving extends CActiveRecord
     public function getItem($user_id = null)
     {
         $trans_mode=Yii::app()->receivingCart->getMode();
+        $status=Yii::app()->params['order_status_ongoing'];
 
         $sql="SELECT receive_id,item_id,t2.code,t2.currency_id,t2.currency_symbol,t3.name,t3.item_number,t3.supplier_id,
                 round(t1.quantity) quantity,round(t1.cost_price,2) cost_price,t1.unit_price,t1.discount_amount discount,NULL expire_date,t3.description,t3.is_expire
@@ -468,14 +469,33 @@ class Receiving extends CActiveRecord
                 INNER JOIN receiving t4 ON t1.receive_id=t4.id
                 LEFT JOIN currency_type t2 ON t1.currency_code=t2.code
                 INNER JOIN item t3 ON t1.item_id=t3.id
-                WHERE t4.status='1'
+                WHERE t4.status=:status
                 AND t4.user_id=:user_id
                 and t4.trans_mode=:trans_mode
                 and t1.deleted_at is null";
 
         $cmd = Yii::app()->db->createCommand($sql);
+        $cmd->bindParam(':status',$status);
         $cmd->bindParam(':user_id' , $user_id);
         $cmd->bindParam(':trans_mode' , $trans_mode);
+        return $cmd->queryAll();
+    }
+
+    public function getTotalAmount($receive_id='')
+    {
+        $sql="SELECT supplier_id,currency_code,total,discount_amount FROM v_recv_discount_l2 where id=:receive_id";
+        $cmd = Yii::app()->db->createCommand($sql);
+        $cmd->bindParam(':receive_id',$receive_id);
+        return $cmd->queryAll();
+    }
+
+    public function getDiscountAmount($receive_id='')
+    {
+        $sql="SELECT id,SUM(sub_total) sub_total,SUM(discount_amount) discount_amount  
+              FROM v_recv_discount_l2 where id=:receive_id GROUP BY id";
+
+        $cmd = Yii::app()->db->createCommand($sql);
+        $cmd->bindParam(':receive_id',$receive_id);
         return $cmd->queryAll();
     }
 
@@ -525,10 +545,10 @@ class Receiving extends CActiveRecord
                 return $value;
     }
 
-    public function cancelItem($receive_id)
+    public function cancelItem($receive_id='',$receive_status_ch='',$receive_status='')
     {
-        $receive_status=1;
-        $receive_status_ch=2;
+        //$receive_status=1;
+        //$receive_status_ch=2;
         $receive_cart_status='';
         $user_id=Common::getUserID();
         $employee_id=Common::getEmployeeID();
@@ -579,5 +599,76 @@ class Receiving extends CActiveRecord
             foreach ($result as $k=>$value)
 
                 return $value;
+    }
+
+    public function ListSuspendSale()
+    {
+        if ($this->search_client !== '') {
+
+            $sql = "SELECT t2.id receive_id,receive_time,t2.supplier_id,
+                    (SELECT CONCAT_WS(' ',first_name,last_name) FROM `supplier` c WHERE c.id=t2.supplier_id) supplier_name,items,NULL remark 
+                    FROM v_receiving t2
+                    INNER JOIN  
+                    (  SELECT si.receive_id, SUBSTRING_INDEX(GROUP_CONCAT(i.name SEPARATOR ','), ',', 5) items
+                                FROM receiving_item si INNER JOIN item i ON i.id=si.item_id 
+                                GROUP BY si.receive_id
+                    )AS t1 ON t1.receive_id=t2.id
+                    WHERE t2.status=:status";
+            $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
+                ':status' => Yii::app()->params['order_status_suspend'],
+            ));
+
+        } else {
+            $sql = "SELECT receive_id,supplier_id,supplier_name,receive_time,items,remark
+                FROM (
+                    SELECT t2.id receive_id,receive_time,t2.supplier_id,
+                    (SELECT CONCAT_WS(' ',first_name,last_name) FROM `supplier` c WHERE c.id=t2.supplier_id) supplier_name,items,NULL remark 
+                    FROM v_receiving t2
+                    INNER JOIN  
+                    (  SELECT si.receive_id, SUBSTRING_INDEX(GROUP_CONCAT(i.name SEPARATOR ','), ',', 5) items
+                                FROM receiving_item si INNER JOIN item i ON i.id=si.item_id 
+                                GROUP BY si.receive_id
+                    )AS t1 ON t1.receive_id=t2.id
+                    WHERE t2.status=:status
+                )as t1
+                    WHERE receive_id=:receive_id OR supplier_id like :supplier_id";
+            $rawData = Yii::app()->db->createCommand($sql)->queryAll(true,array(
+                ':receive_id' => $this->search_client,
+                ':supplier_id' => '%' . $this->search_client .'%',
+                ':status' => Yii::app()->params['order_status_suspend'],
+            ));
+        }
+
+        $dataProvider = new CArrayDataProvider($rawData, array(
+            'keyField' => 'receive_id',
+            'sort' => array(
+                'attributes' => array(
+                    'receive_time',
+                ),
+            ),
+            'pagination' => false,
+        ));
+
+        return $dataProvider; // Return as array object
+    }
+
+    public function receiveDiscount($receive_id,$discount_amount,$discount_type,$user_id)
+    {
+        $sql = "SELECT sfunc_recv_discount(:receive_id,:discount_amount,:discount_type,:user_id) result_id";
+
+        $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+            array(
+                ':receive_id' => $receive_id,
+                ':discount_amount' => $discount_amount,
+                ':discount_type' => $discount_type,
+                ':user_id' => $user_id
+            )
+        );
+
+        foreach ($result as $record) {
+            $result_id = $record['result_id'];
+        }
+
+        return $result_id;
     }
 }
