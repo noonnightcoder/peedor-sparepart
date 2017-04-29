@@ -46,7 +46,7 @@ $this->widget('bootstrap.widgets.TbNav', array(
                 'url' => Yii::app()->urlManager->createUrl('saleItem/index', array('sale_type' => 'W')),
                 'active' => $this->id . '/' . $this->action->id . '?sale_type=' . Yii::app()->getRequest()->getParam('sale_type') == 'saleItem/index?sale_type=W',
                 'visible' => Yii::app()->user->checkAccess('sale.edit') || Yii::app()->user->checkAccess('sale.discount') || Yii::app()->user->checkAccess('sale.editprice')),
-            array('label' =>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Payment')) . '</span>', 'icon'=>'menu-icon fa fa-credit-card', 'url'=>Yii::app()->urlManager->createUrl('salePayment/index'), 'active'=>$this->id .'/'. $this->action->id=='salePayment/index','visible'=>Yii::app()->user->checkAccess('payment.index')),
+            array('label' =>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Invoices')) . '</span>', 'icon'=>'menu-icon fa fa-credit-card', 'url'=>Yii::app()->urlManager->createUrl('salePayment/index'), 'active'=>$this->id .'/'. $this->action->id=='salePayment/index','visible'=>Yii::app()->user->checkAccess('payment.index')),
             array('label'=>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Report')) .'</span>', 'icon'=>'menu-icon fa fa-signal', 'url'=>Yii::app()->urlManager->createUrl('report/reporttab'),'active'=>$this->id =='report',
                            'visible'=> Yii::app()->user->checkAccess('report.index') || Yii::app()->user->checkAccess('invoice.index') || Yii::app()->user->checkAccess('invoice.print') || Yii::app()->user->checkAccess('invoice.delete') || Yii::app()->user->checkAccess('invoice.update') ,
                 'items'=>array(
