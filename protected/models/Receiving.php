@@ -465,14 +465,14 @@ class Receiving extends CActiveRecord
 
         $sql="SELECT receive_id,item_id,t2.code,t2.currency_id,t2.currency_symbol,t3.name,t3.item_number,t3.supplier_id,
                 round(t1.quantity) quantity,round(t1.cost_price,2) cost_price,t1.unit_price,t1.discount_amount discount,NULL expire_date,t3.description,t3.is_expire
-                FROM receiving_item t1
+              FROM receiving_item t1
                 INNER JOIN receiving t4 ON t1.receive_id=t4.id
-                LEFT JOIN currency_type t2 ON t1.currency_code=t2.code
-                INNER JOIN item t3 ON t1.item_id=t3.id
-                WHERE t4.status=:status
-                AND t4.user_id=:user_id
-                and t4.trans_mode=:trans_mode
-                and t1.deleted_at is null";
+                 LEFT JOIN currency_type t2 ON t1.currency_code=t2.code
+                  INNER JOIN item t3 ON t1.item_id=t3.id
+              WHERE t4.status=:status
+              AND t4.user_id=:user_id
+              AND t4.trans_mode=:trans_mode
+              AND t1.deleted_at is null";
 
         $cmd = Yii::app()->db->createCommand($sql);
         $cmd->bindParam(':status',$status);
