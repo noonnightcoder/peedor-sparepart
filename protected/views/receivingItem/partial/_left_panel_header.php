@@ -165,7 +165,7 @@ function itemScannedSuccess(itemId)
     setTimeout(function(){$('#ReceivingItem_item_id').focus();}, 10);
 }*/
 
-$("#sidebar a").on('click', function (e){
+/*$("#sidebar a").on('click', function (e){
     e.preventDefault();
     var curr_link = window.location.href;
     var host = window.location.origin;
@@ -186,5 +186,5 @@ $("#sidebar a").on('click', function (e){
             });
         }
     }
-});
+});*/
 </script>
