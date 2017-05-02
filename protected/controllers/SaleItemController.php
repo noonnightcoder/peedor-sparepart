@@ -33,7 +33,6 @@ class SaleItemController extends Controller
                     'EditItem',
                     'EditItemPrice',
                     'Index',
-                    'IndexPara',
                     'AddPayment',
                     'CancelSale',
                     'CompleteSale',
@@ -72,7 +71,11 @@ class SaleItemController extends Controller
             $sale_type = $_GET['sale_type'];
             //Yii::app()->shoppingCart->clearAll(); // Clear previously set session move from Retail to Whole Sale
             //$this->setSaleType($sale_type);
-            Yii::app()->shoppingCart->setSaleType($sale_type);
+
+            if (Common::getSaleType() !== $sale_type) {
+                Yii::app()->shoppingCart->clearAll();
+                Yii::app()->shoppingCart->setSaleType($sale_type);
+            }
 
             if ($sale_type=='R') {
                 Yii::app()->shoppingCart->setPriceTierId(4);
