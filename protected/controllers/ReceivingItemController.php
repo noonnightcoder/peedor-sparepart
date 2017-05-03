@@ -99,7 +99,7 @@ class ReceivingItemController extends Controller
         $msg=null;
         if (!Yii::app()->receivingCart->addItem($item_id)) {
             $msg = 'Unable to add item to receiving';
-        } 
+        }
         return $msg;
     }
 
@@ -310,11 +310,11 @@ class ReceivingItemController extends Controller
                 foreach ($items as $item)
                     $receive_id = $item['receive_id'];
 
-                $save_status = 2;
+                //$save_status = 2;
                 $trans_mode = $data['trans_mode'];
 
                 //Save transaction to db
-                $data['receiving_id'] = Receiving::model()->completedSave($receive_id, $trans_mode, $save_status);
+                $data['receiving_id'] = Receiving::model()->completedSave($receive_id, $trans_mode, Yii::app()->params['order_status_suspend']);
             }
         }
     }

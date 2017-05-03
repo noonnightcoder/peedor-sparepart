@@ -5,7 +5,7 @@
     <?php $this->renderPartial('partial/_left_panel_header', array(
         'model' => $model,
         'items' => $items,
-        'receive_id' => $receive_id,
+        //'receive_id' => $receive_id,
         'trans_header' => Yii::t('menu', $trans_header)
     )); ?>
     <!-- /section:left.panel.header-->

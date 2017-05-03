@@ -27,6 +27,6 @@
             'items' => $items,
         )); ?>
     <!--/right.panel-->
-
+    <?php //$this->renderPartial('partial/_js'); ?>
 <div class="waiting"><!-- Place at bottom of page --></div>
 

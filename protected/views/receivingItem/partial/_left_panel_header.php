@@ -100,18 +100,18 @@ Yii::app()->clientScript->registerScript( 'setComment', "
       ");
 ?>
 
-<script>
-    
-var submitting = false;  
+<script title="text/javascript" language="JavaScript">
+
+var submitting = false;
 
 $(document).ready(function()
-{   
+{
     //Here just in case the loader doesn't go away for some reason
     $('.waiting').hide();
-    
+
     // ajaxForm to ensure is submitting as Ajax even user press enter key
     $('#add_item_form').ajaxForm({target: "#register_container", beforeSubmit: receivingsBeforeSubmit, success: itemScannedSuccess});
-    
+
     $('.line_item_form').ajaxForm({target: "#register_container", beforeSubmit: receivingsBeforeSubmit });
 
     $('#total_discount_form').ajaxForm({target: "#register_container", beforeSubmit: receivingsBeforeSubmit});
@@ -120,14 +120,14 @@ $(document).ready(function()
         e.preventDefault();
         $(this.form).ajaxSubmit({target: "#register_container", beforeSubmit: receivingsBeforeSubmit });
     });
-        
+
     $('#cancel_cart').on('click','#cancel_receiving_button',function(e) {
       e.preventDefault();
       if (confirm("<?php echo Yii::t('app','Are you sure you want to clear this receiving? All items will cleared.'); ?>")){
             $('#cancel_recv_form').ajaxSubmit({target: "#register_container", beforeSubmit: receivingsBeforeSubmit});
-        } 
-    });   
-    
+        }
+    });
+
     $('#supplier_cart').on('click','a.detach-supplier', function(e) {
         e.preventDefault();
         $('#supplier_selected_form').ajaxSubmit({target: "#register_container", beforeSubmit: receivingsBeforeSubmit});
@@ -139,6 +139,34 @@ $(document).ready(function()
     });
 
     $('.input-mask-date').mask('99/99/9999');
+
+    <?php if(!empty($items)) { ?>
+    $("#sidebar a").unbind().click(function(e) {
+        e.preventDefault();
+        a_href = $(this).attr("href");
+        $.confirm({
+            title: 'Confirm!',
+            content: 'Your process will be suspend if you leave this current page, Are you sure?',
+            columnClass: 'col-md-6 col-md-offset-3',
+            buttons: {
+                confirm: {
+                    btnClass: 'btn-success',
+                    action: function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "/ReceivingItem/SuspendRecv/",
+                            success: function () {
+                                window.location.href = a_href;
+                            }
+                        });
+                    }
+                },
+                cancel: function () {
+                },
+            }
+        });
+    });
+    <?php } ?>
 
 });
 
@@ -187,4 +215,43 @@ function itemScannedSuccess(itemId)
         }
     }
 });*/
+
+
+    /*$(window).on("beforeunload", function(e) {
+        return function(){
+            var url="/ReceivingItem/SuspendRecv/";
+            $.ajax({
+                url: url,
+                type: 'POST',
+                success: function(data) {
+                    location.href = $(this).attr("href");
+                }
+            });
+        };
+    });*/
+
+    /*$(window).bind('beforeunload', function () {
+        //this will work only for Chrome
+        //saveFormData();
+        return "kdfkd";
+    });*/
+
+    /*$(window).bind("unload", function () {
+        //this will work for other browsers
+        saveFormData();
+    });*/
+
+    /*function saveFormData(){
+        $.ajax({
+            type: 'POST',
+            async: false,
+            url: '/ReceivingItem/SuspendRecv/'
+        });
+    }*/
+    /*$("#sidebar a").on('click', function (e) {
+        //check form to make sure it is kosher
+        //remove the ev
+        //$(window).off("beforeunload");
+        //return true;
+    });*/
 </script>

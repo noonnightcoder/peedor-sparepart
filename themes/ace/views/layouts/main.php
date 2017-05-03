@@ -55,6 +55,8 @@
         $cs->registerScriptFile($baseUrl.'/js/ace.min.js',CClientScript::POS_END);
         $cs->registerScriptFile($baseUrl.'/js/jquery.form.min.js',CClientScript::POS_END);
         $cs->registerScriptFile($baseUrl.'/js/jquery-ui.min.js',CClientScript::POS_END);
+        $cs->registerScriptFile($baseUrl.'/js/jquery.are-you-sure.js',CClientScript::POS_END);
+        $cs->registerScriptFile($baseUrl.'/js/ays-beforeunload-shim.js',CClientScript::POS_END);
     ?>
     
     <?php 
