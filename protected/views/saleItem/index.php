@@ -27,6 +27,6 @@
         'amount_change' => $amount_change,
     ));?>
 
-    <?php $this->renderPartial('partial/_js'); ?>
+    <?php $this->renderPartial('partial/_js', array('items' => $items)); ?>
 
 </div>

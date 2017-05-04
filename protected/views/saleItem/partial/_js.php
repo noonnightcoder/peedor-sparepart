@@ -311,15 +311,44 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
         setTimeout(function(){$('#SaleItem_client_id').focus();}, 10);
     }
 
+    <?php if(!empty($items)) { ?>
+    $("#sidebar a").unbind().click(function(e) {
+        e.preventDefault();
+        a_href = $(this).attr("href");
+        $.confirm({
+            title: 'Confirm!',
+            content: 'Your process will be suspend if you leave this current page, Are you sure?',
+            columnClass: 'col-md-6 col-md-offset-3',
+            buttons: {
+                confirm: {
+                    btnClass: 'btn-success',
+                    action: function(){
+                        $.ajax({
+                            type: "POST",
+                            url: "/SaleItem/CompleteSale/?action_status=2",
+                            success: function () {
+                                window.location.href = a_href;
+                            }
+                        });
+                    }
+                },
+                cancel: function () {
+                },
+            }
+        });
+    });
+    <?php } ?>
+
 
 </script>
 
-<?php if (Common::getSaleID()!==NULL) { ?>
-    <script>
+
+<?php //if (Common::getSaleID()!==NULL) { ?>
+   <!-- <script>
         $('#sidebar').on('click','a',function(e) {
             e.preventDefault();
-            if (confirm("<?= Yii::t('app', 'click OK to save you work before you leave here'); ?>")) {
-                $('#suspend_sale_form').attr('action', '<?php echo Yii::app()->createUrl('saleItem/CompleteSale/', array('action_status' => Yii::app()->params['order_status_suspend'])); ?>');
+            if (confirm("<?/*= Yii::t('app', 'click OK to save you work before you leave here'); */?>")) {
+                $('#suspend_sale_form').attr('action', '<?php /*echo Yii::app()->createUrl('saleItem/CompleteSale/', array('action_status' => Yii::app()->params['order_status_suspend'])); */?>');
                 $('#suspend_sale_form').ajaxSubmit({target: "#register_container"});
                 var host = window.location.origin;
                 location.href = host + $(this).attr("href");
@@ -328,7 +357,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
                 return false;
             }
         });
-    </script>
+    </script>-->
     <!--<script>
     $("#sidebar").on('click','a', function(e){
         e.preventDefault();
@@ -356,7 +385,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
 
     });
     </script>-->
-<?php } ?>
+<?php //} ?>
 
 
 <!--<script>
