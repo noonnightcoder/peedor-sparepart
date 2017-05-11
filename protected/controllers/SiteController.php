@@ -62,6 +62,11 @@ class SiteController extends Controller
         $this->actionLogin();
     }
 
+    public function actionHome()
+    {
+        $this->render('home');
+    }
+
     public function actionAbout()
     {
         $this->render('about');

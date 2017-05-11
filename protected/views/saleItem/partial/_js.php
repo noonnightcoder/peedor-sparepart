@@ -387,24 +387,6 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
     </script>-->
 <?php //} ?>
 
-
-<!--<script>
-    var warnMessage = "You have unsaved changes on this page!";
-
-    $(document).ready(function() {
-        $('input:not(:button,:submit),textarea,select').change(function () {
-            window.onbeforeunload = function () {
-                if (warnMessage != null) return warnMessage;
-            }
-        });
-        $('input:submit').click(function(e) {
-            warnMessage = null;
-        });
-    });
-</script>-->
-
-
-
 <script type="text/javascript" language="javascript">
     $(document).keydown(function(event)
     {

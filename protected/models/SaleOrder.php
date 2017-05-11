@@ -164,9 +164,10 @@ class SaleOrder extends CActiveRecord
                 FROM v_order_cart
                 WHERE user_id=:user_id
                 AND location_id=:location_id
-                and `status`=:status
+                AND `status`=:status
                 AND ISNULL(deleted_at)
-                AND sale_type=:sale_type";
+                AND sale_type=:sale_type
+                ORDER BY created_at";
 
         return Yii::app()->db->createCommand($sql)->queryAll(true, array(
                 ':user_id' => Common::getUserID(),

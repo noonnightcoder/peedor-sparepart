@@ -20,10 +20,14 @@ $this->widget('bootstrap.widgets.TbNav', array(
     'encodeLabel' => false,
     'id' => 'sidebar',
     'items' => array(
+            array('label'=>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Home')) . '</span>', 'icon'=>'menu-icon fa fa-home',
+                'url'=>Yii::app()->urlManager->createUrl('site/home'),
+                'active'=>$this->id .'/'. $this->action->id=='site/home'?true:false,
+            ),
             array('label'=>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Dashboard')) . '</span>', 'icon'=>'menu-icon fa fa-tachometer', 'url'=>Yii::app()->urlManager->createUrl('dashboard/view'), 'active'=>$this->id .'/'. $this->action->id=='dashboard/view'?true:false,
                     'visible'=> Yii::app()->user->checkAccess('report.index')
             ),
-            array('label'=>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Item')) . '</span>', 'icon'=>'menu-icon fa fa-coffee', 'url'=>Yii::app()->urlManager->createUrl('item/admin'),
+            array('label'=>'<span class="menu-text">' . strtoupper(Yii::t('app', 'Product')) . '</span>', 'icon'=>'menu-icon fa fa-coffee', 'url'=>Yii::app()->urlManager->createUrl('item/admin'),
                 'active'=>$this->id =='item',
                 'visible'=> Yii::app()->user->checkAccess('item.index') || Yii::app()->user->checkAccess('item.create') || Yii::app()->user->checkAccess('item.update') || Yii::app()->user->checkAccess('item.delete')),
             array('label'=>'<span class="menu-text">' . strtoupper(Yii::t('menu','Transaction')) .'</span>', 'icon'=>'menu-icon fa fa-desktop','url'=>Yii::app()->urlManager->createUrl('receivingItem/index'),'active'=>$this->id .'/'. $this->action->id=='receivingItem/index',

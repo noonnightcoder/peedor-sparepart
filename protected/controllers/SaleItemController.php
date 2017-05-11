@@ -299,7 +299,6 @@ class SaleItemController extends Controller
 
     public function actionCompleteSale()
     {
-
         $this->layout = '//layouts/column_receipt';
 
         $data = $this->sessionInfo();
