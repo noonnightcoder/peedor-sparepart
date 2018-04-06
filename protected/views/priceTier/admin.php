@@ -95,8 +95,8 @@
                             'type'=>'raw',
                             'value'=>'$data->status==1 ? TbHtml::labelTb("Activated", array("color" => TbHtml::LABEL_COLOR_SUCCESS)) : TbHtml::labelTb("De-Activated", array("color" => TbHtml::LABEL_COLOR_WARNING))',
                         ),
-                        'modified_date',
-                        //'deleted',
+                        'sort_order',
+                        'created_at',
                         array(
                             'class'=>'bootstrap.widgets.TbButtonColumn',
                             'header'=> Yii::t('app','Edit'),

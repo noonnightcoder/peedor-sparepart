@@ -139,7 +139,7 @@ class CurrencyType extends CActiveRecord
 
     public function getActiveCurArr()
     {
-        $sql = "SELECT `code`
+        $sql = "SELECT `code`,`currency_id`,`currency_symbol`,`currency_name`,
                 FROM `currency_type`
                 WHERE `status`=:status
                 ORDER BY sort_order";

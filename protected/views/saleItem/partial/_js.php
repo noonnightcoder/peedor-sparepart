@@ -19,6 +19,8 @@ Yii::app()->clientScript->registerScript( 'deleteItem', "
       ");
 ?>
 
+
+
 <?php
 Yii::app()->clientScript->registerScript( 'addPayment', "
         jQuery( function($){
@@ -44,17 +46,19 @@ Yii::app()->clientScript->registerScript( 'addPayment', "
       ");
 ?>
 
-<?php
+
+<?php /*
 Yii::app()->clientScript->registerScript( 'enterPayment', "
         jQuery( function($){
-            $('#payment_cart').on('keypress','.payment-amount-txt',function(e) {
+            $('#payment_cart').on('keypress','.payment-amount-',function(e) {
                 if (e.keyCode === 13 || e.which === 13)
                 {
                     e.preventDefault();
                     var url=$(this).data('url');
                     var message=$('.message');
                     var payment_id=$('#payment_type_id').val();
-                    var payment_amount=$('#payment_amount_id').val();
+                    //var payment_amount=$('#payment_amount_id').val();
+                    var payment_amount=$(this).val;
                     var alt_payment_amount=$('#alt_payment_amount_id').val();
                     $.ajax({url:url,
                             type : 'post',
@@ -71,7 +75,39 @@ Yii::app()->clientScript->registerScript( 'enterPayment', "
              });
         });
       ");
+ */
 ?>
+
+<?php foreach (CurrencyType::model()->getActiveCurrency() as $id => $currency): ?>
+
+<script>
+    $('#payment_cart').on('keypress','.payment-amount-<?= $currency->code ?>' ,function(e) {
+        if (e.keyCode === 13 || e.which === 13)
+        {
+            e.preventDefault();
+            //alert($(this).val());
+            var url=$(this).data('url');
+            //var payment_id=$('#payment_type_id').val();
+            var payment_amount=$(this).val();
+            var alt_payment_amount=$('#alt_payment_amount_id').val();
+            $.ajax({
+                url:url,
+                type : 'post',
+                beforeSend: function() { $('.waiting').show(); },
+                complete: function() { $('.waiting').hide(); },
+                data : {payment_amount : payment_amount, alt_payment_amount : alt_payment_amount},
+                success : function(data) {
+                    $('#register_container').html(data);
+                    $('#finish_sale_button').focus();
+                }
+            });
+            //return false;
+        } // end if
+    });
+</script>
+
+<?php endforeach; ?>
+
 
 <?php
 Yii::app()->clientScript->registerScript( 'deletePayment', "
@@ -312,6 +348,7 @@ Yii::app()->clientScript->registerScript( 'priceTierOption', "
     }
 
     <?php if(!empty($items)) { ?>
+
     $("#sidebar a").unbind().click(function(e) {
         e.preventDefault();
         a_href = $(this).attr("href");

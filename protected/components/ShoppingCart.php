@@ -47,52 +47,6 @@ class ShoppingCart extends CApplicationComponent
         $this->session['payments'] = $payments_data;
     }
 
-    // Change to Common.php
-    /*public function getSaleId()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['sale_id'])) {
-            $this->setSaleId(null);
-        }
-        return $this->session['sale_id'];
-    }
-
-    public function setSaleId()
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['sale_id'] = SaleOrder::model()->getOrderId();
-    }
-
-    public function clearSaleId()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['sale_id']);
-    }*/
-
-    // Move to GetsetSessoin.php to remove after testing done
-    /*
-    public function getPriceTier()
-    {
-        $this->setSession(Yii::app()->session);
-        if (!isset($this->session['pricetier'])) {
-            $this->setPriceTier(4); // set default price book as default "General Price"
-        }
-        return $this->session['pricetier'];
-    }
-
-    public function setPriceTier($pricetier_data)
-    {
-        $this->setSession(Yii::app()->session);
-        $this->session['pricetier'] = $pricetier_data;
-    }
-
-    public function clearPriceTier()
-    {
-        $this->setSession(Yii::app()->session);
-        unset($this->session['pricetier']);
-    }
-    */
-
     public function getComment()
     {
         $this->setSession(Yii::app()->session);
@@ -178,29 +132,6 @@ class ShoppingCart extends CApplicationComponent
     {
         return SalePayment::model()->paymentAdd($sale_id, $location_id, $currency_code, $payment_id, $payment_type, $payment_amount, $user_id, $note);
 
-        /*
-         *
-        $this->setSession(Yii::app()->session);
-
-        $payments = $this->getPayments();
-        $payment = array($payment_id =>
-            array(
-                'payment_type' => $payment_id,
-                'payment_amount' => $payment_amount
-            )
-        );
-
-        //payment_method already exists, add to payment_amount
-        if (isset($payments[$payment_id])) {
-            $payments[$payment_id]['payment_amount'] += $payment_amount;
-        } else {
-            //add to existing array
-            $payments += $payment;
-        }
-
-        $this->setPayments($payments);
-        return true;
-        */
     }
 
     public function setTotalDiscount($sale_id, $location_id,$discount_amount,$discount_type,$user_id)
@@ -450,11 +381,12 @@ class ShoppingCart extends CApplicationComponent
 
     protected function defaultPriceTierId()
     {
-        return Common::getSaleType()=='R'?4:1;
+        return Common::getSaleType()=='R'?1:2;
     }
 
     public function clearAll()
     {
+        $this->emptyCart();
         $this->clearCustomerId();
         $this->clearPriceTierId();
         $this->clearSaleId();

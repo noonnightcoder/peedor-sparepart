@@ -78,7 +78,7 @@ class SaleItemController extends Controller
             }
 
             if ($sale_type=='R') {
-                Yii::app()->shoppingCart->setPriceTierId(4);
+                Yii::app()->shoppingCart->setPriceTierId(1);
                 Yii::app()->shoppingCart->setCustomerId(1);
             }
 
@@ -100,9 +100,9 @@ class SaleItemController extends Controller
 
     public function actionAdd()
     {
-        Common::checkPermission('sale.edit');
+        authorized('sale.edit');
 
-        Common::accessValidation();
+        ajaxRequestPost();
 
         $data = array();
         $item_id = $_POST['SaleItem']['item_id'];
@@ -159,14 +159,15 @@ class SaleItemController extends Controller
         }
     }
 
-    public function actionAddPayment()
+    public function actionAddPayment($currency_code)
     {
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $data = $this->sessionInfo();
             $payment_id = 1; //$_POST['payment_id']; // This should be a reference to payment_history table
             $payment_type = 'Cash';
             $payment_amount = trim($_POST['payment_amount']) == "" ? 0 : $_POST['payment_amount'];
-            $payment_note = 'Retail ' . $payment_amount;
+            $payment_note = Common::saleTitle() . ' ' . $payment_amount;
+            $data['currency_code'] = $currency_code;
             //Yii::app()->shoppingCart->setPaymentNote($payment_note);
             Yii::app()->shoppingCart->addPayment($data['sale_id'], $data['location_id'], $data['currency_code'], $payment_id,
                 $payment_type, $payment_amount, $data['user_id'], $payment_note);
@@ -323,7 +324,7 @@ class SaleItemController extends Controller
         } else {
             //Save transaction to db
             $data['sale_id'] = SaleOrder::model()->orderSave($data['sale_id'], $action_status);
-            if ($data['sale_type'] == 'R') {
+            //if ($data['sale_type'] == 'R') {
                 //$data = $this->receiptInfo($data['sale_id'],$data['location_id'],$action_status,$data['sale_type']);
                 Yii::app()->session->close();
                 Yii::app()->shoppingCart->clearAll();
@@ -333,10 +334,10 @@ class SaleItemController extends Controller
                 } else {
                   $this->backIndex();
                 }
-            } else {
-                Yii::app()->shoppingCart->clearAll();
-                $this->backIndex();
-            }
+            //} else {
+                //Yii::app()->shoppingCart->clearAll();
+                //$this->backIndex();
+            //}
         }
     }
 
@@ -569,7 +570,9 @@ class SaleItemController extends Controller
         //$data['payments'] = array();
         $data['amount_due'] = 0;
         $data['payment_amount'] = 0;
-        $data['col_span'] = 3;
+        //$data['col_span'] = 3;
+
+        $data['col_span'] = Yii::app()->settings->get('sale', 'discount') == 'hidden' ? '3' : '4';
 
         $data['sale_id'] = $sale_id;
         $data['sale_type'] = $sale_type;

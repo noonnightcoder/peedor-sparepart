@@ -66,7 +66,7 @@ class PriceTierController extends Controller
         $model = new PriceTier;
 
         // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+        $this->performAjaxValidation($model);
 
         if (Yii::app()->user->checkAccess('item.create')) {
             if (isset($_POST['PriceTier'])) {
@@ -74,7 +74,6 @@ class PriceTierController extends Controller
                 if ($model->validate()) {
                     $transaction = $model->dbConnection->beginTransaction();
                     try {
-                        $model->modified_date=date('Y-m-d H:i:s');
                         if ($model->save()) {
                             $transaction->commit();
                             Yii::app()->clientScript->scriptMap['jquery.js'] = false;

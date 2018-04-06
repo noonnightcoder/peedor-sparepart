@@ -70,20 +70,8 @@ class ItemController extends Controller
             $model->quantity = $qty;
             $model->unit_price = $unit_price;
             $category_name = $_POST['Item']['category_id'];
-            $publisher_name = $_POST['Item']['publisher_id'];
-            $author_name = $_POST['Item']['author_id'];
             $employee_id = Yii::app()->session['employeeid'];
             $trans_date = date('Y-m-d H:i:s');
-
-            $publisher_id = Publisher::model()->savePublisher($publisher_name);
-            if ($publisher_id !== null) {
-                $model->publisher_id = $publisher_id;
-            }
-
-            $author_id = Author::model()->saveAuthor($author_name);
-            if ($author_id !== null) {
-                $model->author_id = $author_id;
-            }
 
             //Saving new category to `category` table
             $category_id = Category::model()->saveCategory($category_name);
@@ -130,27 +118,11 @@ class ItemController extends Controller
             }
         }
 
-        if (Yii::app()->request->isAjaxRequest) {
-            $cs = Yii::app()->clientScript;
-            $cs->scriptMap = array(
-                'jquery.js' => false,
-                'bootstrap.js' => false,
-                'jquery.min.js' => false,
-                'bootstrap.min.js' => false,
-                'bootstrap.notify.js' => false,
-                'bootstrap.bootbox.min.js' => false,
-            );
+        $data['model'] = $model;
+        $data['price_tiers'] = $price_tiers;
 
-            echo CJSON::encode(array(
-                'status' => 'render',
-                'div' => $this->renderPartial('_form_image', array('model' => $model, 'price_tiers' => $price_tiers),
-                    true, true),
-            ));
+        loadview('create_image','_form_image',$data);
 
-            Yii::app()->end();
-        } else {
-            $this->render('create_image', array('model' => $model, 'price_tiers' => $price_tiers));
-        }
     }
 
     public function actionUpdateImage($id,$item_number_flag='0')
@@ -172,22 +144,17 @@ class ItemController extends Controller
                 $new_quantity = isset($_POST['Item']['quantity']) ? $_POST['Item']['quantity'] : 0;
                 $inv_quantity=$new_quantity-$qty_in_stock;
                 //$model->quantity = $qty;  //A buggy was not noticed every update reset item to zero EM EUY
-                $publisher_name=$_POST['Item']['publisher_id'];
+                //$publisher_name=$_POST['Item']['publisher_id'];
                 $category_name=$_POST['Item']['category_id'];
-                $author_name = $_POST['Item']['author_id'];
+                //$author_name = $_POST['Item']['author_id'];
                 $employee_id = Yii::app()->session['employeeid'];
                 $trans_date = date('Y-m-d H:i:s');
                 
-                $publisher_id=  Publisher::model()->savePublisher($publisher_name);
+                /*$publisher_id=  Publisher::model()->savePublisher($publisher_name);
                 if ($publisher_id!==null) {
                     $model->publisher_id = $publisher_id;
-                }
+                }*/
 
-                $author_id = Author::model()->saveAuthor($author_name);
-                if ($author_id !== null) {
-                    $model->author_id = $author_id;
-                }
-                
                 $category_id=Category::model()->saveCategory($category_name);
                 if ($category_id!==null) {
                     $model->category_id=$category_id;

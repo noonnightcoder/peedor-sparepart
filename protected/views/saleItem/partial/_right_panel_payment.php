@@ -20,7 +20,9 @@
 
                 <?php if (Common::getSaleType()=='W') {
 
-                    $this->renderPartial('partial/_right_panel_total_wsale');
+                    $this->renderPartial('partial/_right_panel_total_wsale',array(
+                            'model' => $model,
+                    ));
 
                 } else {
 

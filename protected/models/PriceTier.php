@@ -34,7 +34,10 @@ class PriceTier extends CActiveRecord
                         array('tier_name', 'unique'),
 			array('status', 'length', 'max'=>1),
 			array('tier_name', 'length', 'max'=>30),
-			array('modified_date', 'safe'),
+			array('sort_order', 'numerical'),
+            array('created_at', 'default', 'value' => date('Y-m-d H:i:s'), 'setOnEmpty' => true, 'on' => 'insert'),
+            array('updated_at', 'default', 'value' => date('Y-m-d H:i:s'), 'setOnEmpty' => false, 'on' => 'update'),
+			array('created_at,updated_at', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('id, tier_name,status, search', 'safe', 'on'=>'search'),

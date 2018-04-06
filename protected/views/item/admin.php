@@ -97,11 +97,13 @@ $this->breadcrumbs = array(
                         'value' => '$data->status=="1" ? CHtml::link($data->name, Yii::app()->createUrl("item/updateImage",array("id"=>$data->primaryKey))) : "<s class=\"red\">  $data->name </s>" ',
                         'type' => 'raw',
                     ),
+                    /*
                     array(
                         'name' => 'author_id',
                         'value' => '$data->author_id==null? " " : $data->author->author_name',
                         'filter' =>  CHtml::listData(Author::model()->findAll(array('order'=>'author_name')), 'id', 'author_name'),
                     ),
+                    */
                     /*
                     array('name'=>'description',
                           'headerHtmlOptions'=>array('class'=>'hidden-480 hidden-xs'),

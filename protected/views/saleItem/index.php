@@ -6,7 +6,7 @@
     <?php //echo 'Price Tier ID : ' . Common::getPriceTierID() .  "<br>" ?>
     <?php //echo' Price Tier HTML Value : ' . Common::priceTierDisable() . "<br>" ?>
     <?php //print_r(Yii::app()->shoppingCart->getCart()) . "<br>" ?>
-    <?php //print_r($account); ?>
+    <?php //print_r($items); ?>
 
     <?php $this->renderPartial('partial/_left_panel',
         array(

@@ -122,13 +122,6 @@ class SalePaymentController extends Controller
         ));
     }
 
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer $id the ID of the model to be loaded
-     * @return SalePayment the loaded model
-     * @throws CHttpException
-     */
     public function loadModel($id)
     {
         $model = SalePayment::model()->findByPk($id);
@@ -139,10 +132,6 @@ class SalePaymentController extends Controller
         return $model;
     }
 
-    /**
-     * Performs the AJAX validation.
-     * @param SalePayment $model the model to be validated
-     */
     protected function performAjaxValidation($model)
     {
         if (isset($_POST['ajax']) && $_POST['ajax'] === 'sale-payment-form') {
@@ -260,6 +249,9 @@ class SalePaymentController extends Controller
 
         $data = $this->sessionInfo();
 
+        loadview('index','index',$data);
+
+        /*
         if (Yii::app()->request->isAjaxRequest) {
 
             $cs = Yii::app()->clientScript;
@@ -283,6 +275,7 @@ class SalePaymentController extends Controller
         } else {
             $this->render('index', $data);
         }
+        */
 
     }
 
