@@ -62,18 +62,6 @@ class CurrencyType extends CActiveRecord
         );
     }
 
-    /**
-     * Retrieves a list of models based on the current search/filter conditions.
-     *
-     * Typical usecase:
-     * - Initialize the model fields with values from filter form.
-     * - Execute this method to get CActiveDataProvider instance which will filter
-     * models according to data in model fields.
-     * - Pass data provider to CGridView, CListView or any similar widget.
-     *
-     * @return CActiveDataProvider the data provider that can return the models
-     * based on the search/filter conditions.
-     */
     public function search()
     {
         // @todo Please modify the following code to remove attributes that should not be searched.
@@ -91,12 +79,6 @@ class CurrencyType extends CActiveRecord
         ));
     }
 
-    /**
-     * Returns the static model of the specified AR class.
-     * Please note that you should have this exact method in all your CActiveRecord descendants!
-     * @param string $className active record class name.
-     * @return CurrencyType the static model class
-     */
     public static function model($className = __CLASS__)
     {
         return parent::model($className);
@@ -121,7 +103,11 @@ class CurrencyType extends CActiveRecord
 
     public function getCurrencyCode()
     {
-        $model = CurrencyType::model()->findAll(array('order' => 'sort_order'));
+        $model = CurrencyType::model()->findAll(array(
+            'condition' => 'status=:status',
+            'params' => array(':status' => '1'),
+            'order' => 'sort_order',
+        ));
         $list = CHtml::listData($model, 'code', 'CurrencyInfo');
         return $list;
     }
@@ -171,4 +157,5 @@ class CurrencyType extends CActiveRecord
 
         return $currency_type;
     }
+
 }

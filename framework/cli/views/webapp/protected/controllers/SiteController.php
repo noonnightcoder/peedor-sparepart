@@ -106,4 +106,10 @@ class SiteController extends Controller
 		Yii::app()->user->logout();
 		$this->redirect(Yii::app()->homeUrl);
 	}
+
+    public function actionHome()
+    {
+        $this->layout = '//layouts/column_sale';
+        $this->render('home');
+    }
 }

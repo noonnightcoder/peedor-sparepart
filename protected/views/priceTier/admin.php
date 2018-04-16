@@ -35,9 +35,7 @@
         ");
         ?>
 
-
         <?php $this->widget('ext.modaldlg.EModalDlg'); ?>
-
 
         <div class="page-header">
             <!-- Admin Header layouts.admin._header -->
@@ -95,6 +93,7 @@
                             'type'=>'raw',
                             'value'=>'$data->status==1 ? TbHtml::labelTb("Activated", array("color" => TbHtml::LABEL_COLOR_SUCCESS)) : TbHtml::labelTb("De-Activated", array("color" => TbHtml::LABEL_COLOR_WARNING))',
                         ),
+                        'description',
                         'sort_order',
                         'created_at',
                         array(

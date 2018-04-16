@@ -6,6 +6,10 @@ $this->breadcrumbs=array(
 
 ?>
 
+<!-- Flash message layouts.partial._flash_message -->
+<?php $this->renderPartial('//layouts/alert/_flash'); ?>
+
+
 <div id="payment_container">
 
     <?php $this->widget( 'ext.modaldlg.EModalDlg' ); ?>
@@ -44,17 +48,29 @@ $this->breadcrumbs=array(
 
         <div id="sale_payment_cart">
 
-            <?php $this->renderPartial('partial/_payment_form', array('model' => $model, 'save_button' => $save_button, 'sale_invoice' => $sale_invoice)); ?>
+            <?php $this->renderPartial('partial/_payment_form', array(
+                'model' => $model,
+                'save_button' => $save_button,
+                'sale_invoice' => $sale_invoice,
+                'currency_type' => $currency_type,
+            ));
+            ?>
                 
     </div>
 
-    <?php $this->renderPartial('partial/_invoice_payment_sub', array('model' => $model, 'client_id' => $client_id, 'balance' => $balance,'currency_code'=>$currency_code)); ?>
+    <?php $this->renderPartial('partial/_invoice_payment_sub', array(
+        'model' => $model,
+        'client_id' => $client_id,
+        //'balance' => $balance,
+        //'currency_code' => $currency_code
+    ));
+    ?>
 
   <?php $this->endWidget(); ?>
     
-<!--    --><?php //if ($cust_fullname=='') { ?><!--     -->
-<!--        --><?php //Yii::app()->clientScript->registerScript('setFocus', '$("#SalePayment_client_id").focus();'); ?>
-<!--    --><?php //} ?>
+<?php if ($cust_fullname=='Not Set') { ?>
+    <?php Yii::app()->clientScript->registerScript('setFocus', '$("#SalePayment_client_id").focus();'); ?>
+<?php } ?>
                 
 </div><!-- form -->
 

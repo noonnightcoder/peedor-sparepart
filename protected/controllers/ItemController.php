@@ -31,7 +31,11 @@ class ItemController extends Controller
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'CreateImage', 'update', 'UpdateImage', 'delete', 'UndoDelete','GetItem', 'Inventory', 'admin', 'AutocompleteItem', 'SelectItem', 'SelectItemRecv', 'SelectItemClient', 'CostHistory', 'PriceHistory', 'LowStock', 'OutStock','loadImage','f5pricetier'),
+                'actions' => array('create', 'CreateImage', 'update', 'UpdateImage',
+                    'delete', 'UndoDelete','GetItem', 'Inventory', 'admin',
+                    'AutocompleteItem', 'SelectItem', 'SelectItemRecv', 'SelectItemClient',
+                    'CostHistory', 'PriceHistory', 'LowStock',
+                    'OutStock','loadImage','f5pricetier','ItemMovement','NextId','PreviousId'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -62,6 +66,8 @@ class ItemController extends Controller
 
         $model = new Item;
         $price_tiers = PriceTier::model()->getListPriceTier();
+
+        //$this->performAjaxValidation($model);
 
         if (isset($_POST['Item'])) {
             $model->attributes = $_POST['Item'];
@@ -133,9 +139,13 @@ class ItemController extends Controller
             $model = Item::model()->find('item_number=:item_number',array(':item_number'=>$id));
             $id = $model->id;
         }
-        
+
         $price_tiers = PriceTier::model()->getListPriceTierUpdate($id);
         $qty_in_stock = $model->quantity;
+        $next_id = Item::model()->getNextId($id);
+        $previous_id = Item::model()->getNextId($id);
+        $next_disable = $next_id === null ? 'disabled' : '';
+        $previous_disable = $previous_id === null ? 'disabled' : '';
 
         if (Yii::app()->user->checkAccess('item.update')) {
             if (isset($_POST['Item'])) {
@@ -195,7 +205,12 @@ class ItemController extends Controller
             $this->redirect(array('site/ErrorException','err_no'=>403));
         }
 
-        $this->render('update_image', array('model' => $model,'price_tiers'=>$price_tiers));
+        $data['model'] = $model;
+        $data['price_tiers'] = $price_tiers;
+        $data['next_disable'] = $next_disable;
+        $data['previous_disable'] = $previous_disable;
+
+        $this->render('update_image', $data);
     }
     
     public function actionf5pricetier()
@@ -226,11 +241,6 @@ class ItemController extends Controller
         }
     }
 
-    /**
-     * Deletes a particular model.
-     * If deletion is successful, the browser will be redirected to the 'admin' page.
-     * @param integer $id the ID of the model to be deleted
-     */
     public function actionDelete($id)
     {
         if (Yii::app()->user->checkAccess('item.delete')) {
@@ -250,12 +260,7 @@ class ItemController extends Controller
              throw new CHttpException(403, 'You are not authorized to perform this action');
         }
     }
-    
-    /**
-     * Deletes a particular model.
-     * If deletion is successful, the browser will be redirected to the 'admin' page.
-     * @param integer $id the ID of the model to be deleted
-     */
+
     public function actionUndoDelete($id)
     {
         if (Yii::app()->user->checkAccess('item.delete')) {
@@ -273,9 +278,6 @@ class ItemController extends Controller
         }
     }
 
-    /**
-     * Lists all models.
-     */
     public function actionIndex()
     {
         $dataProvider = new CActiveDataProvider('Item');
@@ -284,9 +286,6 @@ class ItemController extends Controller
         ));
     }
 
-    /**
-     * Manages all models.
-     */
     public function actionAdmin()
     {
         if (Yii::app()->user->checkAccess('item.index') || Yii::app()->user->checkAccess('item.create') || Yii::app()->user->checkAccess('item.update') || Yii::app()->user->checkAccess('item.delete')) {
@@ -316,11 +315,6 @@ class ItemController extends Controller
         }
     }
 
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer the ID of the model to be loaded
-     */
     public function loadModel($id)
     {
         $model = Item::model()->findByPk($id);
@@ -329,11 +323,7 @@ class ItemController extends Controller
             throw new CHttpException(404, 'The requested page does not exist.');
         return $model;
     }
-    
-    /**
-     * Return the data model based on the item_code unique key 
-     * @param string the ITEM CODE of the mode to be loaded
-     */
+
     public function loadModelItemcode($item_code)
     {
         $model = Item::model()->find('item_number=:item_number',array(':item_number'=>$item_code));
@@ -344,10 +334,6 @@ class ItemController extends Controller
         return $model;
     }
 
-    /**
-     * Performs the AJAX validation.
-     * @param CModel the model to be validated
-     */
     protected function performAjaxValidation($model)
     {
         if (isset($_POST['ajax']) && $_POST['ajax'] === 'item-form') {
@@ -768,6 +754,26 @@ class ItemController extends Controller
                  CHtml::image(Yii::app()->baseUrl . $model->path .'/' .  $model->filename,'Product Image') .
                 '</a>';
         }
+    }
+
+    public function actionItemMovement($item_id,$movement)
+    {
+        $model = new Item;
+        $item_id = Common::getNextOrPrevId($model,$item_id,$movement);
+
+        $this->actionUpdateImage($item_id,'0');
+    }
+
+    public function actionNextId($id)
+    {
+        $item_id = Item::model()->getNextId($id);
+        $this->actionUpdateImage($item_id,'0');
+    }
+
+    public function actionPreviousId($id)
+    {
+        $item_id = Item::model()->getPreviousId($id);
+        $this->actionUpdateImage($item_id,'0');
     }
 
 }

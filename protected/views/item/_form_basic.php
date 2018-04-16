@@ -1,8 +1,8 @@
-<?php echo $form->textFieldControlGroup($model,'item_number',array('class'=>'span3','maxlength'=>255)); ?>
-
 <?php echo $form->textFieldControlGroup($model,'name',array('class'=>'span3','maxlength'=>100)); ?>
 
-<?php echo $form->textFieldControlGroup($model,'isbn',array('class'=>'span3','maxlength'=>100)); ?>
+<?php echo $form->textFieldControlGroup($model,'item_number',array('class'=>'span3','maxlength'=>255)); ?>
+
+<?php //echo $form->textFieldControlGroup($model,'isbn',array('class'=>'span3','maxlength'=>100)); ?>
 
 <div class="unittype-wrapper" style="display:none">
     <?php //echo $form->textFieldControlGroup($model,'sub_quantity',array('class'=>'span2','prepend'=>'$')); ?>

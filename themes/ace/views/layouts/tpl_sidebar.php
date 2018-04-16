@@ -1,18 +1,3 @@
-<!--
-<div class="sidebar-shortcuts" id="sidebar-shortcuts">
-    <div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
-        <?php //echo TbHtml::linkButton('', array('url'=>Yii::app()->urlManager->createUrl('settings/index'),'color' => TbHtml::BUTTON_COLOR_DANGER,'icon'=>'ace-icon fa fa-cog','size'=> TbHtml::BUTTON_SIZE_SMALL)); ?>
-        <?php //echo TbHtml::linkButton('', array('url'=>Yii::app()->urlManager->createUrl('client/admin'),'color' => TbHtml::BUTTON_COLOR_WARNING,'icon'=>'ace-icon fa fa-group','size'=> TbHtml::BUTTON_SIZE_SMALL)); ?>
-        <?php //echo TbHtml::linkButton('', array('url'=>Yii::app()->urlManager->createUrl('report/SaleReportTab'),'color' => TbHtml::BUTTON_COLOR_SUCCESS,'icon'=>'ace-icon fa fa-signal','size'=> TbHtml::BUTTON_SIZE_SMALL)); ?>
-        <?php //echo TbHtml::linkButton('', array('url'=>Yii::app()->urlManager->createUrl('report/SaleInvoice'),'color' => TbHtml::BUTTON_COLOR_INFO,'icon'=>'ace-icon fa fa-pencil','size'=> TbHtml::BUTTON_SIZE_SMALL)); ?>
-    </div>
-    <div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
-            <span class="btn btn-success"></span>
-            <span class="btn btn-info"></span>
-            <span class="btn btn-warning"></span>
-            <span class="btn btn-danger"></span>
-    </div>
-</div><!--#sidebar-shortcuts-->
 <?php
 $this->widget('bootstrap.widgets.TbNav', array(
     'type' => TbHtml::NAV_TYPE_LIST,
@@ -145,13 +130,19 @@ $this->widget('bootstrap.widgets.TbNav', array(
             //'visible' => Yii::app()->user->checkAccess('setting.update'),
             'items' => array(
                 //array('label'=>Yii::t('menu', 'Employee'), 'icon'=> TbHtml::ICON_USER, 'url'=>Yii::app()->urlManager->createUrl('employee/admin'), 'active'=>$this->id .'/'. $this->action->id=='employee/admin','visible'=>Yii::app()->user->checkAccess('employee.index')),
-                array('label' => Yii::t('menu', 'Price Tier'), 'icon' => TbHtml::ICON_ADJUST, 'url' => Yii::app()->urlManager->createUrl('priceTier/admin'),
+                array('label' => Yii::t('menu', 'Price Tier'),
+                    'icon' => TbHtml::ICON_ADJUST,
+                    'url' => Yii::app()->urlManager->createUrl('priceTier/admin'),
                     'active' => $this->id . '/' . $this->action->id == 'priceTier/admin',
                     'visible' => Yii::app()->user->checkAccess('setting.exchangerate')),
-                array('label' => Yii::t('app', 'Profit Margin'), 'icon' => 'fa-icon fa fa-cube', 'url' => Yii::app()->urlManager->createUrl('profitMargin/admin'),
+                array('label' => Yii::t('app', 'Profit Margin'),
+                    'icon' => 'fa-icon fa fa-cube',
+                    'url' => Yii::app()->urlManager->createUrl('profitMargin/admin'),
                     'active' => $this->id == 'profitMargin',
-                    'visible' => Yii::app()->user->checkAccess('store.update')),
-                array('label' => Yii::t('app', 'Exchange Rate'), 'icon' => TbHtml::ICON_CREDIT_CARD, 'url' => Yii::app()->urlManager->createUrl('exchangeRate/admin'),
+                    'visible' => Yii::app()->user->checkAccess('setting.exchangerate')),
+                array('label' => Yii::t('app', 'Exchange Rate'),
+                    'icon' => TbHtml::ICON_CREDIT_CARD,
+                    'url' => Yii::app()->urlManager->createUrl('exchangeRate/admin'),
                     'active' => $this->id . '/' . $this->action->id == 'exchangeRate/admin',
                     'visible' => Yii::app()->user->checkAccess('setting.exchangerate')),
                 array('label' => Yii::t('menu', 'Shop Setting'), 'icon' => TbHtml::ICON_COG, 'url' => Yii::app()->urlManager->createUrl('settings/index'),

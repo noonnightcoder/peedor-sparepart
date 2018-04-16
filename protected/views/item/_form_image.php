@@ -2,14 +2,27 @@
 
 <?php if(Yii::app()->user->hasFlash('success')):?>
     <?php $this->widget('bootstrap.widgets.TbAlert'); ?>
-<?php endif; ?>  
+<?php endif; ?>
 
-<?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
-	'id'=>'item-form',
-	'enableAjaxValidation'=>false,
-        'layout'=>TbHtml::FORM_LAYOUT_HORIZONTAL,
+    <?php /*$form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
+        'id'=>'item-form',
+        'enableAjaxValidation'=>true,
+        'enableClientValidation'=>true,
+        'clientOptions' => array(
+            'validateOnSubmit'=>true,
+            'validateOnChange'=>true,
+            'validateOnType'=>false,
+        ),
+        'layout' => TbHtml::FORM_LAYOUT_HORIZONTAL,
         'htmlOptions'=>array('enctype' => 'multipart/form-data'),
-)); ?>
+    )); */?>
+
+
+    <?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm',array(
+        'id'=>'item-form',
+        'enableAjaxValidation'=>false,
+        'layout'=>TbHtml::FORM_LAYOUT_HORIZONTAL,
+    )); ?>
 
 	<p class="help-block"><?php echo Yii::t('app', 'Fields with'); ?> <span class="required">*</span> <?php echo Yii::t('app', 'are required'); ?></p>
 
@@ -36,7 +49,7 @@
 
 <?php $this->endWidget(); ?>
 
-<?php Yii::app()->clientScript->registerScript('setFocus',  '$("#Item_item_number").focus();'); ?>
+<?php Yii::app()->clientScript->registerScript('setFocus',  '$("#Item_name").focus();'); ?>
 
  <script>
  $("form").submit(function () {

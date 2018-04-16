@@ -20,6 +20,7 @@ $(document).ready(function()
            if (confirm("<?php echo Yii::t('app','Are you sure you want to submit this payment? This cannot be undone.'); ?>")){
                $('.waiting').hide();
                $('#sale-payment-form').submit();
+               $('#payment_container').html(data);
            } else { //Bring back submit and unmask if fail to confirm
                $("#save_payment_button").show();
            }
@@ -89,7 +90,7 @@ function clientScannedSuccess(responseText, statusText, xhr, $form)
 </script>
 
 <?php
-Yii::app()->clientScript->registerScript( 'currencyTypeOption', "
+/*Yii::app()->clientScript->registerScript( 'currencyTypeOption', "
         jQuery( function($){
             $('div#sale_payment_cart').on('change','#currency_type_id',function(e) {
                 e.preventDefault();
@@ -106,4 +107,4 @@ Yii::app()->clientScript->registerScript( 'currencyTypeOption', "
                 });
             });
       ");
-?>
+*/?>

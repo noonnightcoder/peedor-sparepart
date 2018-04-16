@@ -228,4 +228,23 @@ Class Common
         return Common::getSaleType()=='R'?'fa fa-shopping-basket':'fa fa-cart-plus';
     }
 
+    public static function getNextOrPrevId($model, $currentId, $nextOrPrev)
+    {
+        $records = NULL;
+        if ($nextOrPrev == "prev")
+            $order = "id DESC";
+        if ($nextOrPrev == "next")
+            $order = "id ASC";
+
+        $records = $model::model()->findAll(
+            array('select' => 'id', 'order' => $order)
+        );
+
+        foreach ($records as $i => $r)
+            if ($r->id == $currentId)
+                return isset($records[$i + 1]->id) ? $records[$i + 1]->id : NULL;
+
+        return NULL;
+    }
+
 }

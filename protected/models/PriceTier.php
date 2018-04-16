@@ -6,7 +6,8 @@
  * The followings are the available columns in table 'price_tier':
  * @property integer $id
  * @property string $tier_name
- * @property string $modified_date
+ * @property string $created_at
+ * @property string $updated_at
  * @property string $status
  */
 class PriceTier extends CActiveRecord
@@ -34,6 +35,7 @@ class PriceTier extends CActiveRecord
                         array('tier_name', 'unique'),
 			array('status', 'length', 'max'=>1),
 			array('tier_name', 'length', 'max'=>30),
+			array('description', 'length', 'max'=>1000),
 			array('sort_order', 'numerical'),
             array('created_at', 'default', 'value' => date('Y-m-d H:i:s'), 'setOnEmpty' => true, 'on' => 'insert'),
             array('updated_at', 'default', 'value' => date('Y-m-d H:i:s'), 'setOnEmpty' => false, 'on' => 'update'),
@@ -63,23 +65,11 @@ class PriceTier extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'tier_name' => Yii::t('app','Tier Name'),
-			'modified_date' => 'Modified Date',
+			'created_at' => 'Created At',
 			'status' => Yii::t('app','Status'),
 		);
 	}
 
-	/**
-	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
-	 * @return CActiveDataProvider the data provider that can return the models
-	 * based on the search/filter conditions.
-	 */
 	public function search()
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
@@ -111,12 +101,6 @@ class PriceTier extends CActiveRecord
 		));
 	}
 
-	/**
-	 * Returns the static model of the specified AR class.
-	 * Please note that you should have this exact method in all your CActiveRecord descendants!
-	 * @param string $className active record class name.
-	 * @return PriceTier the static model class
-	 */
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);

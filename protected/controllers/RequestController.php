@@ -64,18 +64,17 @@ class RequestController extends Controller
 	/**
 	 * Displays list on persons that have same firstname as person with given id
 	 */
-	public function actionListPersonsWithSameFirstname()
-	{
-		if(isset($_GET['id']))
-                    $model=Person::model()->findbyPk($_GET['id']);
-		if($model!==null)
-		{
-                    $models=Person::model()->findAll("firstname='{$model->firstname}'");
-                    $data=array();
-                    foreach($models as $model)
-                    $data[] = $model->fullname;
-                    echo Yii::t('ui','Persons with same firstname: ').implode(', ', $data);
-		}
+    public function actionListPersonsWithSameFirstname()
+    {
+        if (isset($_GET['id']))
+            $model = Person::model()->findbyPk($_GET['id']);
+        if ($model !== null) {
+            $models = Person::model()->findAll("firstname='{$model->firstname}'");
+            $data = array();
+            foreach ($models as $model)
+                $data[] = $model->fullname;
+            echo Yii::t('ui', 'Persons with same first name: ') . implode(', ', $data);
+        }
 
-	}
+    }
 }

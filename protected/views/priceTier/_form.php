@@ -26,6 +26,8 @@
 
     <?php echo $form->textFieldControlGroup($model, 'sort_order', array('span' => 2)); ?>
 
+    <?php echo $form->textAreaControlGroup($model, 'description', array('span' => 4, 'maxlength' => 1000 )); ?>
+
     <?php //echo $form->textFieldControlGroup($model,'deleted',array('span'=>5)); ?>
 
     <div class="form-actions">

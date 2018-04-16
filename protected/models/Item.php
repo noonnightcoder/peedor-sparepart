@@ -641,4 +641,31 @@ class Item extends CActiveRecord
     }
 
 
+    public function getNextId($id)
+    {
+        $record = self::model()->find(array(
+            'condition' => 'id>:current_id',
+            'order' => 'id ASC',
+            'limit' => 1,
+            'params' => array(':current_id' => $id),
+        ));
+        if ($record !== null)
+            return $record->id;
+        return null;
+    }
+
+    public function getPreviousId($id)
+    {
+        $record = self::model()->find(array(
+            'condition' => 'id<:current_id',
+            'order' => 'id DESC',
+            'limit' => 1,
+            'params' => array(':current_id' => $id),
+        ));
+        if ($record !== null)
+            return $record->id;
+        return null;
+    }
+
+
 }

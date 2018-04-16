@@ -25,6 +25,7 @@ class PaymentCart extends CApplicationComponent
     public function getClientId()
     {
         $this->setSession(Yii::app()->session);
+
         if (!isset($this->session['payment_client_id'])) {
             $this->setClientId(null);
         }
@@ -34,6 +35,7 @@ class PaymentCart extends CApplicationComponent
     public function setClientId($data)
     {
         $this->setSession(Yii::app()->session);
+
         $this->session['payment_client_id'] = $data;
     }
     

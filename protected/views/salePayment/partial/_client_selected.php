@@ -17,22 +17,22 @@
                                 Balance :
                                 <?php foreach ($account as $acc) { ?>
                                     <?php echo $acc["currency_symbol"] . number_format($acc["current_balance"],
-                                            Yii::app()->wshoppingCart->getDecimalPlace()) . ' - '; ?>
+                                            Common::getDecimalPlace()) . ' - '; ?>
                                     <?php $account_name = $acc["name"]; ?>
                                 <?php } ?>
 
-                                <?php echo TbHtml::link(ucwords($account_name),
-                                    $this->createUrl('Client/View/', array('id' => $client_id)), array(
-                                        'class' => 'update-dialog-open-link',
-                                        'data-update-dialog-title' => Yii::t('app', 'Customer Information'),
-                                    )); ?>
+                                    <?php echo TbHtml::link(ucwords($account_name),
+                                        $this->createUrl('Client/View/', array('id' => $client_id)), array(
+                                            'class' => 'update-dialog-open-link',
+                                            'data-update-dialog-title' => Yii::t('app', 'Customer Information'),
+                                        )); ?>
 
-                                <?php echo TbHtml::linkButton(Yii::t('app', ''), array(
-                                    'color' => TbHtml::BUTTON_COLOR_WARNING,
-                                    'size' => TbHtml::BUTTON_SIZE_MINI,
-                                    'icon' => 'glyphicon-remove white',
-                                    'class' => 'btn btn-sm detach-customer',
-                                )); ?>
+                                    <?php echo TbHtml::linkButton(Yii::t('app', ''), array(
+                                        'color' => TbHtml::BUTTON_COLOR_WARNING,
+                                        'size' => TbHtml::BUTTON_SIZE_MINI,
+                                        'icon' => 'glyphicon-remove white',
+                                        'class' => 'btn btn-sm detach-customer',
+                                    )); ?>
                             </li>
                         </span>
                     </ul>

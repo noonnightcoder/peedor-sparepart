@@ -149,7 +149,7 @@ $this->widget('bootstrap.widgets.TbNav', array(
                     'visible' => Yii::app()->user->checkAccess('setting.exchangerate')),
                 array('label' => Yii::t('app', 'Profit Margin'), 'icon' => 'fa-icon fa fa-cube', 'url' => Yii::app()->urlManager->createUrl('profitMargin/admin'),
                     'active' => $this->id == 'profitMargin',
-                    'visible' => Yii::app()->user->checkAccess('store.update')),
+                    'visible' => Yii::app()->user->checkAccess('setting.exchangerate')),
                 array('label' => Yii::t('app', 'Exchange Rate'), 'icon' => TbHtml::ICON_CREDIT_CARD, 'url' => Yii::app()->urlManager->createUrl('exchangeRate/admin'),
                     'active' => $this->id . '/' . $this->action->id == 'exchangeRate/admin',
                     'visible' => Yii::app()->user->checkAccess('setting.exchangerate')),

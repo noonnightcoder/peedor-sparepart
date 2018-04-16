@@ -3,15 +3,8 @@
 class SalePaymentController extends Controller
 {
 
-    /**
-     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-     * using two-column layout. See 'protected/views/layouts/column2.php'.
-     */
     public $layout = '//layouts/column2';
 
-    /**
-     * @return array action filters
-     */
     public function filters()
     {
         return array(
@@ -20,11 +13,6 @@ class SalePaymentController extends Controller
         );
     }
 
-    /**
-     * Specifies the access control rules.
-     * This method is used by the 'accessControl' filter.
-     * @return array access control rules
-     */
     public function accessRules()
     {
         return array(
@@ -63,10 +51,6 @@ class SalePaymentController extends Controller
         );
     }
 
-    /**
-     * Displays a particular model.
-     * @param integer $id the ID of the model to be displayed
-     */
     public function actionView($id)
     {
         $this->render('view', array(
@@ -74,11 +58,6 @@ class SalePaymentController extends Controller
         ));
     }
 
-    /**
-     * Deletes a particular model.
-     * If deletion is successful, the browser will be redirected to the 'admin' page.
-     * @param integer $id the ID of the model to be deleted
-     */
     public function actionDelete($id)
     {
         if (Yii::app()->request->isPostRequest) {
@@ -94,21 +73,13 @@ class SalePaymentController extends Controller
         }
     }
 
-    /**
-     * Lists all models.
-     */
     public function actionIndex()
     {
-        if (Yii::app()->user->checkAccess('payment.index')) {
-            $this->reload();
-        } else {
-            throw new CHttpException(403, 'You are not authorized to perform this action');
-        }
+        authorized('payment.index');
+
+        $this->reload();
     }
 
-    /**
-     * Manages all models.
-     */
     public function actionAdmin()
     {
         $model = new SalePayment('search');
@@ -142,74 +113,61 @@ class SalePaymentController extends Controller
 
     public function actionSavePayment()
     {
+        authorized('payment.index');
 
-        if (!Yii::app()->user->checkAccess('payment.index')) {
-            throw new CHttpException(403, 'You are not authorized to perform this action');
-        }
+        $model = new SalePayment;
+        $result = '';
 
         $data = $this->sessionInfo();
 
-        if (isset($_POST['SalePayment'])) {
-            $data['model']->attributes = $_POST['SalePayment'];
-            if ($data['model']->validate()) {
-                $paid_amount = $_POST['SalePayment']['payment_amount'];
-                $note = $_POST['SalePayment']['note'];
+        $this->performAjaxValidation($model);
 
-                $payments = array($data['currency_code'] =>
-                    array(
-                        'currency_code' => $data['currency_code'],
-                        'payment_amount' => $paid_amount
-                    )
-                );
+        if(isset($_POST['SalePayment'])) {
+            $valid = true;
 
-                if ($paid_amount <= $data['balance']) {
+            foreach ($data['currency_type'] as $currency) {
+                if (isset($_POST['SalePayment'][$currency->code])) {
+                    $model->attributes = $_POST['SalePayment'][$currency->code];
 
-                    Sale::model()->payment($data['client_id'],$payments,$data['employee_id'],$note);
-                    $data['warning'] = $data['cust_fullname'] . ' Successfully paid ';
-                    $this->renderPartial('_payment_success', $data);
-                    exit;
+                    $valid = $model->validate() && $valid;
+                    $note = $_POST['SalePayment']['note'];
+                    $date_paid = $_POST['SalePayment']['date_paid'];
 
-                    /*
-                    $data['payment_id'] = Salepayment::model()->batchPayment($data['client_id'],
-                        $data['employee_id'], $data['account'], $paid_amount, $paid_date, $note);
-                    if (substr($data['payment_id'], 0, 2) == '-1') {
-                        $data['warning'] = $data['payment_id'];
-                    } else {
-                        $data = $this->sessionInfo();
-                        $data['warning'] = $data['cust_fullname'] . ' Successfully paid ';
-                        $this->renderPartial('_payment_success', $data);
-                        //$this->redirect(array('salePayment/successPayment','cust_fullname'=>$data['cust_ful']));
-                        //Yii::app()->paymentCart->clearAll();
-                        exit;
+                    if ($valid) {
+                        $currency_code = $currency->code;
+                        $payment_amount = $_POST['SalePayment'][$currency->code]['payment_amount'];
+                        if ($payment_amount > 0) {
+                            $result = Sale::model()->payment($data['client_id'], $currency_code, $payment_amount, getEmployeeId(), $date_paid,$note);
+                        }
+
+                        Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS, '</strong> Successfully paid <strong>');
+
+                        //$this->renderPartial('partial/_payment_success', $data);
                     }
-                    */
-                } else {
-                    $data['model']->addError('payment_amount', Yii::t('app',
-                            'Total amount to paid is only') . ' <strong>' . number_format($data['balance'],
-                            Common::getDecimalPlace()) . '</strong>');
                 }
+
             }
         }
 
-        //$this->reload($data);
-        if (Yii::app()->request->isAjaxRequest) {
-            Yii::app()->clientScript->scriptMap['*.js'] = false;
-            Yii::app()->clientScript->scriptMap['jquery-ui.css'] = false;
-            Yii::app()->clientScript->scriptMap['box.css'] = false;
-            $this->renderPartial('index', $data, false, true);
-        } else {
-            $this->render('index', $data);
-        }
+        loadview('index', 'index', $data);
     }
 
     public function actionSelectCustomer()
     {
-        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
-            Yii::app()->paymentCart->setClientId($_POST['SalePayment']['client_id']);
-            $this->reload();
+        ajaxRequestPost();
+
+        $id = $_POST['SalePayment']['client_id'];
+        $client = Client::model()->findByPk($id);
+
+        if (!$client) {
+            Yii::app()->user->setFlash(TbHtml::ALERT_COLOR_SUCCESS, '<strong>Customer not found in the database</strong>');
+            $this->redirect(Yii::app()->request->urlReferrer);
         } else {
-            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+            Yii::app()->paymentCart->setClientId($client->id);
         }
+
+        $this->reload();
+
     }
 
     public function actionRemoveCustomer()
@@ -246,36 +204,9 @@ class SalePaymentController extends Controller
 
     private function reload()
     {
-
         $data = $this->sessionInfo();
 
         loadview('index','index',$data);
-
-        /*
-        if (Yii::app()->request->isAjaxRequest) {
-
-            $cs = Yii::app()->clientScript;
-            $cs->scriptMap = array(
-                'jquery.js' => false,
-                'bootstrap.js' => false,
-                'jquery.min.js' => false,
-                'bootstrap.notify.js' => false,
-                'bootstrap.bootbox.min.js' => false,
-                'bootstrap.min.js' => false,
-                'jquery-ui.min.js' => false,
-                'jquery.yiigridview.js' => false,
-                'jquery.ba-bbq.min.js' => false,
-                'jquery.stickytableheaders.min.js' => false,
-            );
-
-            Yii::app()->clientScript->scriptMap['*.js'] = false;
-            Yii::app()->clientScript->scriptMap['jquery-ui.css'] = false;
-            Yii::app()->clientScript->scriptMap['box.css'] = false;
-            $this->renderPartial('index', $data, false, true);
-        } else {
-            $this->render('index', $data);
-        }
-        */
 
     }
 
@@ -283,29 +214,32 @@ class SalePaymentController extends Controller
     {
         $model = new SalePayment;
         $data['model'] = $model;
+        $data['model']->date_paid = date('d-m-Y H:i:s');
 
         $data['cust_fullname'] = 'Not Set';
 
         $data['client_id'] = Yii::app()->paymentCart->getClientId();
-        $data['employee_id'] = Yii::app()->session['employeeid'];
-        $data['currency_code'] = Yii::app()->paymentCart->getCurrency();
+        $data['employee_id'] = Yii::app()->session['employee_id'];
+       // $data['currency_code'] = Yii::app()->paymentCart->getCurrency();
         $data['sale_id'] = Yii::app()->paymentCart->getInvoiceId();
 
         $data['currency_type'] = CurrencyType::model()->getActiveCurrency();
-        $data['selected_currency'] = CurrencyType::model()->getSelectedCurrency($data['currency_code']);
+        //$data['selected_currency'] = CurrencyType::model()->getSelectedCurrency($data['currency_code']);
+        //$data['sale_invoice'] = SalePayment::model()->singleInvoiceRawData($data['sale_id'],$data['client_id'],'>');
+        $data['sale_invoice'] = SalePayment::model()->invoiceRawData($data['client_id'],'>');
 
-        $data['sale_invoice'] = SalePayment::model()->singleInvoiceRawData($data['sale_id'],$data['client_id'],'>');
 
+        //$data['sale_invoice'] = array();
 
         if ($data['client_id'] !== null) {
             $data['account'] = Account::model()->getAccountInfo($data['client_id']);
             $data['save_button'] = false;
 
             foreach ($data['account'] as $acc) {
-                if ($acc['currency_code'] == $data['currency_code'] ) {
-                    $data['balance'] =  $acc['current_balance'];
+                //if ($acc['currency_code'] == $data['currency_code'] ) {
+                 //   $data['balance'] =  $acc['current_balance'];
                     $data['cust_fullname'] = $acc['name'];
-                }
+                //}
             }
 
         } else {

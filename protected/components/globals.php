@@ -129,7 +129,8 @@ function ajaxRequest() {
 
 function ajaxRequestPost() {
     if (!Yii::app()->request->isAjaxRequest && !Yii::app()->request->isPostRequest) {
-        throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        //throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        Yii::app()->controller->redirect(Yii::app()->request->referrer);
     }
 }
 

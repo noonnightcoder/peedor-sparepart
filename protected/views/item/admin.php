@@ -44,8 +44,6 @@ $this->breadcrumbs = array(
                     'module_name' => 'Item',
                 ));?>
 
-                &nbsp;&nbsp;
-
                 <?php echo CHtml::activeCheckBox($model, 'item_archived', array(
                     'value' => 1,
                     'uncheckValue' => 0,
@@ -81,6 +79,14 @@ $this->breadcrumbs = array(
                 'dataProvider' => $model->search(),
                 'filter' => $model,
                 'columns' => array(
+                    /*array(
+                        'name' => 'check',
+                        'id' => 'selectedIds',
+                        'value' => '$data->id',
+                        'class' => 'CCheckBoxColumn',
+                        'selectableRows' => '100',
+
+                    ),*/
                     array(
                         'name' => 'item_number',
                         'value' => '$data->status=="1" ? $data->item_number : "<s class=\"red\">  $data->item_number </s>" ',

@@ -191,23 +191,25 @@ class Sale extends CActiveRecord
         return $message;
     }
 
-    public function payment($client_id,$payments,$employee_id,$note='sale')
+    public function payment($client_id,$currency_code,$payment_amount,$employee_id,$date_paid,$note='sale')
     {
         $result=0;
-        foreach ($payments as $payment) {
-            if ($payment["payment_amount"] > 0) {
-                $sql = "SELECT func_payment(:client_id,:currency_code,:payment_amount,:employee_id, :note) sale_id";
-                $result = Yii::app()->db->createCommand($sql)->queryAll(true,
-                    array(
-                        ':client_id' => $client_id,
-                        ':currency_code' => $payment["currency_code"],
-                        ':payment_amount' => $payment["payment_amount"],
-                        ':employee_id' => $employee_id,
-                        ':note' => $note,
-                    )
-                );
-            }
+
+        if ($payment_amount > 0) {
+
+            $sql = "SELECT func_payment(:client_id,:currency_code,:payment_amount,:employee_id,:date_paid, :note) sale_id";
+            $result = Yii::app()->db->createCommand($sql)->queryAll(true,
+                array(
+                    ':client_id' => $client_id,
+                    ':currency_code' => $currency_code,
+                    ':payment_amount' => $payment_amount,
+                    ':employee_id' => $employee_id,
+                    ':date_paid' => $date_paid,
+                    ':note' => $note,
+                )
+            );
         }
+
         return $result;
     }
 

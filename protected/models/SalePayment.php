@@ -38,14 +38,14 @@ class SalePayment extends CActiveRecord
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('payment_amount, note', 'required'),
-            array('payment_amount', 'numerical', 'min'=>1),
+            //array('date_paid', 'required'),
+            array('payment_amount', 'numerical'),
             array('sale_id, payment_id', 'numerical', 'integerOnly' => true),
             array('payment_amount, give_away', 'numerical'),
             array('payment_type', 'length', 'max' => 40),
             array('date_paid, note', 'safe'),
-            array('modified_date', 'default', 'value' => new CDbExpression('NOW()'), 'setOnEmpty' => true, 'on' => 'insert'),
-            array('modified_date', 'default', 'value' => new CDbExpression('NOW()'), 'setOnEmpty' => false, 'on' => 'update'),
+            array('created_at', 'default', 'value' => new CDbExpression('NOW()'), 'setOnEmpty' => true, 'on' => 'insert'),
+            array('created_at', 'default', 'value' => new CDbExpression('NOW()'), 'setOnEmpty' => false, 'on' => 'update'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('id, sale_id, payment_id,payment_type, payment_amount, give_away, date_paid, note, modified_date', 'safe', 'on' => 'search'),
@@ -69,16 +69,30 @@ class SalePayment extends CActiveRecord
      */
     public function attributeLabels()
     {
-        return array(
-            'id' => 'ID',
-            'sale_id' => 'Sale',
-            'payment_type' => 'Payment Type',
-            'payment_amount' => 'Payment Amount',
-            'give_away' => 'Give Away',
-            'date_paid' => 'Date Paid',
-            'note' => 'Note',
-            'modified_date' => 'Modified Date',
-        );
+
+        /*
+        $currency_array = array();
+
+        foreach (CurrencyType::model()->getActiveCurrency() as $currency) {
+            $currency_array = $currency_array +
+            array(
+                'payment_amount' . '[' . $currency->code . ']' => 'Payment Amount ' . $currency->currency_symbol,
+            );
+        }
+        */
+
+        $rule_array = array(
+                'id' => 'ID',
+                'sale_id' => 'Sale',
+                'payment_type' => 'Payment Type',
+                'payment_amount' => 'Payment Amount',
+                'give_away' => 'Give Away',
+                'date_paid' => 'Date Paid',
+                'note' => 'Note',
+            );
+
+
+        return $rule_array;
     }
 
     /**
@@ -354,25 +368,33 @@ class SalePayment extends CActiveRecord
     }
 
     private function invoiceQuery($compare_operator) {
-        return "SELECT sale_id,sale_time,account_name client_name,amount sub_total,
-                0 discount_amount,payment_amount paid,balance,currency_symbol,currency_name
-                FROM v_sale_outstanding
+
+        $sql = "SELECT sale_id,sale_time,account_name client_name,sub_total,
+                discount_amount,paid,balance,currency_symbol,currency_name
+                FROM v_sale_invoice_account
                 WHERE client_id=:client_id
                 AND balance $compare_operator 0
                 ORDER BY sale_id,sale_time";
+
+        return $sql;
+
     }
 
     private function singleInvoiceQuery($compare_operator) {
-        return "SELECT sale_id,sale_time,account_name client_name,amount sub_total,
-                0 discount_amount,payment_amount paid,balance,currency_symbol,currency_name,currency_code
-                FROM v_sale_outstanding
+        $sql = "SELECT sale_id,sale_time,account_name client_name,sub_total,
+                discount_amount,paid,balance,currency_symbol,currency_name,currency_code
+                FROM v_sale_invoice_account
                 WHERE sale_id=:sale_id
                 AND client_id=:client_id
                 AND balance $compare_operator 0
                 ORDER BY sale_id,sale_time";
+
+
+        return $sql;
     }
 
     public function paymentAdd($sale_id, $location_id, $currency_code, $payment_id, $payment_type, $payment_amount, $user_id, $note) {
+
         $sql="SELECT sfunc_payment_add(:sale_id,:location_id,:currency_code,:payment_id,:payment_type,:payment_amount,:user_id,:note) sale_id";
 
         $result = Yii::app()->db->createCommand($sql)->queryAll(true, array(

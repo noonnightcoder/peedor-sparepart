@@ -14,11 +14,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 ));
 ?>
 
-<?php foreach (CurrencyType::model()->getActiveCurrency() as $id => $currency): ?>
+<?php /*foreach (CurrencyType::model()->getActiveCurrency() as $id => $currency): */?><!--
 
         <tr>
             <td colspan="2" style='text-align:right'>
-                <?php echo $form->textFieldControlGroup($model, 'payment_amount', array(
+                <?php /*echo $form->textFieldControlGroup($model, 'payment_amount', array(
                     'value' => '', //$amount_change,
                     'class' => 'input-mini text-right payment-amount-' . $currency->code ,
                     'id' => 'payment_amount_' . $currency->code,
@@ -26,11 +26,11 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
                     'placeholder' => Yii::t('app', 'Payment Amount ' . $currency->currency_symbol),
                     //'prepend' => Yii::app()->settings->get('site', 'currencySymbol'),
                 ));
-                ?>
+                */?>
             </td>
         </tr>
 
-<?php endforeach; ?>
+--><?php /*endforeach; */?>
 
 <?php $this->endWidget(); ?>
 
